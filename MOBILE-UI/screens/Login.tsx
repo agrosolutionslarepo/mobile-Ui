@@ -16,27 +16,37 @@ const Login = () => {
       <ImageBackground
         style={tailwind('absolute inset-0 z-0')} // Estilo para que el background vaya al fondo 
         resizeMode="center"
-        source={require("../assets/fondoLogin.png")}
-      />
+        source={require("../assets/fondoLogin.png")}>
 
-      <Image
-        style={tailwind('')}
-        contentFit="cover"
-        source={require("../assets/agrosolutionsLogo.png")}
-      />
+        <Image
+          style={tailwind('')}
+          contentFit="cover"
+          source={require("../assets/agrosolutionsLogo.png")}
+        />
 
-      <TextInput
-        label="Email"
-        value={text}
-        onChangeText={text => setText(text)}
-      />
-      <TextInput
-        label="Contraseña"
-        value={text}
-        onChangeText={text => setText(text)}
-      />
+        <TextInput
+          label="Email"
+          value={text}
+          onChangeText={text => setText(text)}
+        />
 
+        <TextInput
+          label="Contraseña"
+          value={text}
+          onChangeText={text => setText(text)} 
+        />
 
+        <Button 
+          icon="google" 
+          mode="contained" 
+          onPress={() => console.log('Pressed')}
+          style={tailwind('')}
+        >
+        Continuar con Google
+        </Button>
+
+      </ImageBackground>
+      
       {/* <View style={[styles.loginItem, styles.loginLayout]} />
       <Button
         style={styles.todaviaNoTenes}
@@ -81,7 +91,7 @@ const Login = () => {
           ingresar
         </Button>
         <Text style={[styles.ingresar, styles.frame5Layout]}>Ingresar</Text>
-      </View> */}
+      </View> */ } 
     </View>
   );
 };
