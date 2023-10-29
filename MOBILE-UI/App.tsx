@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+const Stack = createNativeStackNavigator();
+import * as React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import Login from "./screens/Login";
 
-export default function App() {
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View, Text, Pressable, TouchableOpacity } from "react-native";
+
+const App = () => {
+  const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <NavigationContainer>
+        {hideSplashScreen ? (
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        ) : null}
+      </NavigationContainer>
+    </>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+};
+export default App;
