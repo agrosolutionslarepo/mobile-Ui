@@ -9,10 +9,16 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~48.0.18",
+    "@expo/webpack-config": "^19.0.1",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "expo": "^50.0.14",
     "expo-status-bar": "~1.4.4",
     "react": "18.2.0",
-    "react-native": "0.71.8"
+    "react-dom": "18.2.0",
+    "react-native": "0.71.8",
+    "react-native-modalize": "^2.1.1",
+    "react-native-web": "~0.18.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
