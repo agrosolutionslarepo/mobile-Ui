@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const HomeScreen: React.FC = () => {
+const ParcelasScreen: React.FC = () => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Home screen</Text>
+      <Text>Parcelas screen</Text>
     </View>
   );
 }
 
-export default HomeScreen;
+export default ParcelasScreen;

@@ -1,8 +1,12 @@
-// Header.tsx
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Modal, Text, Animated, TouchableWithoutFeedback, Button, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Modal, Text, Animated, TouchableWithoutFeedback, ScrollView } from 'react-native';
 
-const Header: React.FC = () => {
+
+interface HeaderProps {
+  onMenuClick: (menuItem: string) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [leftMenuVisible, setLeftMenuVisible] = useState(false);
   const [rightMenuVisible, setRightMenuVisible] = useState(false);
 
@@ -77,7 +81,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('home');
+                }}
                 style={styles.menuButton}
               >
                 <Text style={styles.menuButtonText}>Home</Text>
@@ -86,7 +93,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('parcelas');
+                }}
                 style={styles.menuButton}
               >
                 <Text style={styles.menuButtonText}>Parcelas</Text>
@@ -95,7 +105,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('calendar');
+                }}
                 style={styles.menuButton}
               >
                 <Text style={styles.menuButtonText}>Calendario</Text>
@@ -104,7 +117,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('semillas');
+                }}
                 style={styles.menuButton}
               >
                 <Text style={styles.menuButtonText}>Semillas</Text>
@@ -113,7 +129,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('cosechas');
+                }}
                 style={styles.menuButton}
               >
                 <Text style={styles.menuButtonText}>Cosechas</Text>
@@ -122,7 +141,10 @@ const Header: React.FC = () => {
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
-                onPress={() => console.log("Opción seleccionada")}
+                onPress={() => {
+                  closeModal();
+                  onMenuClick('login');
+                }}
                 style={styles.menuButtonLogOut}
               >
                 <Text style={styles.menuButtonLogOutText}>Log out</Text>
