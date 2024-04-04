@@ -7,6 +7,8 @@ import SemillasScreen from './src/screens/semillasScreens/SemillasScreen';
 import ParcelasScreen from './src/screens/parcelasScreens/ParcelasScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 import CosechasScreen from './src/screens/cosechasScreens/CosechasScreen';
+import RegisterScreen from './src/screens/userScreens/RegisterScreen';
+import RecoverScreen from './src/screens/userScreens/RecoverScreen';
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState('login');
@@ -29,15 +31,21 @@ const App: React.FC = () => {
         return <CosechasScreen />;
 
       case 'login':
-        return <LoginScreen  setActiveContent={setActiveContent}/>;
+        return <LoginScreen setActiveContent={setActiveContent} />;
+
+      case 'register':
+        return <RegisterScreen setActiveContent={setActiveContent} />;
+
+      case 'recover':
+        return <RecoverScreen setActiveContent={setActiveContent} />;
 
       default:
-        return <LoginScreen  setActiveContent={setActiveContent}/>;
+        return <LoginScreen setActiveContent={setActiveContent} />;
     }
   };
 
   const renderHeader = () => {
-    if (activeContent !== 'login') {
+    if (activeContent !== 'login' && activeContent !== 'register' && activeContent !== 'recover') {
       return <Header onMenuClick={(menuItem) => setActiveContent(menuItem)} />;
     }
     return null;

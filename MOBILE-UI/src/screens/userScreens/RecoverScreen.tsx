@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
 
-const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+const RecoverScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
     const [mail, setMail] = useState('');
 
-    const handleRegister = () => {
-        if (username !== '' && password !== '' && mail !== '') {
+    const handleRecover = () => {
+        if (mail !== '') {
             setActiveContent('home');
         } else {
             console.log('Por favor, complete ambos campos');
@@ -27,22 +25,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     resizeMode="contain"
                 />
 
-                <Text style={styles.textForm}>Usuario</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder=""
-                    value={username}
-                    onChangeText={setUsername}
-                />
-
-                <Text style={styles.textForm}>Contraseña</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder=""
-                    secureTextEntry={true}
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <Text style={styles.recoverText}>¡Recupera tu contraseña!</Text>
 
                 <Text style={styles.textForm}>E-Mail</Text>
                 <TextInput
@@ -52,8 +35,8 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     onChangeText={setMail}
                 />
 
-                <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                    <Text style={styles.buttonText}>Crear cuenta</Text>
+                <TouchableOpacity style={styles.button} onPress={handleRecover}>
+                    <Text style={styles.buttonText}>Enviar</Text>
                 </TouchableOpacity>
 
             </View>
@@ -79,6 +62,14 @@ const styles = StyleSheet.create({
         width: 250,
         height: 150,
         marginBottom: 15
+    },
+
+    recoverText: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#F9F9F9'
     },
 
     textForm: {
@@ -131,4 +122,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default RegisterScreen;
+export default RecoverScreen;

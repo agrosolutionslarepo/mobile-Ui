@@ -13,6 +13,14 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     }
   };
 
+  const goToRegisterScreen = () => {
+    setActiveContent('register')
+  }
+
+  const goToRecoverScreen = () => {
+    setActiveContent('recover')
+  }
+
   return (
     <ImageBackground
       source={require('../../assets/img/backgroundLogIn.png')}
@@ -54,13 +62,13 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
           <Text style={styles.buttonText}>Ingresar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.recoverPasswordButton} >
+        <TouchableOpacity style={styles.recoverPasswordButton} onPress={goToRecoverScreen} >
           <Text style={styles.recoverPasswordText}>Olvidé mi contraseña</Text>
         </TouchableOpacity>
 
         <Text style={styles.registerText}>¿Todavia no tenes cuenta?</Text>
 
-        <TouchableOpacity style={styles.registerButton} >
+        <TouchableOpacity style={styles.registerButton} onPress={goToRegisterScreen}>
           <Text style={styles.registerButtonText}>Registrarse</Text>
         </TouchableOpacity>
 
