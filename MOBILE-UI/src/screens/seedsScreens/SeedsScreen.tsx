@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const SemillasScreen: React.FC = () => {
+const SeedsScreen: React.FC = () => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Semillas screen</Text>
@@ -9,4 +9,4 @@ const SemillasScreen: React.FC = () => {
   );
 }
 
-export default SemillasScreen;
+export default SeedsScreen;

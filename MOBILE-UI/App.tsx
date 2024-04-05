@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import Header from './src/common/Header';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/userScreens/LoginScreen';
-import SemillasScreen from './src/screens/semillasScreens/SemillasScreen';
-import ParcelasScreen from './src/screens/parcelasScreens/ParcelasScreen';
+import SemillasScreen from './src/screens/seedsScreens/SeedsScreen';
+import ParcelasScreen from './src/screens/plotsScreens/PlotsScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
-import CosechasScreen from './src/screens/cosechasScreens/CosechasScreen';
+import CosechasScreen from './src/screens/cropsScreens/CropsScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
 
@@ -18,16 +18,16 @@ const App: React.FC = () => {
       case 'home':
         return <HomeScreen />;
 
-      case 'parcelas':
+      case 'plots':
         return <ParcelasScreen />;
 
       case 'calendar':
         return <CalendarScreen />;
 
-      case 'semillas':
+      case 'seeds':
         return <SemillasScreen />;
 
-      case 'cosechas':
+      case 'crops':
         return <CosechasScreen />;
 
       case 'login':

@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Modal } from 'react-native';
 
 const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [mail, setMail] = useState('');
+    const [showAlertEmpty, setShowAlertEmpty] = useState(false); // Estado para controlar si se muestra la alerta de falta de campos
+    const [showAlertSuccess, setShowAlertSuccess] = useState(false); // Estado para controlar si se muestra la alerta de registro de cuenta exitoso
+    const [showAlertFail, setShowAlertFail] = useState(false); // Estado para controlar si se muestra la alerta de registro de cuenta fallido
 
     const handleRegister = () => {
-        if (username !== '' && password !== '' && mail !== '') {
-            setActiveContent('home');
+        if (username !== '' && password !== '' && mail !== '' && username !== 'error') {
+            setShowAlertSuccess(true); // Mostrar alerta de registro de cuenta  exitoso
+        } else if (username == 'error') {
+            setShowAlertFail(true); // Mostrar alerta de registro de cuenta fallido
         } else {
-            console.log('Por favor, complete ambos campos');
+            setShowAlertEmpty(true); // Mostrar alerta de falta de campos
         }
     };
+
+    const goToLoginScreen = () => {
+        setActiveContent('login')
+    }
+
+    const goToHomeScreen = () => {
+        setActiveContent('home')
+    }
 
     return (
         <ImageBackground
@@ -56,6 +69,84 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     <Text style={styles.buttonText}>Crear cuenta</Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.backButton} onPress={goToLoginScreen}>
+
+                    <Image
+                        source={require('../../assets/img/arrowLeft.png')}
+                        style={styles.backImage}
+                        resizeMode="contain"
+                    />
+
+                    <Text style={styles.backButtonText}>Volver</Text>
+                </TouchableOpacity>
+
+                {/* Modal para la alerta de falta de campo*/}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertEmpty}
+                    onRequestClose={() => {
+                        setShowAlertEmpty(false);
+                    }}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertTitle}>Campos incompletos</Text>
+                            <Text style={styles.alertMessage}>Por favor, complete todos los campos.</Text>
+                            <TouchableOpacity
+                                onPress={() => setShowAlertEmpty(false)}
+                                style={styles.alertButton}
+                            >
+                                <Text style={styles.alertButtonText}>Volver</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Modal para la alerta de registro de cuenta exitoso*/}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertSuccess}
+                    onRequestClose={() => {
+                        setShowAlertSuccess(false);
+                    }}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertTitle}>Cuenta creada con exito</Text>
+                            <TouchableOpacity
+                                onPress={goToHomeScreen}
+                                style={styles.alertButton}
+                            >
+                                <Text style={styles.alertButtonText}>Continuar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Modal para la alerta de registro de cuenta fallido */}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertFail}
+                    onRequestClose={() => {
+                        setShowAlertFail(false);
+                    }}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertTitle}>Oh no! Algo salio mal!</Text>
+                            <Text style={styles.alertMessage}>Compruebe la información de los campos e intentelo nuevamente.</Text>
+                            <TouchableOpacity
+                                onPress={() => setShowAlertFail(false)}
+                                style={styles.alertButton}
+                            >
+                                <Text style={styles.alertButtonText}>Volver</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         </ImageBackground>
     );
@@ -126,6 +217,65 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontWeight: 'bold',
+    },
+
+    backButton: {
+        marginTop: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    backImage: {
+        width: 16,
+        height: 16,
+        marginRight: 8
+    },
+
+    backButtonText: {
+        color: '#FF8BFA',
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+
+    // Estilos para las alertas
+    modalView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    alertView: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    alertTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+
+    alertMessage: {
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: 'center'
+    },
+
+    alertButton: {
+        backgroundColor: '#A01BAC',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+    },
+
+    alertButtonText: {
+        fontSize: 18,
+        color: 'white',
         fontWeight: 'bold',
     },
 

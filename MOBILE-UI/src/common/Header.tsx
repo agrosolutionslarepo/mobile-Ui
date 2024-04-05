@@ -95,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <TouchableOpacity
                 onPress={() => {
                   closeModal();
-                  onMenuClick('parcelas');
+                  onMenuClick('plots');
                 }}
                 style={styles.menuButton}
               >
@@ -119,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <TouchableOpacity
                 onPress={() => {
                   closeModal();
-                  onMenuClick('semillas');
+                  onMenuClick('seeds');
                 }}
                 style={styles.menuButton}
               >
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <TouchableOpacity
                 onPress={() => {
                   closeModal();
-                  onMenuClick('cosechas');
+                  onMenuClick('crops');
                 }}
                 style={styles.menuButton}
               >

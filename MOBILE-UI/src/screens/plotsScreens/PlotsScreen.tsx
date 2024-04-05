@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const CosechasScreen: React.FC = () => {
+const PlotsScreen: React.FC = () => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Cosechas screen</Text>
+      <Text>Parcelas screen</Text>
     </View>
   );
 }
 
-export default CosechasScreen;
+export default PlotsScreen;
