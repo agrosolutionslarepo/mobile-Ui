@@ -1,12 +1,251 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
 
-const SeedsScreen: React.FC = () => {
+const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar semilla
+
+  const deleteSeed = () => {
+    setShowAlertDelete(true);
+  };
+
+  const goToAddSeedScreen = () => {
+    setActiveContent('addSeed');
+  };
+
+  const goToViewSeedScreen = () => {
+    setActiveContent('viewSeed');
+  };
+
+  const goToEditSeedScreen = () => {
+    setActiveContent('editSeed');
+  };
+
+
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Semillas screen</Text>
+    <View style={styles.seedsContainer}>
+      <Text style={styles.seedsTitle}>Inventario<br />semillas</Text>
+      <TouchableOpacity style={styles.addSeedButton} onPress={goToAddSeedScreen}>
+        <Image source={require('../../assets/img/add.png')}
+          style={styles.addSeedImage}
+          resizeMode="contain" />
+      </TouchableOpacity>
+
+      <View style={styles.seedsListContainer}>
+        {[...Array(10).keys()].map(index => (
+          <TouchableOpacity style={styles.seedItemContainer} onPress={goToViewSeedScreen}>
+            <Image
+              source={require('../../assets/img/seed.png')}
+              style={styles.seedItemImage}
+              resizeMode="contain"
+            />
+
+            <View style={styles.seedTextContainer}>
+              <Text style={styles.seedName}>Nombre de Semilla</Text>
+              <Text style={styles.seedText}>------------</Text>
+            </View>
+
+
+            <TouchableOpacity onPress={goToEditSeedScreen}>
+              <Image
+                source={require('../../assets/img/edit.png')}
+                style={styles.seedEditImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={deleteSeed}>
+              <Image
+                source={require('../../assets/img/delete.png')}
+                style={styles.seedDeleteImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Modal para la alerta de eliminar semilla*/}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showAlertDelete}
+        onRequestClose={() => {
+          setShowAlertDelete(false);
+        }}
+      >
+        <View style={styles.modalView}>
+          <View style={styles.alertView}>
+            <Text style={styles.alertMessage}>¿Esta seguro que quiere<br />eliminar esta semilla?</Text>
+
+            <View style={styles.alertButtonsContainer}>
+              <TouchableOpacity
+                onPress={() => setShowAlertDelete(false)}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>Si</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setShowAlertDelete(false)}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+
+  seedsContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#FFFCE3'
+  },
+
+  seedsTitle: {
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center'
+  },
+
+  addSeedButton: {
+    marginTop: 10,
+    marginBottom: 20,
+
+    backgroundColor: '#D9D9D9',
+    width: '90%',
+    height: 50,
+
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    borderRadius: 25
+
+  },
+
+  addSeedImage: {
+    width: 32,
+    height: 36
+  },
+
+  seedsListContainer: {
+    width: '100%',
+  },
+
+  seedItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    width: '90%',
+
+    marginLeft: '5%',
+    marginRight: '5%',
+
+    marginBottom: 20,
+
+    paddingTop: 20,
+    paddingBottom: 20,
+
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: '#96947B',
+
+    shadowColor: '#96947B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+
+  seedItemImage: {
+    width: 64,
+    height: 64,
+    marginRight: 10
+  },
+
+  seedTextContainer: {
+    width: '50%'
+  },
+
+  seedName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000000'
+  },
+
+  seedText: {
+
+  },
+
+  seedEditImage: {
+    width: 32,
+    height: 32,
+    marginLeft: 10
+  },
+
+  seedDeleteImage: {
+    width: 32,
+    height: 32,
+    marginLeft: 10
+  },
+
+  // Estilos para las alertas
+  modalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  alertView: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  alertTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+
+  alertMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+
+  alertButtonsContainer: {
+    flexDirection: 'row',
+    
+  },
+
+  alertButton: {
+    backgroundColor: '#A01BAC',
+    borderRadius: 20,
+    marginLeft: 10,
+
+    paddingLeft: 20,
+    paddingRight: 20
+  },
+
+  alertButtonText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+})
 
 export default SeedsScreen;

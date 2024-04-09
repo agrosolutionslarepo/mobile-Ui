@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
+
+import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
+import AddSeedScreen from './src/screens/seedsScreens/addSeedScreen';
+
+import PlotsScreen from './src/screens/plotsScreens/PlotsScreen';
+
+import CalendarScreen from './src/screens/CalendarScreen';
+
+import CropsScreen from './src/screens/cropsScreens/CropsScreen';
+
 import Header from './src/common/Header';
 import HomeScreen from './src/screens/HomeScreen';
+
 import LoginScreen from './src/screens/userScreens/LoginScreen';
-import SemillasScreen from './src/screens/seedsScreens/SeedsScreen';
-import ParcelasScreen from './src/screens/plotsScreens/PlotsScreen';
-import CalendarScreen from './src/screens/CalendarScreen';
-import CosechasScreen from './src/screens/cropsScreens/CropsScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
+
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState('login');
@@ -19,16 +27,19 @@ const App: React.FC = () => {
         return <HomeScreen />;
 
       case 'plots':
-        return <ParcelasScreen />;
+        return <PlotsScreen />;
 
       case 'calendar':
         return <CalendarScreen />;
 
       case 'seeds':
-        return <SemillasScreen />;
+        return <SeedsScreen setActiveContent={setActiveContent}/>;
+
+      case 'addSeed':
+        return <AddSeedScreen setActiveContent={setActiveContent}/>;
 
       case 'crops':
-        return <CosechasScreen />;
+        return <CropsScreen />;
 
       case 'login':
         return <LoginScreen setActiveContent={setActiveContent} />;
