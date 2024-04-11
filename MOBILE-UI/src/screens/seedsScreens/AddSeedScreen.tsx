@@ -13,14 +13,14 @@ const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: strin
         setShowAlertCancel(true);
     };
 
-    const goToSeedScreen = () => {
+    const goToSeedsScreen = () => {
         setActiveContent('seeds');
     };
 
 
     return (
         <View style={styles.seedContainer}>
-            <Text style={styles.seedsTitle}>Agregar semilla</Text>
+            <Text style={styles.seedTitle}>Agregar semilla</Text>
 
             <View style={styles.formContainer}>
                 <TextInput
@@ -55,14 +55,11 @@ const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: strin
 
             </View>
 
-            {/* Modal para la alerta de agregar semilla*/}
+            {/* Modal para la alerta de ingreso de semilla exitoso*/}
             <Modal
                 animationType="fade"
                 transparent={true}
                 visible={showAlertAdd}
-                onRequestClose={() => {
-                    setShowAlertAdd(false);
-                }}
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
@@ -70,7 +67,7 @@ const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: strin
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedScreen}
+                                onPress={goToSeedsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Continuar</Text>
@@ -85,9 +82,6 @@ const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: strin
                 animationType="fade"
                 transparent={true}
                 visible={showAlertCancel}
-                onRequestClose={() => {
-                    setShowAlertAdd(false);
-                }}
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
@@ -95,7 +89,7 @@ const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: strin
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedScreen}
+                                onPress={goToSeedsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Si</Text>
@@ -125,7 +119,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
 
-    seedsTitle: {
+    seedTitle: {
         color: '#000000',
         fontSize: 20,
         fontWeight: 'bold',
@@ -143,7 +137,7 @@ const styles = StyleSheet.create({
     input: {
         width: '80%',
 
-        height: 35,
+        height: 40,
         padding: 10,
 
         marginLeft: '10%',
@@ -155,6 +149,7 @@ const styles = StyleSheet.create({
 
         fontSize:20,
         fontWeight:'bold',
+        textAlign:'center',
 
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -232,7 +227,7 @@ const styles = StyleSheet.create({
     },
 
     alertView: {
-        backgroundColor: 'white',
+        backgroundColor: '#FFFCE3',
         padding: 20,
         borderRadius: 10,
         alignItems: 'center',

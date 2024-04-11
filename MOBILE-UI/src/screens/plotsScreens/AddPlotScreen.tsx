@@ -1,73 +1,73 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
 
-const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
+const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+    const [showAlertAdd, setShowAlertAdd] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
     const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
 
-    const editSeed = () => {
-        setShowAlertEdit(true);
+    const addPlot = () => {
+        setShowAlertAdd(true);
     };
 
-    const cancelSeedEdit = () => {
+    const cancelPlotAdd = () => {
         setShowAlertCancel(true);
     };
 
-    const goToSeedsScreen = () => {
-        setActiveContent('seeds');
+    const goToPlotsScreen = () => {
+        setActiveContent('plots');
     };
 
 
     return (
-        <View style={styles.seedContainer}>
-            <Text style={styles.seedTitle}>Modificar semilla</Text>
+        <View style={styles.plotsContainer}>
+            <Text style={styles.plotTitle}>Agregar parcela</Text>
 
             <View style={styles.formContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Nombre Semilla"
+                    placeholder="Nombre de parcela"
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Parcela"
+                    placeholder="Tamaño"
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Día de cosecha"
+                    placeholder="Ubicación"
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Día de siembra"
+                    placeholder="Abono"
                 />
 
                 <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelSeedEdit}>
+                    <TouchableOpacity style={styles.button} onPress={cancelPlotAdd}>
                         <Text style={styles.buttonText}>Cancelar</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={editSeed}>
-                        <Text style={styles.buttonText}>Guardar</Text>
+                    <TouchableOpacity style={styles.cancelButton} onPress={addPlot}>
+                        <Text style={styles.buttonText}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
 
             </View>
 
-            {/* Modal para la alerta de modificación de semilla exitoso*/}
+            {/* Modal para la alerta de agregar parcela exitoso*/}
             <Modal
                 animationType="fade"
                 transparent={true}
-                visible={showAlertEdit}
+                visible={showAlertAdd}
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Modificación de semilla exitoso</Text>
+                        <Text style={styles.alertMessage}>Ingreso de parcela exitoso</Text>
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedsScreen}
+                                onPress={goToPlotsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Continuar</Text>
@@ -77,7 +77,7 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 </View>
             </Modal>
 
-            {/* Modal para la alerta de cancelar la edición de una semilla */}
+            {/* Modal para la alerta de cancelar el ingreso de una nueva parcela */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -85,11 +85,11 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta semilla?</Text>
+                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />el ingreso de esta parcela?</Text>
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedsScreen}
+                                onPress={goToPlotsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Si</Text>
@@ -111,7 +111,7 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
 const styles = StyleSheet.create({
 
-    seedContainer: {
+    plotsContainer: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
 
-    seedTitle: {
+    plotTitle: {
         color: '#000000',
         fontSize: 20,
         fontWeight: 'bold',
@@ -208,16 +208,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    seedName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000000'
-    },
-
-    seedText: {
-
-    },
-
     // Estilos para las alertas
     modalView: {
         flex: 1,
@@ -266,4 +256,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default EditSeedScreen;
+export default AddSeedScreen;

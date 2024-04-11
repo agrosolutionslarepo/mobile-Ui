@@ -1,28 +1,28 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 
-const ViewSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+const ViewPlotScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
 
-    const goToSeedsScreen = () => {
-        setActiveContent('seeds');
+    const goToPlotsScreen = () => {
+        setActiveContent('plots');
     };
 
 
     return (
-        <View style={styles.seedContainer}>
-            <Text style={styles.seedTitle}>Semilla</Text>
+        <View style={styles.plotContainer}>
+            <Text style={styles.plotTitle}>Parcela</Text>
 
             <View style={styles.formContainer}>
 
-                <Text style={styles.seedText}>Nombre Semilla</Text>
+                <Text style={styles.plotText}>Nombre de parcela</Text>
 
-                <Text style={styles.seedText}>Parcela</Text>
+                <Text style={styles.plotText}>Tamaño</Text>
 
-                <Text style={styles.seedText}>Día de cosecha</Text>
+                <Text style={styles.plotText}>Ubicación</Text>
 
-                <Text style={styles.seedText}>Día de siembra</Text>
+                <Text style={styles.plotText}>Abono</Text>
 
-                <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
+                <TouchableOpacity style={styles.button} onPress={goToPlotsScreen}>
                     <Text style={styles.buttonText}>Volver</Text>
                 </TouchableOpacity>
 
@@ -33,7 +33,7 @@ const ViewSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
 const styles = StyleSheet.create({
 
-    seedContainer: {
+    plotContainer: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
 
-    seedTitle: {
+    plotTitle: {
         color: '#000000',
         fontSize: 20,
         fontWeight: 'bold',
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
 
-    seedText: {
+    plotText: {
         width: '80%',
 
         height: 40,
@@ -112,4 +112,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default ViewSeedScreen;
+export default ViewPlotScreen;

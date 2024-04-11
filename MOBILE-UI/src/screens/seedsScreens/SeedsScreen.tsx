@@ -48,7 +48,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             <TouchableOpacity onPress={goToEditSeedScreen}>
               <Image
                 source={require('../../assets/img/edit.png')}
-                style={styles.seedEditImage}
+                style={styles.editImage}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -56,7 +56,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             <TouchableOpacity onPress={deleteSeed}>
               <Image
                 source={require('../../assets/img/delete.png')}
-                style={styles.seedDeleteImage}
+                style={styles.deleteImage}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -70,9 +70,6 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
         animationType="fade"
         transparent={true}
         visible={showAlertDelete}
-        onRequestClose={() => {
-          setShowAlertDelete(false);
-        }}
       >
         <View style={styles.modalView}>
           <View style={styles.alertView}>
@@ -188,13 +185,13 @@ const styles = StyleSheet.create({
 
   },
 
-  seedEditImage: {
+  editImage: {
     width: 32,
     height: 32,
     marginLeft: 10
   },
 
-  seedDeleteImage: {
+  deleteImage: {
     width: 32,
     height: 32,
     marginLeft: 10
@@ -209,7 +206,7 @@ const styles = StyleSheet.create({
   },
 
   alertView: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFCE3',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',

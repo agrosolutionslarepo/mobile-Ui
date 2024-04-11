@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
-import AddSeedScreen from './src/screens/seedsScreens/addSeedScreen';
+import AddSeedScreen from './src/screens/seedsScreens/AddSeedScreen';
+import ViewSeedScreen from './src/screens/seedsScreens/ViewSeedScreen';
+import EditSeedScreen from './src/screens/seedsScreens/EditSeedScreen';
 
 import PlotsScreen from './src/screens/plotsScreens/PlotsScreen';
+import AddPlotScreen from './src/screens/plotsScreens/AddPlotScreen';
+import ViewPlotScreen from './src/screens/plotsScreens/ViewPlotScreen';
+import EditPlotScreen from './src/screens/plotsScreens/EditPlotScreen';
 
 import CalendarScreen from './src/screens/CalendarScreen';
 
@@ -26,21 +31,44 @@ const App: React.FC = () => {
       case 'home':
         return <HomeScreen />;
 
-      case 'plots':
-        return <PlotsScreen />;
-
       case 'calendar':
         return <CalendarScreen />;
 
+
+      {/*Plots screens*/}
+      case 'plots':
+        return <PlotsScreen setActiveContent={setActiveContent} />;
+
+      case 'addPlot':
+        return <AddPlotScreen setActiveContent={setActiveContent} />;
+
+      case 'editPlot':
+        return <EditPlotScreen setActiveContent={setActiveContent} />;
+
+      case 'viewPlot':
+        return <ViewPlotScreen setActiveContent={setActiveContent} />;
+
+
+      {/*Seeds screens*/}
       case 'seeds':
-        return <SeedsScreen setActiveContent={setActiveContent}/>;
+        return <SeedsScreen setActiveContent={setActiveContent} />;
 
       case 'addSeed':
-        return <AddSeedScreen setActiveContent={setActiveContent}/>;
+        return <AddSeedScreen setActiveContent={setActiveContent} />;
 
+      case 'viewSeed':
+        return <ViewSeedScreen setActiveContent={setActiveContent} />;
+
+      case 'editSeed':
+        return <EditSeedScreen setActiveContent={setActiveContent} />;
+
+
+      {/*Crops screens*/}
       case 'crops':
         return <CropsScreen />;
 
+
+      {/*User screens*/}
       case 'login':
         return <LoginScreen setActiveContent={setActiveContent} />;
 

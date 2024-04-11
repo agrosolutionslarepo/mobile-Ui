@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
 
   alertView: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFCE3',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
