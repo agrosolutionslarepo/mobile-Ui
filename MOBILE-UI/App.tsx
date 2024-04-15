@@ -14,6 +14,9 @@ import EditPlotScreen from './src/screens/plotsScreens/EditPlotScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 
 import CropsScreen from './src/screens/cropsScreens/CropsScreen';
+import AddCropScreen from './src/screens/cropsScreens/AddCropScreen';
+import ViewCropScreen from './src/screens/cropsScreens/ViewCropScreen';
+import EditCropScreen from './src/screens/cropsScreens/EditCropScreen';
 
 import Header from './src/common/Header';
 import HomeScreen from './src/screens/HomeScreen';
@@ -35,7 +38,7 @@ const App: React.FC = () => {
         return <CalendarScreen />;
 
 
-      {/*Plots screens*/}
+      {/*Plots screens*/ }
       case 'plots':
         return <PlotsScreen setActiveContent={setActiveContent} />;
 
@@ -49,26 +52,36 @@ const App: React.FC = () => {
         return <ViewPlotScreen setActiveContent={setActiveContent} />;
 
 
-      {/*Seeds screens*/}
+      {/*Seeds screens*/ }
       case 'seeds':
         return <SeedsScreen setActiveContent={setActiveContent} />;
 
       case 'addSeed':
         return <AddSeedScreen setActiveContent={setActiveContent} />;
+        
+      case 'editSeed':
+        return <EditSeedScreen setActiveContent={setActiveContent} />;
 
       case 'viewSeed':
         return <ViewSeedScreen setActiveContent={setActiveContent} />;
 
-      case 'editSeed':
-        return <EditSeedScreen setActiveContent={setActiveContent} />;
 
 
-      {/*Crops screens*/}
+      {/*Crops screens*/ }
       case 'crops':
-        return <CropsScreen />;
+        return <CropsScreen setActiveContent={setActiveContent} />;
+
+      case 'addCrop':
+        return <AddCropScreen setActiveContent={setActiveContent} />;
+
+      case 'editCrop':
+        return <EditCropScreen setActiveContent={setActiveContent} />;
+
+      case 'viewCrop':
+        return <ViewCropScreen setActiveContent={setActiveContent} />;
 
 
-      {/*User screens*/}
+      {/*User screens*/ }
       case 'login':
         return <LoginScreen setActiveContent={setActiveContent} />;
 

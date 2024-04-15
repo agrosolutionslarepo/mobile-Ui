@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
 
 const EditPlotScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
-    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
+    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de editar parcela
+    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de editar parcela
 
     const editPlot = () => {
         setShowAlertEdit(true);

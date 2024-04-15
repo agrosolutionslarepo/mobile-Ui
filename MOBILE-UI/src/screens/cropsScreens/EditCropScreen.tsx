@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
 
-const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de editar semilla
-    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de editar semilla
+const EditCropScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de editar cosecha
+    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de editar cosecha
 
-    const editSeed = () => {
+    const editCrop = () => {
         setShowAlertEdit(true);
     };
 
-    const cancelSeedEdit = () => {
+    const cancelCropEdit = () => {
         setShowAlertCancel(true);
     };
 
-    const goToSeedsScreen = () => {
-        setActiveContent('seeds');
+    const goToCropsScreen = () => {
+        setActiveContent('crops');
     };
 
 
     return (
-        <View style={styles.seedContainer}>
-            <Text style={styles.seedTitle}>Modificar semilla</Text>
+        <View style={styles.cropContainer}>
+            <Text style={styles.cropTitle}>Modificar cosecha</Text>
 
             <View style={styles.formContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Nombre Semilla"
+                    placeholder="Nombre de cosecha"
                 />
 
                 <TextInput
@@ -35,27 +35,27 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Día de cosecha"
+                    placeholder="Semilla"
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Día de siembra"
+                    placeholder="Día de cosecha"
                 />
 
                 <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelSeedEdit}>
+                    <TouchableOpacity style={styles.button} onPress={cancelCropEdit}>
                         <Text style={styles.buttonText}>Cancelar</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={editSeed}>
+                    <TouchableOpacity style={styles.cancelButton} onPress={editCrop}>
                         <Text style={styles.buttonText}>Guardar</Text>
                     </TouchableOpacity>
                 </View>
 
             </View>
 
-            {/* Modal para la alerta de modificación de semilla exitoso*/}
+            {/* Modal para la alerta de modificación de cosecha exitoso*/}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -63,11 +63,11 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Modificación de semilla exitoso</Text>
+                        <Text style={styles.alertMessage}>Modificación de cosecha exitoso</Text>
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedsScreen}
+                                onPress={goToCropsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Continuar</Text>
@@ -77,7 +77,7 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 </View>
             </Modal>
 
-            {/* Modal para la alerta de cancelar la edición de una semilla */}
+            {/* Modal para la alerta de cancelar la edición de una cosecha */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -85,11 +85,11 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta semilla?</Text>
+                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta cosecha?</Text>
 
                         <View style={styles.alertButtonsContainer}>
                             <TouchableOpacity
-                                onPress={goToSeedsScreen}
+                                onPress={goToCropsScreen}
                                 style={styles.alertButton}
                             >
                                 <Text style={styles.alertButtonText}>Si</Text>
@@ -111,7 +111,7 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
 const styles = StyleSheet.create({
 
-    seedContainer: {
+    cropContainer: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
 
-    seedTitle: {
+    cropTitle: {
         color: '#000000',
         fontSize: 20,
         fontWeight: 'bold',
@@ -266,4 +266,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default EditSeedScreen;
+export default EditCropScreen;

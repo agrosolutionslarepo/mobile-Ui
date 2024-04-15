@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
 
 const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar semilla
+  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar parcela
 
   const deleteSeed = () => {
     setShowAlertDelete(true);
