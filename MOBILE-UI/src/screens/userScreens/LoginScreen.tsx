@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Alert, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Modal } from 'react-native';
 
 const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [username, setUsername] = useState('');

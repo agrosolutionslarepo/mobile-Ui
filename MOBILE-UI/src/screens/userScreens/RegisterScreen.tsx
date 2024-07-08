@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Modal } from 'react-native';
 
 const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+    const [name, setName] = useState('');
+    const [lastname, setLastname] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [mail, setMail] = useState('');
@@ -10,7 +12,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     const [showAlertFail, setShowAlertFail] = useState(false); // Estado para controlar si se muestra la alerta de registro de cuenta fallido
 
     const handleRegister = () => {
-        if (username !== '' && password !== '' && mail !== '' && username !== 'error') {
+        if (name !== "" && lastname!=="" && username !== '' && password !== '' && mail !== '' && username !== 'error') {
             setShowAlertSuccess(true); // Mostrar alerta de registro de cuenta  exitoso
         } else if (username == 'error') {
             setShowAlertFail(true); // Mostrar alerta de registro de cuenta fallido
@@ -38,6 +40,22 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     source={require('../../assets/img/logoNew.png')}
                     style={styles.logo}
                     resizeMode="contain"
+                />
+
+                <Text style={styles.textForm}>Nombre</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder=""
+                    value={name}
+                    onChangeText={setName}
+                />
+
+                <Text style={styles.textForm}>Apellido</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder=""
+                    value={lastname}
+                    onChangeText={setLastname}
                 />
 
                 <Text style={styles.textForm}>Usuario</Text>
