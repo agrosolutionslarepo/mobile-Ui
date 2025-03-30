@@ -21,13 +21,28 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
   const [showAlertEmpty, setShowAlertEmpty] = useState(false);
   const [showAlertFail, setShowAlertFail] = useState(false);
+  const [showAlertEmpresaCodigo, setShowAlertEmpresaCodigo] = useState(false);
+  const [showSuccessFinal, setShowSuccessFinal] = useState(false);
+
   const [showEmpresaModal, setShowEmpresaModal] = useState(false);
   const [tipoRegistro, setTipoRegistro] = useState<'empresa' | 'codigo' | null>(null);
   const [empresaName, setEmpresaName] = useState('');
   const [codigoInvitacion, setCodigoInvitacion] = useState('');
 
+  const [erroresCampos, setErroresCampos] = useState<{ [key: string]: boolean }>({});
+
   const validarDatos = () => {
-    if (!name || !lastname || !username || !password || !mail || !birthdate) {
+    const errores: any = {};
+    if (!name.trim()) errores.name = true;
+    if (!lastname.trim()) errores.lastname = true;
+    if (!username.trim()) errores.username = true;
+    if (!password.trim()) errores.password = true;
+    if (!mail.trim()) errores.mail = true;
+    if (!birthdate.trim()) errores.birthdate = true;
+
+    setErroresCampos(errores);
+
+    if (Object.keys(errores).length > 0) {
       setShowAlertEmpty(true);
       return false;
     }
@@ -52,13 +67,19 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     };
 
     if (tipoRegistro === 'empresa') {
-      if (!empresaName) return;
+      if (!empresaName.trim()) {
+        setErroresCampos((prev) => ({ ...prev, empresa: true }));
+        return;
+      }
       payload.empresaData = {
         nombreEmpresa: empresaName,
         estado: true
       };
     } else if (tipoRegistro === 'codigo') {
-      if (!codigoInvitacion) return;
+      if (!codigoInvitacion.trim()) {
+        setErroresCampos((prev) => ({ ...prev, codigo: true }));
+        return;
+      }
       payload.codigoInvitacion = codigoInvitacion;
     }
 
@@ -66,7 +87,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
       if (response.status === 200 || response.status === 201) {
         setShowEmpresaModal(false);
-        setActiveContent('login'); // o redirigir a otra vista de éxito
+        setShowSuccessFinal(true);
       } else {
         setShowEmpresaModal(false);
         setShowAlertFail(true);
@@ -77,6 +98,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       setShowAlertFail(true);
     }
   };
+
 
   const goToLoginScreen = () => {
     setActiveContent('login');
@@ -95,31 +117,76 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         />
 
         <Text style={styles.textForm}>Nombre</Text>
-        <TextInput style={styles.input} value={name} onChangeText={setName} />
+        <TextInput
+          placeholder="Ej: Juan"
+          placeholderTextColor="#888"
+          style={[styles.input, erroresCampos.name && styles.inputError]}
+          value={name}
+          onChangeText={(text) => {
+            setName(text);
+            setErroresCampos((prev) => ({ ...prev, name: false }));
+          }}
+        />
 
         <Text style={styles.textForm}>Apellido</Text>
-        <TextInput style={styles.input} value={lastname} onChangeText={setLastname} />
+        <TextInput
+          placeholder="Ej: Pérez"
+          placeholderTextColor="#888"
+          style={[styles.input, erroresCampos.lastname && styles.inputError]}
+          value={lastname}
+          onChangeText={(text) => {
+            setLastname(text);
+            setErroresCampos((prev) => ({ ...prev, lastname: false }));
+          }}
+        />
 
         <Text style={styles.textForm}>Usuario</Text>
-        <TextInput style={styles.input} value={username} onChangeText={setUsername} />
+        <TextInput
+          placeholder="Ej: juanperez99"
+          placeholderTextColor="#888"
+          style={[styles.input, erroresCampos.username && styles.inputError]}
+          value={username}
+          onChangeText={(text) => {
+            setUsername(text);
+            setErroresCampos((prev) => ({ ...prev, username: false }));
+          }}
+        />
 
         <Text style={styles.textForm}>Contraseña</Text>
         <TextInput
-          style={styles.input}
+          placeholder="********"
+          placeholderTextColor="#888"
           secureTextEntry={true}
+          style={[styles.input, erroresCampos.password && styles.inputError]}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => {
+            setPassword(text);
+            setErroresCampos((prev) => ({ ...prev, password: false }));
+          }}
         />
 
         <Text style={styles.textForm}>E-Mail</Text>
-        <TextInput style={styles.input} value={mail} onChangeText={setMail} />
+        <TextInput
+          placeholder="Ej: juan@email.com"
+          placeholderTextColor="#888"
+          style={[styles.input, erroresCampos.mail && styles.inputError]}
+          value={mail}
+          onChangeText={(text) => {
+            setMail(text);
+            setErroresCampos((prev) => ({ ...prev, mail: false }));
+          }}
+        />
 
         <Text style={styles.textForm}>Fecha de nacimiento (AAAA-MM-DD)</Text>
         <TextInput
-          style={styles.input}
-          placeholder="2000-01-01"
+          placeholder="Ej: 2000-01-01"
+          placeholderTextColor="#888"
+          style={[styles.input, erroresCampos.birthdate && styles.inputError]}
           value={birthdate}
-          onChangeText={setBirthdate}
+          onChangeText={(text) => {
+            setBirthdate(text);
+            setErroresCampos((prev) => ({ ...prev, birthdate: false }));
+          }}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleNextStep}>
@@ -134,7 +201,6 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           />
           <Text style={styles.backButtonText}>Volver</Text>
         </TouchableOpacity>
-
         {/* Modal campos vacíos */}
         <Modal
           animationType="fade"
@@ -153,7 +219,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           </View>
         </Modal>
 
-        {/* Modal error en el registro */}
+        {/* Modal error */}
         <Modal
           animationType="fade"
           transparent={true}
@@ -171,7 +237,28 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           </View>
         </Modal>
 
-        {/* Modal crear empresa o ingresar código */}
+        {/* Modal campos vacíos empresa/código */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showAlertEmpresaCodigo}
+          onRequestClose={() => setShowAlertEmpresaCodigo(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>¡Falta información!</Text>
+              <Text style={styles.alertMessage}>Completá el campo requerido para continuar.</Text>
+              <TouchableOpacity
+                onPress={() => setShowAlertEmpresaCodigo(false)}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>Volver</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal crear empresa / ingresar código */}
         <Modal
           animationType="fade"
           transparent={true}
@@ -200,35 +287,92 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 <>
                   <Text style={styles.alertTitle}>Nombre de tu empresa</Text>
                   <TextInput
-                    style={[styles.input, { width: 250, backgroundColor: '#fff' }]}
+                    style={[
+                      styles.input,
+                      { width: 250, backgroundColor: '#fff' },
+                      erroresCampos.empresa && styles.inputError
+                    ]}
                     placeholder="Mi Empresa S.A."
                     value={empresaName}
-                    onChangeText={setEmpresaName}
+                    onChangeText={(text) => {
+                      setEmpresaName(text);
+                      setErroresCampos((prev) => ({ ...prev, empresa: false }));
+                    }}
                   />
+                  {erroresCampos.empresa && (
+                    <Text style={{ color: 'red', marginBottom: 10 }}>Este campo es obligatorio</Text>
+                  )}
                   <TouchableOpacity
                     onPress={handleFinalSubmit}
                     style={[styles.alertButton, { marginTop: 10 }]}
                   >
                     <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setTipoRegistro(null)}
+                    style={[styles.alertButton, { marginTop: 10, backgroundColor: '#aaa' }]}
+                  >
+                    <Text style={styles.alertButtonText}>Volver</Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
                   <Text style={styles.alertTitle}>Código de invitación</Text>
                   <TextInput
-                    style={[styles.input, { width: 250, backgroundColor: '#fff' }]}
+                    style={[
+                      styles.input,
+                      { width: 250, backgroundColor: '#fff' },
+                      erroresCampos.codigo && styles.inputError
+                    ]}
                     placeholder="ABC123"
                     value={codigoInvitacion}
-                    onChangeText={setCodigoInvitacion}
+                    onChangeText={(text) => {
+                      setCodigoInvitacion(text);
+                      setErroresCampos((prev) => ({ ...prev, codigo: false }));
+                    }}
                   />
+                  {erroresCampos.codigo && (
+                    <Text style={{ color: 'red', marginBottom: 10 }}>Este campo es obligatorio</Text>
+                  )}
                   <TouchableOpacity
                     onPress={handleFinalSubmit}
                     style={[styles.alertButton, { marginTop: 10 }]}
                   >
                     <Text style={styles.alertButtonText}>Finalizar Registro</Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setTipoRegistro(null)}
+                    style={[styles.alertButton, { marginTop: 10, backgroundColor: '#aaa' }]}
+                  >
+                    <Text style={styles.alertButtonText}>Volver</Text>
+                  </TouchableOpacity>
                 </>
               )}
+            </View>
+          </View>
+        </Modal>
+
+
+        {/* Modal de éxito */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showSuccessFinal}
+          onRequestClose={() => setShowSuccessFinal(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>¡Registro exitoso!</Text>
+              <Text style={styles.alertMessage}>Tu cuenta fue creada correctamente.</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowSuccessFinal(false);
+                  setActiveContent('home');
+                }}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>Ir al inicio</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -269,6 +413,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9D9',
     borderRadius: 25,
     elevation: 5,
+  },
+  inputError: {
+    borderWidth: 2,
+    borderColor: 'red',
   },
   button: {
     marginTop: 20,
@@ -340,5 +488,3 @@ const styles = StyleSheet.create({
 });
 
 export default RegisterScreen;
-
-
