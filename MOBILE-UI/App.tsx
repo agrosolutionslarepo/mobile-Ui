@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
 import AddSeedScreen from './src/screens/seedsScreens/AddSeedScreen';
@@ -25,69 +26,70 @@ import LoginScreen from './src/screens/userScreens/LoginScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
 
-
 const App: React.FC = () => {
-  const [activeContent, setActiveContent] = useState('login');
+  const [activeContent, setActiveContent] = useState<string | null>(null);
+
+  // Verificamos el token al iniciar la app
+  useEffect(() => {
+    const checkUserToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          setActiveContent('home');
+        } else {
+          setActiveContent('login');
+        }
+      } catch (error) {
+        console.error('Error verificando token:', error);
+        setActiveContent('login');
+      }
+    };
+
+    checkUserToken();
+  }, []);
 
   const renderContent = () => {
     switch (activeContent) {
       case 'home':
-        return <HomeScreen setActiveContent={setActiveContent}/>;
-
+        return <HomeScreen setActiveContent={setActiveContent} />;
       case 'calendar':
         return <CalendarScreen />;
 
-
-      {/*Plots screens*/ }
+      // Plots
       case 'plots':
         return <PlotsScreen setActiveContent={setActiveContent} />;
-
       case 'addPlot':
         return <AddPlotScreen setActiveContent={setActiveContent} />;
-
       case 'editPlot':
         return <EditPlotScreen setActiveContent={setActiveContent} />;
-
       case 'viewPlot':
         return <ViewPlotScreen setActiveContent={setActiveContent} />;
 
-
-      {/*Seeds screens*/ }
+      // Seeds
       case 'seeds':
         return <SeedsScreen setActiveContent={setActiveContent} />;
-
       case 'addSeed':
         return <AddSeedScreen setActiveContent={setActiveContent} />;
-        
       case 'editSeed':
         return <EditSeedScreen setActiveContent={setActiveContent} />;
-
       case 'viewSeed':
         return <ViewSeedScreen setActiveContent={setActiveContent} />;
 
-
-
-      {/*Crops screens*/ }
+      // Crops
       case 'crops':
         return <CropsScreen setActiveContent={setActiveContent} />;
-
       case 'addCrop':
         return <AddCropScreen setActiveContent={setActiveContent} />;
-
       case 'editCrop':
         return <EditCropScreen setActiveContent={setActiveContent} />;
-
       case 'viewCrop':
         return <ViewCropScreen setActiveContent={setActiveContent} />;
 
-
-      {/*User screens*/ }
+      // Usuario
       case 'login':
         return <LoginScreen setActiveContent={setActiveContent} />;
-
       case 'register':
         return <RegisterScreen setActiveContent={setActiveContent} />;
-
       case 'recover':
         return <RecoverScreen setActiveContent={setActiveContent} />;
 
@@ -97,11 +99,24 @@ const App: React.FC = () => {
   };
 
   const renderHeader = () => {
-    if (activeContent !== 'login' && activeContent !== 'register' && activeContent !== 'recover') {
+    if (
+      activeContent !== 'login' &&
+      activeContent !== 'register' &&
+      activeContent !== 'recover'
+    ) {
       return <Header onMenuClick={(menuItem) => setActiveContent(menuItem)} />;
     }
     return null;
   };
+
+  // Mientras se carga el estado inicial (null), se muestra un loader
+  if (activeContent === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#A01BAC" />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -109,7 +124,6 @@ const App: React.FC = () => {
       {renderContent()}
     </View>
   );
-}
+};
 
 export default App;
-

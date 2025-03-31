@@ -10,6 +10,7 @@ import {
   Image,
   Modal
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [name, setName] = useState('');
@@ -65,7 +66,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       fechaNacimiento: birthdate,
       estado: true
     };
-
+  
     if (tipoRegistro === 'empresa') {
       if (!empresaName.trim()) {
         setErroresCampos((prev) => ({ ...prev, empresa: true }));
@@ -82,10 +83,16 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       }
       payload.codigoInvitacion = codigoInvitacion;
     }
-
+  
     try {
       const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
+  
       if (response.status === 200 || response.status === 201) {
+        // Guardar token y usuario en AsyncStorage
+        const { token, usuario } = response.data;
+        await AsyncStorage.setItem('userToken', token);
+        await AsyncStorage.setItem('userData', JSON.stringify(usuario));
+  
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
       } else {
