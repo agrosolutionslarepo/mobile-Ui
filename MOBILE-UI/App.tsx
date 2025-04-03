@@ -34,8 +34,15 @@ const App: React.FC = () => {
     const checkUserToken = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        console.log('🔑 Token recuperado:', token);
+  
+        const decoded = await AsyncStorage.getItem('decodedToken');
+        if (decoded) {
+          console.log('🧠 Token decodificado:', JSON.parse(decoded));
+        }
+  
         if (token) {
-          setActiveContent('home');
+          setActiveContent('home'); // ⚠️ Esto es lo que asegura que se quede en la home
         } else {
           setActiveContent('login');
         }
@@ -44,9 +51,11 @@ const App: React.FC = () => {
         setActiveContent('login');
       }
     };
-
+  
     checkUserToken();
   }, []);
+  
+  
 
   const renderContent = () => {
     switch (activeContent) {

@@ -12,6 +12,24 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Función para decodificar JWT sin librerías
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return null;
+  }
+};
+
 const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -39,9 +57,22 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       });
 
       if (response.status === 200 || response.status === 201) {
-        const { token, usuario } = response.data;
+        const token = response.data.jwt;
+
+        if (!token) {
+          console.error('No se recibió el token del backend');
+          setShowAlertFail(true);
+          return;
+        }
+
+        const decodedToken = parseJwt(token);
+        console.log('🔐 Token decodificado:', decodedToken);
+
         await AsyncStorage.setItem('userToken', token);
-        await AsyncStorage.setItem('userData', JSON.stringify(usuario));
+        if (decodedToken) {
+          await AsyncStorage.setItem('decodedToken', JSON.stringify(decodedToken));
+        }
+
         setShowAlertSuccess(true);
       } else {
         setShowAlertFail(true);
@@ -62,18 +93,9 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       style={styles.background}
     >
       <View style={styles.container}>
-        <Image
-          source={require('../../assets/img/logoNew.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
+        <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
         <TouchableOpacity style={styles.googlebutton} onPress={goToHomeScreen}>
-          <Image
-            source={require('../../assets/img/google.png')}
-            style={styles.googleImage}
-            resizeMode="contain"
-          />
+          <Image source={require('../../assets/img/google.png')} style={styles.googleImage} resizeMode="contain" />
           <Text style={styles.googleButtonText}>Continuar con google</Text>
         </TouchableOpacity>
 
@@ -115,7 +137,6 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
           <Text style={styles.registerButtonText}>Registrarse</Text>
         </TouchableOpacity>
 
-        {/* Modales de alerta */}
         <Modal transparent visible={showAlertEmpty}>
           <View style={styles.modalView}>
             <View style={styles.alertView}>
@@ -164,152 +185,60 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 250,
-    height: 150,
-    marginBottom: 15,
-  },
+  background: { flex: 1, resizeMode: 'cover', justifyContent: 'center' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  logo: { width: 250, height: 150, marginBottom: 15 },
   googlebutton: {
-    width: '80%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 25,
-    marginTop: 20,
-    marginBottom: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 3.84,
-    elevation: 5,
+    width: '80%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#FFFFFF', borderRadius: 25, marginTop: 20, marginBottom: 30,
+    paddingVertical: 10, paddingHorizontal: 20,
+    shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75,
+    shadowRadius: 3.84, elevation: 5,
   },
-  googleImage: {
-    width: 32,
-    height: 32,
-    marginRight: 20,
-  },
-  googleButtonText: {
-    color: '#000000',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
+  googleImage: { width: 32, height: 32, marginRight: 20 },
+  googleButtonText: { color: '#000000', fontSize: 20, fontWeight: 'bold' },
   textForm: {
-    width: '80%',
-    textAlign: 'left',
-    fontSize: 20,
-    color: '#D9D9D9',
-    fontWeight: 'bold',
-    marginLeft: 15,
+    width: '80%', textAlign: 'left', fontSize: 20, color: '#D9D9D9',
+    fontWeight: 'bold', marginLeft: 15,
   },
   input: {
-    width: '80%',
-    height: 35,
-    padding: 10,
-    marginBottom: 20,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 25,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 3.84,
-    elevation: 5,
+    width: '80%', height: 35, padding: 10, marginBottom: 20,
+    backgroundColor: '#D9D9D9', borderRadius: 25,
+    shadowColor: '#000000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75, shadowRadius: 3.84, elevation: 5,
   },
-  registerButton: {
-
-  },
+  registerButton: {},
   button: {
-    color: '#F5F5F5',
-    marginTop: 20,
-    fontSize: 20,
-    width: '50%',
-    height: 35,
-    backgroundColor: '#A01BAC',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 25,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 3.84,
-    elevation: 5,
+    color: '#F5F5F5', marginTop: 20, fontSize: 20, width: '50%', height: 35,
+    backgroundColor: '#A01BAC', justifyContent: 'center', alignItems: 'center',
+    borderRadius: 25, shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.75,
+    shadowRadius: 3.84, elevation: 5,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  recoverPasswordButton: {
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  recoverPasswordText: {
-    color: '#FF8BFA',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  registerText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  registerButtonText: {
-    color: '#FF8BFA',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
+  buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  recoverPasswordButton: { marginTop: 10, marginBottom: 20 },
+  recoverPasswordText: { color: '#FF8BFA', fontSize: 20, fontWeight: 'bold' },
+  registerText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
+  registerButtonText: { color: '#FF8BFA', fontSize: 20, fontWeight: 'bold' },
   modalView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, justifyContent: 'center', alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   alertView: {
-    backgroundColor: '#FFFCE3',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
+    backgroundColor: '#FFFCE3', padding: 20, borderRadius: 10,
+    alignItems: 'center', width: '80%',
   },
-  alertTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  alertMessage: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  alertTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+  alertMessage: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
   alertButton: {
-    backgroundColor: '#A01BAC',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    backgroundColor: '#A01BAC', paddingVertical: 10, paddingHorizontal: 20,
     borderRadius: 20,
   },
-  alertButtonText: {
-    fontSize: 18,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  inputError: {
-    borderColor: 'red',
-    borderWidth: 2,
-  },
+  alertButtonText: { fontSize: 18, color: 'white', fontWeight: 'bold' },
+  inputError: { borderColor: 'red', borderWidth: 2 },
 });
 
 export default LoginScreen;
+
 
 

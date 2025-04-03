@@ -12,6 +12,23 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return null;
+  }
+};
+
 const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
@@ -66,7 +83,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       fechaNacimiento: birthdate,
       estado: true
     };
-  
+
     if (tipoRegistro === 'empresa') {
       if (!empresaName.trim()) {
         setErroresCampos((prev) => ({ ...prev, empresa: true }));
@@ -83,16 +100,26 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       }
       payload.codigoInvitacion = codigoInvitacion;
     }
-  
+
     try {
       const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
-  
+
       if (response.status === 200 || response.status === 201) {
         // Guardar token y usuario en AsyncStorage
-        const { token, usuario } = response.data;
-        await AsyncStorage.setItem('userToken', token);
-        await AsyncStorage.setItem('userData', JSON.stringify(usuario));
-  
+        const token = response.data.jwt;
+
+        if (token) {
+          const decodedToken = parseJwt(token);
+          console.log('🔐 Token decodificado desde registro:', decodedToken);
+
+          await AsyncStorage.setItem('userToken', token);
+          if (decodedToken) {
+            await AsyncStorage.setItem('decodedToken', JSON.stringify(decodedToken));
+          }
+        }
+
+
+
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
       } else {

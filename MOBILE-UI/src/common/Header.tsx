@@ -13,6 +13,23 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return null;
+  }
+};
+
 interface HeaderProps {
   onMenuClick: (menuItem: string) => void;
 }
@@ -20,6 +37,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [leftMenuVisible, setLeftMenuVisible] = useState(false);
   const [rightMenuVisible, setRightMenuVisible] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [userName, setUserName] = useState('');
 
   const leftMenuPosition = useState(new Animated.Value(-1000))[0];
@@ -49,19 +67,25 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   };
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserFromToken = async () => {
       try {
-        const userData = await AsyncStorage.getItem('userData');
-        if (userData) {
-          const user = JSON.parse(userData);
-          setUserName(`${user.nombre} ${user.apellido}`);
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          const decoded = parseJwt(token);
+          console.log('🧠 Decodificado desde Header:', decoded);
+
+          if (decoded && decoded.nombre && decoded.apellido) {
+            setUserName(`${decoded.nombre} ${decoded.apellido}`);
+          } else if (decoded && decoded.nombreUsuario) {
+            setUserName(decoded.nombreUsuario);
+          }
         }
       } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
+        console.error('Error al obtener usuario desde token:', error);
       }
     };
 
-    fetchUserData();
+    fetchUserFromToken();
   }, []);
 
   return (
@@ -84,13 +108,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <Text style={styles.userName}>{userName || 'Usuario'}</Text>
             </View>
 
-            {[
-              { label: 'Home', key: 'home' },
-              { label: 'Parcelas', key: 'plots' },
-              { label: 'Calendario', key: 'calendar' },
-              { label: 'Semillas', key: 'seeds' },
-              { label: 'Cosechas', key: 'crops' }
-            ].map((item) => (
+            {[{ label: 'Home', key: 'home' }, { label: 'Parcelas', key: 'plots' }, { label: 'Calendario', key: 'calendar' }, { label: 'Semillas', key: 'seeds' }, { label: 'Cosechas', key: 'crops' }].map((item) => (
               <View key={item.key} style={styles.menuButtonContainer}>
                 <TouchableOpacity
                   onPress={() => {
@@ -106,12 +124,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
-                onPress={async () => {
-                  await AsyncStorage.removeItem('userToken');
-                  await AsyncStorage.removeItem('userData');
-                  closeModal();
-                  onMenuClick('login');
-                }}
+                onPress={() => setShowLogoutConfirm(true)}
                 style={styles.menuButtonLogOut}
               >
                 <Text style={styles.menuButtonLogOutText}>Log out</Text>
@@ -142,6 +155,47 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </View>
         </Modal>
       </TouchableWithoutFeedback>
+
+      <Modal
+        transparent
+        visible={showLogoutConfirm}
+        animationType="fade"
+        onRequestClose={() => setShowLogoutConfirm(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.alertView}>
+            <Text style={styles.alertTitle}>¿Cerrar sesión, {userName}?</Text>
+            <Text style={styles.alertMessage}>Vas a salir de tu cuenta actual.</Text>
+            <View style={{ flexDirection: 'row', gap: 20, marginTop: 20 }}>
+              <TouchableOpacity
+                onPress={() => setShowLogoutConfirm(false)}
+                style={[styles.alertButton, { backgroundColor: '#aaa' }]}
+              >
+                <Text style={styles.alertButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await AsyncStorage.removeItem('userToken');
+                    await AsyncStorage.removeItem('userData');
+                    await AsyncStorage.removeItem('decodedToken');
+                    console.log('🗑️ Sesión cerrada');
+                    setShowLogoutConfirm(false);
+                    closeModal();
+                    onMenuClick('login');
+                  } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                  }
+                }}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>Cerrar sesión</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -307,6 +361,42 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontWeight: 'bold'
+  },
+  alertView: {
+    backgroundColor: '#FFFCE3',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  alertTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#000'
+  },
+  alertMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333'
+  },
+  alertButton: {
+    backgroundColor: '#A01BAC',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20
+  },
+  alertButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 });
 
