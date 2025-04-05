@@ -7,10 +7,11 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
-  Modal
+  Modal,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const parseJwt = (token: string) => {
@@ -122,7 +123,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       if (response.status === 200 || response.status === 201) {
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
-      }      
+      }
     } catch (error) {
       console.error('Error de conexión:', error);
       setShowEmpresaModal(false);
@@ -147,76 +148,92 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         />
 
         <Text style={styles.textForm}>Nombre</Text>
-        <TextInput
-          placeholder="Ej: Juan"
-          placeholderTextColor="#888"
-          style={[styles.input, erroresCampos.name && styles.inputError]}
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-            setErroresCampos((prev) => ({ ...prev, name: false }));
-          }}
-        />
+        <View style={[styles.inputWithIcon, erroresCampos.name && styles.inputError]}>
+          <MaterialIcons name="person" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="Juan"
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+              setErroresCampos((prev) => ({ ...prev, name: false }));
+            }}
+          />
+        </View>
 
         <Text style={styles.textForm}>Apellido</Text>
-        <TextInput
-          placeholder="Ej: Pérez"
-          placeholderTextColor="#888"
-          style={[styles.input, erroresCampos.lastname && styles.inputError]}
-          value={lastname}
-          onChangeText={(text) => {
-            setLastname(text);
-            setErroresCampos((prev) => ({ ...prev, lastname: false }));
-          }}
-        />
+        <View style={[styles.inputWithIcon, erroresCampos.lastname && styles.inputError]}>
+          <MaterialIcons name="person-outline" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="Pérez"
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={lastname}
+            onChangeText={(text) => {
+              setLastname(text);
+              setErroresCampos((prev) => ({ ...prev, lastname: false }));
+            }}
+          />
+        </View>
 
         <Text style={styles.textForm}>Usuario</Text>
-        <TextInput
-          placeholder="Ej: juanperez99"
-          placeholderTextColor="#888"
-          style={[styles.input, erroresCampos.username && styles.inputError]}
-          value={username}
-          onChangeText={(text) => {
-            setUsername(text);
-            setErroresCampos((prev) => ({ ...prev, username: false }));
-          }}
-        />
+        <View style={[styles.inputWithIcon, erroresCampos.username && styles.inputError]}>
+          <MaterialIcons name="account-circle" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="juanperez99"
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setErroresCampos((prev) => ({ ...prev, username: false }));
+            }}
+          />
+        </View>
 
         <Text style={styles.textForm}>Contraseña</Text>
-        <TextInput
-          placeholder="********"
-          placeholderTextColor="#888"
-          secureTextEntry={true}
-          style={[styles.input, erroresCampos.password && styles.inputError]}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setErroresCampos((prev) => ({ ...prev, password: false }));
-          }}
-        />
+        <View style={[styles.inputWithIcon, erroresCampos.password && styles.inputError]}>
+          <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="********"
+            placeholderTextColor="#888"
+            secureTextEntry={true}
+            style={styles.input}
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setErroresCampos((prev) => ({ ...prev, password: false }));
+            }}
+          />
+        </View>
 
         <Text style={styles.textForm}>E-Mail</Text>
-        <TextInput
-          placeholder="Ej: juan@email.com"
-          placeholderTextColor="#888"
-          style={[styles.input, erroresCampos.mail && styles.inputError]}
-          value={mail}
-          onChangeText={(text) => {
-            setMail(text);
-            setErroresCampos((prev) => ({ ...prev, mail: false }));
-          }}
-        />
+        <View style={[styles.inputWithIcon, erroresCampos.mail && styles.inputError]}>
+          <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            underlineColorAndroid="transparent"
+            placeholder="juan@email.com"
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={mail}
+            onChangeText={(text) => {
+              setMail(text);
+              setErroresCampos((prev) => ({ ...prev, mail: false }));
+            }}
+          />
+        </View>
 
         <Text style={styles.textForm}>Fecha de nacimiento</Text>
         <TouchableOpacity
           style={[
-            styles.input,
-            erroresCampos.birthdate && styles.inputError,
-            fechaError && styles.inputError,
-            { justifyContent: 'center' }
+            styles.inputWithIcon,
+            (erroresCampos.birthdate || fechaError) && styles.inputError,
+            { justifyContent: 'flex-start' }
           ]}
           onPress={() => setShowDateModal(true)}
         >
+          <MaterialIcons name="calendar-today" size={20} color="#666" style={styles.icon} />
           <Text style={{ color: birthdate ? '#000' : '#888' }}>
             {birthdate || 'Seleccionar fecha'}
           </Text>
@@ -452,19 +469,19 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
               ) : tipoRegistro === 'empresa' ? (
                 <>
                   <Text style={styles.alertTitle}>Nombre de tu empresa</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      { width: 250, backgroundColor: '#fff' },
-                      erroresCampos.empresa && styles.inputError
-                    ]}
-                    placeholder="Mi Empresa S.A."
-                    value={empresaName}
-                    onChangeText={(text) => {
-                      setEmpresaName(text);
-                      setErroresCampos((prev) => ({ ...prev, empresa: false }));
-                    }}
-                  />
+                  <View style={[styles.inputWithIcon, erroresCampos.empresa && styles.inputError]}>
+                    <MaterialIcons name="business" size={20} color="#666" style={styles.icon} />
+                    <TextInput
+                      placeholder="Mi Empresa S.A."
+                      placeholderTextColor="#888"
+                      style={styles.input}
+                      value={empresaName}
+                      onChangeText={(text) => {
+                        setEmpresaName(text);
+                        setErroresCampos((prev) => ({ ...prev, empresa: false }));
+                      }}
+                    />
+                  </View>
                   {erroresCampos.empresa && (
                     <Text style={{ color: 'red', marginBottom: 10 }}>Este campo es obligatorio</Text>
                   )}
@@ -484,19 +501,19 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
               ) : (
                 <>
                   <Text style={styles.alertTitle}>Código de invitación</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      { width: 250, backgroundColor: '#fff' },
-                      erroresCampos.codigo && styles.inputError
-                    ]}
-                    placeholder="ABC123"
-                    value={codigoInvitacion}
-                    onChangeText={(text) => {
-                      setCodigoInvitacion(text);
-                      setErroresCampos((prev) => ({ ...prev, codigo: false }));
-                    }}
-                  />
+                  <View style={[styles.inputWithIcon, erroresCampos.codigo && styles.inputError]}>
+                    <MaterialIcons name="vpn-key" size={20} color="#666" style={styles.icon} />
+                    <TextInput
+                      placeholder="ABC123"
+                      placeholderTextColor="#888"
+                      style={styles.input}
+                      value={codigoInvitacion}
+                      onChangeText={(text) => {
+                        setCodigoInvitacion(text);
+                        setErroresCampos((prev) => ({ ...prev, codigo: false }));
+                      }}
+                    />
+                  </View>
                   {erroresCampos.codigo && (
                     <Text style={{ color: 'red', marginBottom: 10 }}>Este campo es obligatorio</Text>
                   )}
@@ -534,7 +551,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 onPress={() => {
                   setShowSuccessFinal(false);
                   setActiveContent('login');
-                }}                
+                }}
                 style={styles.alertButton}
               >
                 <Text style={styles.alertButtonText}>Ir al inicio</Text>
@@ -572,17 +589,11 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   input: {
-    width: '80%',
-    height: 35,
-    padding: 10,
-    marginBottom: 20,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 25,
-    shadowColor: '#000000', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75, 
-    shadowRadius: 3.84, 
-    elevation: 5,
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+    paddingVertical: 0,
+    width: '100%'
   },
   inputError: {
     borderWidth: 2,
@@ -693,7 +704,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: '#555',
   },
-  
+  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '80%',
+    height: 42, // más alto
+    backgroundColor: '#D9D9D9',
+    borderRadius: 25,
+    paddingHorizontal: 14, // más margen interno
+    marginBottom: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  icon: {
+    marginRight: 10,
+  },
+
 });
 
 export default RegisterScreen;

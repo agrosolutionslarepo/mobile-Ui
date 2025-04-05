@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from '@expo/vector-icons';
 
 // Función para decodificar JWT sin librerías
 const parseJwt = (token: string) => {
@@ -100,29 +101,47 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
         </TouchableOpacity>
 
         <Text style={styles.textForm}>Email</Text>
-        <TextInput
-          style={[styles.input, emailError && styles.inputError]}
-          placeholder="ejemplo@correo.com"
-          placeholderTextColor="#999"
-          value={username}
-          onChangeText={text => {
-            setUsername(text);
-            setEmailError(false);
-          }}
-        />
+        <View
+          style={[
+            styles.inputWithIcon,
+            emailError && styles.inputError,
+          ]}
+        >
+          <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="ejemplo@correo.com"
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={username}
+            onChangeText={text => {
+              setUsername(text);
+              setEmailError(false);
+            }}
+          />
+        </View>
+
 
         <Text style={styles.textForm}>Contraseña</Text>
-        <TextInput
-          style={[styles.input, passwordError && styles.inputError]}
-          placeholder="******"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={password}
-          onChangeText={text => {
-            setPassword(text);
-            setPasswordError(false);
-          }}
-        />
+        <View
+          style={[
+            styles.inputWithIcon,
+            passwordError && styles.inputError,
+          ]}
+        >
+          <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
+          <TextInput
+            placeholder="******"
+            placeholderTextColor="#888"
+            secureTextEntry
+            style={styles.input}
+            value={password}
+            onChangeText={text => {
+              setPassword(text);
+              setPasswordError(false);
+            }}
+          />
+        </View>
+
 
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Ingresar</Text>
@@ -201,12 +220,6 @@ const styles = StyleSheet.create({
     width: '80%', textAlign: 'left', fontSize: 20, color: '#D9D9D9',
     fontWeight: 'bold', marginLeft: 15,
   },
-  input: {
-    width: '80%', height: 35, padding: 10, marginBottom: 20,
-    backgroundColor: '#D9D9D9', borderRadius: 25,
-    shadowColor: '#000000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75, shadowRadius: 3.84, elevation: 5,
-  },
   registerButton: {},
   button: {
     color: '#F5F5F5', marginTop: 20, fontSize: 20, width: '50%', height: 35,
@@ -236,6 +249,38 @@ const styles = StyleSheet.create({
   },
   alertButtonText: { fontSize: 18, color: 'white', fontWeight: 'bold' },
   inputError: { borderColor: 'red', borderWidth: 2 },
+  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '80%',
+    height: 42,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 25,
+    paddingHorizontal: 14,
+    marginBottom: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+    paddingVertical: 0,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    width: '100%'
+  },
+  icon: {
+    marginRight: 10,
+  },
+  inputFocused: {
+    borderWidth: 2,
+    borderColor: '#888',
+  },
+  
 });
 
 export default LoginScreen;
