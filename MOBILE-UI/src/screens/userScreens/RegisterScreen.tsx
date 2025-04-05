@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import {
   View,
   Text,
@@ -10,6 +9,8 @@ import {
   Image,
   Modal
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const parseJwt = (token: string) => {
@@ -29,6 +30,13 @@ const parseJwt = (token: string) => {
   }
 };
 
+const getDaysInMonth = (month: string, year: string): number => {
+  const m = parseInt(month, 10);
+  const y = parseInt(year, 10);
+  return new Date(y, m, 0).getDate();
+};
+
+
 const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
@@ -41,6 +49,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   const [showAlertFail, setShowAlertFail] = useState(false);
   const [showAlertEmpresaCodigo, setShowAlertEmpresaCodigo] = useState(false);
   const [showSuccessFinal, setShowSuccessFinal] = useState(false);
+  const [showUnderageModal, setShowUnderageModal] = useState(false);
 
   const [showEmpresaModal, setShowEmpresaModal] = useState(false);
   const [tipoRegistro, setTipoRegistro] = useState<'empresa' | 'codigo' | null>(null);
@@ -48,6 +57,11 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   const [codigoInvitacion, setCodigoInvitacion] = useState('');
 
   const [erroresCampos, setErroresCampos] = useState<{ [key: string]: boolean }>({});
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [selectedDay, setSelectedDay] = useState('01');
+  const [selectedMonth, setSelectedMonth] = useState('01');
+  const [selectedYear, setSelectedYear] = useState('2000');
+  const [fechaError, setFechaError] = useState(false);
 
   const validarDatos = () => {
     const errores: any = {};
@@ -57,6 +71,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     if (!password.trim()) errores.password = true;
     if (!mail.trim()) errores.mail = true;
     if (!birthdate.trim()) errores.birthdate = true;
+    if (fechaError) errores.birthdate = true;
 
     setErroresCampos(errores);
 
@@ -105,21 +120,14 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
 
       if (response.status === 200 || response.status === 201) {
-        // Guardar token y usuario en AsyncStorage
         const token = response.data.jwt;
-
         if (token) {
           const decodedToken = parseJwt(token);
-          console.log('🔐 Token decodificado desde registro:', decodedToken);
-
           await AsyncStorage.setItem('userToken', token);
           if (decodedToken) {
             await AsyncStorage.setItem('decodedToken', JSON.stringify(decodedToken));
           }
         }
-
-
-
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
       } else {
@@ -132,7 +140,6 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       setShowAlertFail(true);
     }
   };
-
 
   const goToLoginScreen = () => {
     setActiveContent('login');
@@ -211,17 +218,20 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           }}
         />
 
-        <Text style={styles.textForm}>Fecha de nacimiento (AAAA-MM-DD)</Text>
-        <TextInput
-          placeholder="Ej: 2000-01-01"
-          placeholderTextColor="#888"
-          style={[styles.input, erroresCampos.birthdate && styles.inputError]}
-          value={birthdate}
-          onChangeText={(text) => {
-            setBirthdate(text);
-            setErroresCampos((prev) => ({ ...prev, birthdate: false }));
-          }}
-        />
+        <Text style={styles.textForm}>Fecha de nacimiento</Text>
+        <TouchableOpacity
+          style={[
+            styles.input,
+            erroresCampos.birthdate && styles.inputError,
+            fechaError && styles.inputError,
+            { justifyContent: 'center' }
+          ]}
+          onPress={() => setShowDateModal(true)}
+        >
+          <Text style={{ color: birthdate ? '#000' : '#888' }}>
+            {birthdate || 'Seleccionar fecha'}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={handleNextStep}>
           <Text style={styles.buttonText}>Siguiente</Text>
@@ -235,6 +245,139 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           />
           <Text style={styles.backButtonText}>Volver</Text>
         </TouchableOpacity>
+
+        {/* Modal de fecha */}
+        <Modal
+          transparent
+          visible={showDateModal}
+          animationType="fade"
+          onRequestClose={() => setShowDateModal(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>Seleccioná tu fecha de nacimiento</Text>
+
+              <View style={styles.pickerContainer}>
+                <View style={styles.pickerGroup}>
+                  <Text style={styles.pickerLabel}>Día</Text>
+                  <View style={styles.pickerBox}>
+                    <Picker
+                      selectedValue={selectedDay}
+                      style={styles.picker}
+                      onValueChange={(itemValue) => setSelectedDay(itemValue)}
+                    >
+                      {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
+                        const day = (i + 1).toString().padStart(2, '0');
+                        return <Picker.Item key={day} label={day} value={day} />;
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+
+                <View style={styles.pickerGroup}>
+                  <Text style={styles.pickerLabel}>Mes</Text>
+                  <View style={styles.pickerBox}>
+                    <Picker
+                      selectedValue={selectedMonth}
+                      style={styles.picker}
+                      onValueChange={(itemValue) => {
+                        setSelectedMonth(itemValue);
+                        const maxDay = getDaysInMonth(itemValue, selectedYear);
+                        if (parseInt(selectedDay, 10) > maxDay) {
+                          setSelectedDay(maxDay.toString().padStart(2, '0'));
+                        }
+                      }}
+                    >
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const month = (i + 1).toString().padStart(2, '0');
+                        return <Picker.Item key={month} label={month} value={month} />;
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+
+                <View style={styles.pickerGroup}>
+                  <Text style={styles.pickerLabel}>Año</Text>
+                  <View style={styles.pickerBox}>
+                    <Picker
+                      selectedValue={selectedYear}
+                      style={styles.picker}
+                      onValueChange={(itemValue) => {
+                        setSelectedYear(itemValue);
+                        const maxDay = getDaysInMonth(selectedMonth, itemValue);
+                        if (parseInt(selectedDay, 10) > maxDay) {
+                          setSelectedDay(maxDay.toString().padStart(2, '0'));
+                        }
+                      }}
+                    >
+                      {Array.from({ length: 100 }, (_, i) => {
+                        const year = (new Date().getFullYear() - i).toString();
+                        return <Picker.Item key={year} label={year} value={year} />;
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+
+              </View>
+
+
+              <TouchableOpacity
+                onPress={() => {
+                  const selectedDate = new Date(`${selectedYear}-${selectedMonth}-${selectedDay}`);
+                  const today = new Date();
+                  const ageDiff = today.getFullYear() - selectedDate.getFullYear();
+                  const m = today.getMonth() - selectedDate.getMonth();
+                  const is18 =
+                    ageDiff > 18 ||
+                    (ageDiff === 18 && (m > 0 || (m === 0 && today.getDate() >= selectedDate.getDate())));
+
+                  if (is18) {
+                    const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`;
+                    setBirthdate(formattedDate);
+                    setFechaError(false);
+                    setErroresCampos((prev) => ({ ...prev, birthdate: false }));
+                    setShowDateModal(false);
+                  } else {
+                    setBirthdate('');
+                    setFechaError(true);
+                    setShowDateModal(false);
+                    setShowUnderageModal(true);
+                  }
+
+                }}
+                style={[styles.alertButton, { marginTop: 20 }]}
+              >
+                <Text style={styles.alertButtonText}>Confirmar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setShowDateModal(false)}
+                style={[styles.alertButton, { marginTop: 10, backgroundColor: '#aaa' }]}
+              >
+                <Text style={styles.alertButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal menor de edad */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showUnderageModal}
+          onRequestClose={() => setShowUnderageModal(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>Edad insuficiente</Text>
+              <Text style={styles.alertMessage}>Debés tener al menos 18 años para registrarte.</Text>
+              <TouchableOpacity onPress={() => setShowUnderageModal(false)} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Volver</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
         {/* Modal campos vacíos */}
         <Modal
           animationType="fade"
@@ -447,6 +590,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9D9',
     borderRadius: 25,
     elevation: 5,
+    shadowColor: '#000000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75, shadowRadius: 3.84, elevation: 5,
   },
   inputError: {
     borderWidth: 2,
@@ -519,6 +664,45 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    maxWidth: '100%',
+    marginVertical: 10,
+    gap: 12,
+  },
+  pickerBox: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    width: 85,
+    height: 40,
+    justifyContent: 'center',
+  },
+  picker: {
+    height: 40,
+    borderRadius: 10,
+    width: '100%',
+    color: '#333',
+    fontSize: 14,
+  },
+  pickerGroup: {
+    alignItems: 'center',
+    marginHorizontal: 4,
+    flex: 1,
+  },
+  pickerLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#555',
+  },
+  
 });
 
 export default RegisterScreen;

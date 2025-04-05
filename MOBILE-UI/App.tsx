@@ -60,7 +60,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeContent) {
       case 'home':
-        return <HomeScreen setActiveContent={setActiveContent} />;
+        return <HomeScreen />;
       case 'calendar':
         return <CalendarScreen />;
 
