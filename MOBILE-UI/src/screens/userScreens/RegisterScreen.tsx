@@ -120,20 +120,9 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
 
       if (response.status === 200 || response.status === 201) {
-        const token = response.data.jwt;
-        if (token) {
-          const decodedToken = parseJwt(token);
-          await AsyncStorage.setItem('userToken', token);
-          if (decodedToken) {
-            await AsyncStorage.setItem('decodedToken', JSON.stringify(decodedToken));
-          }
-        }
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
-      } else {
-        setShowEmpresaModal(false);
-        setShowAlertFail(true);
-      }
+      }      
     } catch (error) {
       console.error('Error de conexión:', error);
       setShowEmpresaModal(false);
@@ -544,8 +533,8 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
               <TouchableOpacity
                 onPress={() => {
                   setShowSuccessFinal(false);
-                  setActiveContent('home');
-                }}
+                  setActiveContent('login');
+                }}                
                 style={styles.alertButton}
               >
                 <Text style={styles.alertButtonText}>Ir al inicio</Text>
@@ -589,9 +578,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#D9D9D9',
     borderRadius: 25,
+    shadowColor: '#000000', 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75, 
+    shadowRadius: 3.84, 
     elevation: 5,
-    shadowColor: '#000000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75, shadowRadius: 3.84, elevation: 5,
   },
   inputError: {
     borderWidth: 2,
