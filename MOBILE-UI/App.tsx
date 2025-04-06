@@ -25,6 +25,9 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/userScreens/LoginScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
+import UserProfileScreen from './src/screens/userScreens/UserProfileScreen';
+import EditProfileScreen from './src/screens/userScreens/EditProfileScreen';
+import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen';
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
@@ -35,12 +38,12 @@ const App: React.FC = () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
         console.log('🔑 Token recuperado:', token);
-  
+
         const decoded = await AsyncStorage.getItem('decodedToken');
         if (decoded) {
           console.log('🧠 Token decodificado:', JSON.parse(decoded));
         }
-  
+
         if (token) {
           setActiveContent('home'); // ⚠️ Esto es lo que asegura que se quede en la home
         } else {
@@ -51,11 +54,11 @@ const App: React.FC = () => {
         setActiveContent('login');
       }
     };
-  
+
     checkUserToken();
   }, []);
-  
-  
+
+
 
   const renderContent = () => {
     switch (activeContent) {
@@ -101,6 +104,12 @@ const App: React.FC = () => {
         return <RegisterScreen setActiveContent={setActiveContent} />;
       case 'recover':
         return <RecoverScreen setActiveContent={setActiveContent} />;
+      case 'profile':
+        return <UserProfileScreen setActiveContent={setActiveContent} />;
+      case 'editProfile':
+        return <EditProfileScreen setActiveContent={setActiveContent} />;
+      case 'changePassword':
+        return <ChangePasswordScreen setActiveContent={setActiveContent} />;
 
       default:
         return <LoginScreen setActiveContent={setActiveContent} />;

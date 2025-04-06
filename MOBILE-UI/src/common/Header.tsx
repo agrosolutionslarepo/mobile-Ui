@@ -108,7 +108,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <Text style={styles.userName}>{userName || 'Usuario'}</Text>
             </View>
 
-            {[{ label: 'Home', key: 'home' }, { label: 'Parcelas', key: 'plots' }, { label: 'Calendario', key: 'calendar' }, { label: 'Semillas', key: 'seeds' }, { label: 'Cosechas', key: 'crops' }].map((item) => (
+            {[{ label: 'Home', key: 'home' }, { label: 'Parcelas', key: 'plots' }, { label: 'Calendario', key: 'calendar' }, { label: 'Semillas', key: 'seeds' }, { label: 'Cosechas', key: 'crops' }, { label: 'Perfil', key: 'profile' }].map((item) => (
               <View key={item.key} style={styles.menuButtonContainer}>
                 <TouchableOpacity
                   onPress={() => {
@@ -401,4 +401,4 @@ const styles = StyleSheet.create({
 });
 
 export default Header;
-  
+
