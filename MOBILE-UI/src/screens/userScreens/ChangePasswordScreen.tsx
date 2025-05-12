@@ -8,17 +8,20 @@ import {
     Modal
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
+    const [showWrongPasswordModal, setShowWrongPasswordModal] = useState(false);
+    const [showSamePasswordModal, setShowSamePasswordModal] = useState(false);
     const [showMismatchModal, setShowMismatchModal] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showEmptyFieldsModal, setShowEmptyFieldsModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!currentPassword.trim() || !newPassword.trim() || !repeatPassword.trim()) {
             setShowEmptyFieldsModal(true);
             return;
@@ -29,10 +32,37 @@ const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen:
             return;
         }
 
-        // Aquí conectarías con el backend
-        setShowSuccessModal(true);
-    };
+        if (currentPassword === newPassword) {
+            setShowSamePasswordModal(true);
+            return;
+        }
 
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) throw new Error('Token no encontrado');
+
+            const response = await axios.put('http://localhost:3000/usuarios/updatePassword', {
+                oldContraseña: currentPassword,
+                contraseña: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 200) {
+                setShowSuccessModal(true);
+            }
+
+        } catch (error: any) {
+            console.error('Error al cambiar la contraseña:', error.response?.data || error.message);
+
+            if (error.response?.status === 400 || error.response?.status === 401) {
+                setShowWrongPasswordModal(true);
+            }
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -138,6 +168,40 @@ const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen:
                     </View>
                 </View>
             </Modal>
+
+            {/* Modal: contraseña nueva igual a la actual */}
+            <Modal transparent visible={showSamePasswordModal} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Contraseña sin cambios</Text>
+                        <Text style={styles.modalMessage}>La nueva contraseña no puede ser igual a la actual.</Text>
+                        <TouchableOpacity
+                            onPress={() => setShowSamePasswordModal(false)}
+                            style={styles.modalButton}
+                        >
+                            <Text style={styles.modalButtonText}>Volver</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Modal: contraseña actual incorrecta */}
+            <Modal transparent visible={showWrongPasswordModal} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Error</Text>
+                        <Text style={styles.modalMessage}>La contraseña actual es incorrecta.</Text>
+                        <TouchableOpacity
+                            onPress={() => setShowWrongPasswordModal(false)}
+                            style={styles.modalButton}
+                        >
+                            <Text style={styles.modalButtonText}>Volver</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+
         </View>
     );
 };
