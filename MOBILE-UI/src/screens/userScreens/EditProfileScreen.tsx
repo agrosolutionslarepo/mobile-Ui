@@ -17,28 +17,34 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
-    const getUserFromToken = async () => {
+    const fetchUserFromApi = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        if (token) {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(
-            atob(base64)
-              .split('')
-              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-              .join('')
-          );
-          const decoded = JSON.parse(jsonPayload);
-          setNombre(decoded.nombre);
-          setApellido(decoded.apellido);
+        if (!token) return;
+  
+        const response = await axios.get(
+          'http://localhost:3000/usuarios/getUsuarioAutenticado',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+  
+        if (response.status === 200) {
+          const data = response.data;
+          setNombre(data.nombre || '');
+          setApellido(data.apellido || '');
+        } else {
+          console.error('No se pudo obtener los datos del usuario');
         }
-      } catch (error) {
-        console.error('Error al cargar datos del usuario:', error);
+      } catch (error: any) {
+        console.error('Error al consultar el usuario:', error?.response?.data || error.message);
       }
     };
-
-    getUserFromToken();
+  
+    fetchUserFromApi();
   }, []);
 
   const handleSave = async () => {

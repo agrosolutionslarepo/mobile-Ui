@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 
 const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
     const [userData, setUserData] = useState<any>(null);
@@ -17,28 +18,34 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
     const [password, setPassword] = useState('');
 
     useEffect(() => {
-        const getUserFromToken = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                if (token) {
-                    const base64Url = token.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(
-                        atob(base64)
-                            .split('')
-                            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                            .join('')
-                    );
-                    const decoded = JSON.parse(jsonPayload);
-                    setUserData(decoded);
-                }
-            } catch (error) {
-                console.error('Error al decodificar el token:', error);
+        const fetchUserFromApi = async () => {
+          try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) return;
+      
+            const response = await axios.get(
+              'http://localhost:3000/usuarios/getUsuarioAutenticado',
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+      
+            if (response.status === 200) {
+              const data = response.data;
+              setUserData(data);
+            } else {
+              console.error('No se pudo obtener los datos del usuario');
             }
+          } catch (error: any) {
+            console.error('Error al consultar el usuario:', error?.response?.data || error.message);
+          }
         };
-
-        getUserFromToken();
-    }, []);
+      
+        fetchUserFromApi();
+      }, []);
 
     const handleConfirmDelete = () => {
         setShowConfirmModal(false);
@@ -75,9 +82,7 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                     <View style={styles.infoRow}>
                         <MaterialIcons name="calendar-today" size={20} color="#666" style={styles.icon} />
                         <Text style={styles.label}>Nacimiento:</Text>
-                        <Text style={styles.value}>
-                            {userData.fechaNacimiento || 'No especificada'}
-                        </Text>
+                        <Text style={styles.value}>{new Date(userData.fechaNacimiento).toLocaleDateString()}</Text>
                     </View>
 
                     {/* Botones */}

@@ -10,25 +10,8 @@ import {
   TouchableWithoutFeedback,
   ScrollView
 } from 'react-native';
-
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error('Error al decodificar el token:', e);
-    return null;
-  }
-};
 
 interface HeaderProps {
   onMenuClick: (menuItem: string) => void;
@@ -38,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [leftMenuVisible, setLeftMenuVisible] = useState(false);
   const [rightMenuVisible, setRightMenuVisible] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [userData, setUserData] = useState<any>(null);
 
   const leftMenuPosition = useState(new Animated.Value(-1000))[0];
   const rightMenuPosition = useState(new Animated.Value(1000))[0];
@@ -67,25 +50,32 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   };
 
   useEffect(() => {
-    const fetchUserFromToken = async () => {
+    const fetchUserFromApi = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        if (token) {
-          const decoded = parseJwt(token);
-          console.log('🧠 Decodificado desde Header:', decoded);
-
-          if (decoded && decoded.nombre && decoded.apellido) {
-            setUserName(`${decoded.nombre} ${decoded.apellido}`);
-          } else if (decoded && decoded.nombreUsuario) {
-            setUserName(decoded.nombreUsuario);
+        if (!token) return;
+  
+        const response = await axios.get(
+          'http://localhost:3000/usuarios/getUsuarioAutenticado',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           }
+        );
+  
+        if (response.status === 200) {
+          setUserData(response.data);
+        } else {
+          console.error('No se pudo obtener el usuario');
         }
-      } catch (error) {
-        console.error('Error al obtener usuario desde token:', error);
+      } catch (error: any) {
+        console.error('Error al consultar el usuario:', error?.response?.data || error.message);
       }
     };
-
-    fetchUserFromToken();
+  
+    fetchUserFromApi();
   }, []);
 
   return (
@@ -105,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Animated.View style={[styles.modalContentLeft, { transform: [{ translateX: leftMenuPosition }] }]}>
             <View style={styles.userContainer}>
               <Image source={require('../assets/img/user.png')} style={styles.userImage} resizeMode="contain" />
-              <Text style={styles.userName}>{userName || 'Usuario'}</Text>
+              <Text style={styles.userName}>{userData?.nombreUsuario || 'Usuario'}</Text>
             </View>
 
             {[{ label: 'Home', key: 'home' }, { label: 'Parcelas', key: 'plots' }, { label: 'Calendario', key: 'calendar' }, { label: 'Semillas', key: 'seeds' }, { label: 'Cosechas', key: 'crops' }, { label: 'Perfil', key: 'profile' }].map((item) => (
@@ -164,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.alertView}>
-            <Text style={styles.alertTitle}>¿Cerrar sesión, {userName}?</Text>
+          <Text style={styles.alertTitle}>¿Cerrar sesión, {userData?.nombreUsuario || 'Usuario'}?</Text>
             <Text style={styles.alertMessage}>Vas a salir de tu cuenta actual.</Text>
             <View style={{ flexDirection: 'row', gap: 20, marginTop: 20 }}>
               <TouchableOpacity
