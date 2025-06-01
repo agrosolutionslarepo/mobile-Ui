@@ -62,7 +62,7 @@ const App: React.FC = () => {
   // NUEVO: función para cambiar de pantalla y pasar datos
   const handleSetActiveContent = (screen: string, data?: any) => {
     setActiveContent(screen);
-    if (screen === 'viewSeed') {
+    if (screen === 'viewSeed' || screen === 'editSeed') {
       setSelectedSeed(data);
     }
   };
@@ -90,7 +90,7 @@ const App: React.FC = () => {
       case 'addSeed':
         return <AddSeedScreen setActiveContent={setActiveContent} />;
       case 'editSeed':
-        return <EditSeedScreen setActiveContent={setActiveContent} />;
+        return <EditSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
       case 'viewSeed':
         return <ViewSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
 

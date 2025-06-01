@@ -51,8 +51,8 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
     setActiveContent('viewSeed', semilla);
   };
 
-  const goToEditSeedScreen = () => {
-    setActiveContent('editSeed');
+  const goToEditSeedScreen = (semilla: Semilla) => {
+    setActiveContent('editSeed', semilla);
   };
 
   return (
@@ -90,7 +90,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
                 </Text>
               </View>
 
-              <TouchableOpacity onPress={goToEditSeedScreen}>
+              <TouchableOpacity onPress={() => goToEditSeedScreen(semilla)}>
                 <Image
                   source={require('../../assets/img/edit.png')}
                   style={styles.editImage}
