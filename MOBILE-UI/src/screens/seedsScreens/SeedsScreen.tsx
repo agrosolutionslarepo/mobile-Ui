@@ -12,7 +12,6 @@ interface Semilla {
 }
 
 const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string, data?: any) => void }) => {
-  const [showAlertDelete, setShowAlertDelete] = useState(false);
   const [semillas, setSemillas] = useState<Semilla[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,10 +38,6 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
     fetchSemillas();
   }, []);
 
-  /*const deleteSeed = () => {
-    setShowAlertDelete(true);
-  };*/
-
   const goToAddSeedScreen = () => {
     setActiveContent('addSeed');
   };
@@ -59,13 +54,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
     <View style={styles.seedsContainer}>
       <Text style={styles.seedsTitle}>Inventario{'\n'}semillas</Text>
 
-      <TouchableOpacity style={styles.addSeedButton} onPress={goToAddSeedScreen}>
-        <Image
-          source={require('../../assets/img/add.png')}
-          style={styles.addSeedImage}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
+     
 
       <View style={styles.seedsListContainer}>
         {loading ? (
@@ -110,33 +99,6 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
           ))
         )}
       </View>
-
-      {/*<Modal animationType="fade" transparent visible={showAlertDelete}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>
-              ¿Esta seguro que quiere{'\n'}eliminar esta semilla?
-            </Text>
-
-            <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
-                <Text style={styles.alertButtonText}>Si</Text>
-              </TouchableOpacity>
-
-               
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
-                <Text style={styles.alertButtonText}>No</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>*/}
     </View>
   );
 };

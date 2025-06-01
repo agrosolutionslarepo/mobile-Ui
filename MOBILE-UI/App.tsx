@@ -3,7 +3,6 @@ import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
-import AddSeedScreen from './src/screens/seedsScreens/AddSeedScreen';
 import ViewSeedScreen from './src/screens/seedsScreens/ViewSeedScreen';
 import EditSeedScreen from './src/screens/seedsScreens/EditSeedScreen';
 
@@ -87,8 +86,6 @@ const App: React.FC = () => {
       // Seeds
       case 'seeds':
         return <SeedsScreen setActiveContent={handleSetActiveContent} />;
-      case 'addSeed':
-        return <AddSeedScreen setActiveContent={setActiveContent} />;
       case 'editSeed':
         return <EditSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
       case 'viewSeed':
