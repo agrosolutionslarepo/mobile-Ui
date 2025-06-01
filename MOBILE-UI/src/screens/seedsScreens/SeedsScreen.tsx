@@ -1,79 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar semilla
+interface Semilla {
+  _id: string;
+  nombreSemilla: string;
+  tipoSemilla: string;
+  cantidadSemilla: number;
+  unidad: string;
+}
 
-  const deleteSeed = () => {
+const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string, data?: any) => void }) => {
+  const [showAlertDelete, setShowAlertDelete] = useState(false);
+  const [semillas, setSemillas] = useState<Semilla[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSemillas = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) return;
+
+        const response = await axios.get('http://localhost:3000/semillas/getAllSemillas', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setSemillas(response.data);
+      } catch (error) {
+        console.error('Error al obtener semillas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSemillas();
+  }, []);
+
+  /*const deleteSeed = () => {
     setShowAlertDelete(true);
-  };
+  };*/
 
   const goToAddSeedScreen = () => {
     setActiveContent('addSeed');
   };
 
-  const goToViewSeedScreen = () => {
-    setActiveContent('viewSeed');
+  const goToViewSeedScreen = (semilla: Semilla) => {
+    setActiveContent('viewSeed', semilla);
   };
 
   const goToEditSeedScreen = () => {
     setActiveContent('editSeed');
   };
 
-
   return (
     <View style={styles.seedsContainer}>
-      <Text style={styles.seedsTitle}>Inventario<br />semillas</Text>
+      <Text style={styles.seedsTitle}>Inventario{'\n'}semillas</Text>
+
       <TouchableOpacity style={styles.addSeedButton} onPress={goToAddSeedScreen}>
-        <Image source={require('../../assets/img/add.png')}
+        <Image
+          source={require('../../assets/img/add.png')}
           style={styles.addSeedImage}
-          resizeMode="contain" />
+          resizeMode="contain"
+        />
       </TouchableOpacity>
 
       <View style={styles.seedsListContainer}>
-        {[...Array(10).keys()].map(index => (
-          <TouchableOpacity style={styles.seedItemContainer} onPress={goToViewSeedScreen}>
-            <Image
-              source={require('../../assets/img/seed.png')}
-              style={styles.seedItemImage}
-              resizeMode="contain"
-            />
-
-            <View style={styles.seedTextContainer}>
-              <Text style={styles.seedName}>Nombre de Semilla</Text>
-              <Text style={styles.seedText}>------------</Text>
-            </View>
-
-
-            <TouchableOpacity onPress={goToEditSeedScreen}>
+        {loading ? (
+          <Text>Cargando semillas...</Text>
+        ) : (
+          semillas.map((semilla) => (
+            <TouchableOpacity key={semilla._id} style={styles.seedItemContainer} onPress={() => setActiveContent('viewSeed', semilla)}>
               <Image
-                source={require('../../assets/img/edit.png')}
-                style={styles.editImage}
+                source={require('../../assets/img/seed.png')}
+                style={styles.seedItemImage}
                 resizeMode="contain"
               />
-            </TouchableOpacity>
 
-            <TouchableOpacity onPress={deleteSeed}>
-              <Image
-                source={require('../../assets/img/delete.png')}
-                style={styles.deleteImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+              <View style={styles.seedTextContainer}>
+                <Text style={styles.seedName}>
+                  {typeof semilla.nombreSemilla === 'string'
+                    ? semilla.nombreSemilla.charAt(0).toUpperCase() + semilla.nombreSemilla.slice(1)
+                    : 'Nombre de Semilla'}
+                </Text>
+                <Text style={styles.seedText}>
+                  {`${semilla.cantidadSemilla} ${semilla.unidad}`}
+                </Text>
+              </View>
 
-          </TouchableOpacity>
-        ))}
+              <TouchableOpacity onPress={goToEditSeedScreen}>
+                <Image
+                  source={require('../../assets/img/edit.png')}
+                  style={styles.editImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              
+              {/*
+              <TouchableOpacity onPress={deleteSeed}>
+                <Image
+                  source={require('../../assets/img/delete.png')}
+                  style={styles.deleteImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>*/}
+            </TouchableOpacity>
+          ))
+        )}
       </View>
 
-      {/* Modal para la alerta de eliminar semilla*/}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showAlertDelete}
-      >
+      {/*<Modal animationType="fade" transparent visible={showAlertDelete}>
         <View style={styles.modalView}>
           <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>¿Esta seguro que quiere<br />eliminar esta semilla?</Text>
+            <Text style={styles.alertMessage}>
+              ¿Esta seguro que quiere{'\n'}eliminar esta semilla?
+            </Text>
 
             <View style={styles.alertButtonsContainer}>
               <TouchableOpacity
@@ -83,6 +126,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
                 <Text style={styles.alertButtonText}>Si</Text>
               </TouchableOpacity>
 
+               
               <TouchableOpacity
                 onPress={() => setShowAlertDelete(false)}
                 style={styles.alertButton}
@@ -92,10 +136,10 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             </View>
           </View>
         </View>
-      </Modal>
+      </Modal>*/}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
 
@@ -233,7 +277,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#A01BAC',
     borderRadius: 20,
     marginLeft: 10,
-
     paddingLeft: 20,
     paddingRight: 20
   },

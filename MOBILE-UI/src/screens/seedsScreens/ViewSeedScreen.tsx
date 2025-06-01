@@ -1,36 +1,48 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
-const ViewSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+interface Props {
+    setActiveContent: (screen: string) => void;
+    selectedSeed: {
+      nombreSemilla: string;
+      tipoSemilla: string;
+      cantidadSemilla: number;
+      unidad: string;
+    } | null;
+  }
 
+const ViewSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => {
     const goToSeedsScreen = () => {
-        setActiveContent('seeds');
+      setActiveContent('seeds');
     };
 
-
-    return (
+    if (!selectedSeed) {
+        return (
+          <View style={styles.seedContainer}>
+            <Text style={styles.seedTitle}>No se encontró la semilla</Text>
+            <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
+              <Text style={styles.buttonText}>Volver</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      }
+    
+      return (
         <View style={styles.seedContainer}>
-            <Text style={styles.seedTitle}>Semilla</Text>
-
-            <View style={styles.formContainer}>
-
-                <Text style={styles.seedText}>Nombre Semilla</Text>
-
-                <Text style={styles.seedText}>Parcela</Text>
-
-                <Text style={styles.seedText}>Día de cosecha</Text>
-
-                <Text style={styles.seedText}>Día de siembra</Text>
-
-                <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
-                    <Text style={styles.buttonText}>Volver</Text>
-                </TouchableOpacity>
-
-            </View>
+          <Text style={styles.seedTitle}>Semilla</Text>
+    
+          <View style={styles.formContainer}>
+            <Text style={styles.seedText}>{selectedSeed.nombreSemilla}</Text>
+            <Text style={styles.seedText}>{selectedSeed.tipoSemilla}</Text>
+            <Text style={styles.seedText}>{selectedSeed.cantidadSemilla} {selectedSeed.unidad}</Text>
+    
+            <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
+              <Text style={styles.buttonText}>Volver</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-    );
-}
-
+      );
+    };
 const styles = StyleSheet.create({
 
     seedContainer: {

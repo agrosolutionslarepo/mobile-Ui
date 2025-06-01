@@ -31,6 +31,7 @@ import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
+  const [selectedSeed, setSelectedSeed] = useState<any>(null); // NUEVO: estado para almacenar la semilla seleccionada
 
   // Verificamos el token al iniciar la app
   useEffect(() => {
@@ -58,7 +59,13 @@ const App: React.FC = () => {
     checkUserToken();
   }, []);
 
-
+  // NUEVO: función para cambiar de pantalla y pasar datos
+  const handleSetActiveContent = (screen: string, data?: any) => {
+    setActiveContent(screen);
+    if (screen === 'viewSeed') {
+      setSelectedSeed(data);
+    }
+  };
 
   const renderContent = () => {
     switch (activeContent) {
@@ -79,13 +86,13 @@ const App: React.FC = () => {
 
       // Seeds
       case 'seeds':
-        return <SeedsScreen setActiveContent={setActiveContent} />;
+        return <SeedsScreen setActiveContent={handleSetActiveContent} />;
       case 'addSeed':
         return <AddSeedScreen setActiveContent={setActiveContent} />;
       case 'editSeed':
         return <EditSeedScreen setActiveContent={setActiveContent} />;
       case 'viewSeed':
-        return <ViewSeedScreen setActiveContent={setActiveContent} />;
+        return <ViewSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
 
       // Crops
       case 'crops':
