@@ -1,13 +1,32 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de editar semilla
-    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de editar semilla
+interface Props {
+    setActiveContent: (content: string) => void;
+    selectedSeed: {
+      _id: string;
+      nombreSemilla: string;
+      tipoSemilla: string;
+      cantidadSemilla: number;
+      unidad: string;
+    } | null;
+  }
 
-    const editSeed = () => {
+  const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => {
+    const [showAlertEdit, setShowAlertEdit] = useState(false);
+    const [showAlertCancel, setShowAlertCancel] = useState(false);
+  
+    const [nombreSemilla, setNombreSemilla] = useState(selectedSeed?.nombreSemilla || '');
+    const [tipoSemilla, setTipoSemilla] = useState(selectedSeed?.tipoSemilla || '');
+    const [cantidadSemilla, setCantidadSemilla] = useState(String(selectedSeed?.cantidadSemilla || ''));
+    const [unidad, setUnidad] = useState(selectedSeed?.unidad || '');
+
+    /*const editSeed = () => {
         setShowAlertEdit(true);
-    };
+    };*/
 
     const cancelSeedEdit = () => {
         setShowAlertCancel(true);
@@ -17,6 +36,29 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         setActiveContent('seeds');
     };
 
+    const editSeed = async () => {
+        try {
+          const token = await AsyncStorage.getItem('userToken');
+          if (!token || !selectedSeed) return;
+    
+          const updatedSeed = {
+            nombreSemilla,
+            tipoSemilla,
+            cantidadSemilla: parseFloat(cantidadSemilla),
+            unidad,
+          };
+    
+          await axios.put(`http://localhost:3000/semillas/updateSemilla/${selectedSeed._id}`, updatedSeed, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          setShowAlertEdit(true);
+        } catch (error) {
+          console.error('Error al editar la semilla:', error);
+        }
+      };
 
     return (
         <View style={styles.seedContainer}>
@@ -26,22 +68,39 @@ const EditSeedScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 <TextInput
                     style={styles.input}
                     placeholder="Nombre Semilla"
+                    value={nombreSemilla}
+                    onChangeText={setNombreSemilla}
+                    editable={false} // ❌ Deshabilitado
                 />
-
                 <TextInput
                     style={styles.input}
-                    placeholder="Parcela"
+                    placeholder="Tipo de Semilla"
+                    value={tipoSemilla}
+                    onChangeText={setTipoSemilla}
+                    editable={false} // ❌ Deshabilitado
                 />
-
                 <TextInput
                     style={styles.input}
-                    placeholder="Día de cosecha"
+                    placeholder="Cantidad"
+                    value={cantidadSemilla}
+                    onChangeText={setCantidadSemilla}
+                    keyboardType="numeric"
                 />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Día de siembra"
-                />
+                <View style={styles.input}>
+                    <Picker
+                        selectedValue={unidad}
+                        onValueChange={(itemValue) => {
+                            if (itemValue !== '') setUnidad(itemValue);
+                        }}
+                        style={styles.picker}
+                        >
+                        {unidad === '' && (
+                            <Picker.Item label="Seleccionar unidad" value="" />
+                        )}
+                        <Picker.Item label="Toneladas (ton)" value="ton" />
+                        <Picker.Item label="Kilogramos (kg)" value="kg" />
+                    </Picker>
+                </View>
 
                 <View style={styles.formButtonsContainer}>
                     <TouchableOpacity style={styles.button} onPress={cancelSeedEdit}>
@@ -217,6 +276,28 @@ const styles = StyleSheet.create({
     seedText: {
 
     },
+
+    pickerContainer: {
+        width: '80%',
+        marginLeft: '10%',
+        marginRight: '10%',
+        marginBottom: 20,
+        backgroundColor: '#D9D9D9',
+        borderRadius: 25,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
+      picker: {
+        height: 40,
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#000',
+      },
 
     // Estilos para las alertas
     modalView: {

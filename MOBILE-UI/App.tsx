@@ -3,7 +3,6 @@ import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
-import AddSeedScreen from './src/screens/seedsScreens/AddSeedScreen';
 import ViewSeedScreen from './src/screens/seedsScreens/ViewSeedScreen';
 import EditSeedScreen from './src/screens/seedsScreens/EditSeedScreen';
 
@@ -31,6 +30,7 @@ import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
+  const [selectedSeed, setSelectedSeed] = useState<any>(null); // NUEVO: estado para almacenar la semilla seleccionada
 
   // Verificamos el token al iniciar la app
   useEffect(() => {
@@ -58,7 +58,13 @@ const App: React.FC = () => {
     checkUserToken();
   }, []);
 
-
+  // NUEVO: función para cambiar de pantalla y pasar datos
+  const handleSetActiveContent = (screen: string, data?: any) => {
+    setActiveContent(screen);
+    if (screen === 'viewSeed' || screen === 'editSeed') {
+      setSelectedSeed(data);
+    }
+  };
 
   const renderContent = () => {
     switch (activeContent) {
@@ -79,13 +85,11 @@ const App: React.FC = () => {
 
       // Seeds
       case 'seeds':
-        return <SeedsScreen setActiveContent={setActiveContent} />;
-      case 'addSeed':
-        return <AddSeedScreen setActiveContent={setActiveContent} />;
+        return <SeedsScreen setActiveContent={handleSetActiveContent} />;
       case 'editSeed':
-        return <EditSeedScreen setActiveContent={setActiveContent} />;
+        return <EditSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
       case 'viewSeed':
-        return <ViewSeedScreen setActiveContent={setActiveContent} />;
+        return <ViewSeedScreen setActiveContent={handleSetActiveContent} selectedSeed={selectedSeed} />;
 
       // Crops
       case 'crops':
