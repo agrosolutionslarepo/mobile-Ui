@@ -12,24 +12,6 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error('Error al decodificar el token:', e);
-    return null;
-  }
-};
 
 const getDaysInMonth = (month: string, year: string): number => {
   const m = parseInt(month, 10);
