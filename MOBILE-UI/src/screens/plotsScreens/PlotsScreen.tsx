@@ -14,7 +14,7 @@ interface Parcela {
   longitud?: number;
 }
 
-const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
+const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string, data?: any) => void }) => {
   const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar parcela
   const [parcelas, setParcelas] = useState<Parcela[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +25,6 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
 
   const goToAddPlotScreen = () => {
     setActiveContent('addPlot');
-  };
-
-  const goToViewPlotScreen = () => {
-    setActiveContent('viewPlot');
   };
 
   const goToEditPlotScreen = () => {
@@ -75,7 +71,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             <TouchableOpacity
               key={parcela._id}
               style={styles.seedItemContainer}
-              onPress={goToViewPlotScreen}
+              onPress={() => setActiveContent('viewPlot', parcela)}
             >
               <Image
                 source={require('../../assets/img/plot.png')}
@@ -88,7 +84,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
                 <Text style={styles.seedText}>{parcela.tamaño}</Text>
               </View>
 
-              <TouchableOpacity onPress={goToEditPlotScreen}>
+              <TouchableOpacity onPress={() => setActiveContent('editPlot', parcela)}>
                 <Image
                   source={require('../../assets/img/edit.png')}
                   style={styles.editImage}
