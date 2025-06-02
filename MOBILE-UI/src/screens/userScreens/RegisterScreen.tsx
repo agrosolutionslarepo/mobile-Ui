@@ -12,24 +12,6 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error('Error al decodificar el token:', e);
-    return null;
-  }
-};
 
 const getDaysInMonth = (month: string, year: string): number => {
   const m = parseInt(month, 10);
@@ -51,6 +33,8 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   const [showAlertEmpresaCodigo, setShowAlertEmpresaCodigo] = useState(false);
   const [showSuccessFinal, setShowSuccessFinal] = useState(false);
   const [showUnderageModal, setShowUnderageModal] = useState(false);
+  const [showUserExistsModal, setShowUserExistsModal] = useState(false);
+  const [showInvalidCodeModal, setShowInvalidCodeModal] = useState(false);
 
   const [showEmpresaModal, setShowEmpresaModal] = useState(false);
   const [tipoRegistro, setTipoRegistro] = useState<'empresa' | 'codigo' | null>(null);
@@ -124,11 +108,35 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         setShowEmpresaModal(false);
         setShowSuccessFinal(true);
       }
-    } catch (error) {
-      console.error('Error de conexión:', error);
+    } catch (error: any) {
       setShowEmpresaModal(false);
+
+      if (error.response) {
+        const mensaje = (error.response.data?.error || '').toLowerCase().trim();
+
+        if (mensaje.includes('usuario existente')) {
+          setShowUserExistsModal(true);
+          return;
+        }
+
+        if (mensaje.includes('invite code not found')) {
+          setCodigoInvitacion('');
+          setShowInvalidCodeModal(true);
+          return; // detener ejecución aquí
+        }
+
+        console.error('Error en respuesta del backend:', error.response.data);
+      } else if (error.request) {
+        console.error('No hubo respuesta del servidor:', error.request);
+      } else {
+        console.error('Error configurando la solicitud:', error.message);
+      }
+
       setShowAlertFail(true);
     }
+
+
+
   };
 
   const goToLoginScreen = () => {
@@ -559,6 +567,47 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
             </View>
           </View>
         </Modal>
+
+        {/* Modal usuario existente */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showUserExistsModal}
+          onRequestClose={() => setShowUserExistsModal(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>Usuario ya registrado</Text>
+              <Text style={styles.alertMessage}>Probá con otro e-mail u otro nombre de usuario.</Text>
+              <TouchableOpacity onPress={() => setShowUserExistsModal(false)} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Volver</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+
+        {/* Modal código de invitación inválido */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showInvalidCodeModal}
+          onRequestClose={() => setShowInvalidCodeModal(false)}
+        >
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertTitle}>Código inválido</Text>
+              <Text style={styles.alertMessage}>El código de invitación ingresado no existe.</Text>
+              <TouchableOpacity
+                onPress={() => setShowInvalidCodeModal(false)}
+                style={styles.alertButton}
+              >
+                <Text style={styles.alertButtonText}>Volver</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
       </View>
     </ImageBackground>
   );
