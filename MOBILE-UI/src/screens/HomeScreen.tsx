@@ -8,63 +8,84 @@ import {
   Image,
 } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+// 🔁 Mapeo centralizado de semilla
+const SEMILLAS = {
+  ZCUSX: {
+    nombre: 'Maíz',
+    imagen: require('../assets/img/maiz.png'),
+  },
+  ZSUSX: {
+    nombre: 'Soja',
+    imagen: require('../assets/img/soja.png'),
+  },
+  KEUSX: {
+    nombre: 'Trigo',
+    imagen: require('../assets/img/trigo.png'),
+  },
+};
+
 const HomeScreen = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulación de datos
-    setTimeout(() => {
-      const fakeData = [
-        { symbol: 'ZSUSX', price: 520.5, ts: '2025-05-31T14:00:00Z' },
-        { symbol: 'CZCUSX', price: 480.3, ts: '2025-05-31T14:00:00Z' },
-        { symbol: 'KEUSX', price: 350.1, ts: '2025-05-31T14:00:00Z' },
-      ];
-      setCotizaciones(fakeData);
-      setLoading(false);
-    }, 1000);
+    const fetchCotizaciones = async () => {
+      try {
+        setLoading(true);
+
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) throw new Error('Token no encontrado');
+
+        const symbols = Object.keys(SEMILLAS); // ['ZCUSX', 'ZSUSX', 'KEUSX']
+        const apiBase = 'http://localhost:3000/grain'; // 🔁 Reemplazá con tu IP local
+
+        const responses = await Promise.all(
+          symbols.map(async (symbol) => {
+            const res = await axios.get(`${apiBase}/${symbol}/latest`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            return res.data;
+          })
+        );
+
+        setCotizaciones(responses);
+      } catch (error) {
+        console.error('Error al obtener cotizaciones:', error);
+        setCotizaciones([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCotizaciones();
   }, []);
 
-  const getNombreSemilla = (symbol: string) => {
-    switch (symbol) {
-      case 'ZSUSX':
-        return 'Soja';
-      case 'CZCUSX':
-        return 'Maíz';
-      case 'KEUSX':
-        return 'Trigo';
-      default:
-        return symbol;
-    }
-  };
-
-  const getImageSource = (symbol: string) => {
-    switch (symbol) {
-      case 'ZSUSX':
-        return require('../assets/img/soja.png');
-      case 'CZCUSX':
-        return require('../assets/img/maiz.png');
-      case 'KEUSX':
-        return require('../assets/img/trigo.png');
-      default:
-        return require('../assets/img/seed.png');
-    }
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.row}>
-        <Image source={getImageSource(item.symbol)} style={styles.image} />
-        <View>
-          <Text style={styles.symbol}>{getNombreSemilla(item.symbol)}</Text>
-          <Text style={styles.price}>Precio: ${item.price}</Text>
-          <Text style={styles.date}>
-            Fecha: {new Date(item.ts).toLocaleString()}
-          </Text>
+  const renderItem = ({ item }) => {
+    const semilla = SEMILLAS[item.symbol] || {};
+    return (
+      <View style={styles.card}>
+        <View style={styles.row}>
+          <Image
+            source={semilla.imagen || require('../assets/img/seed.png')}
+            style={styles.image}
+          />
+          <View>
+            <Text style={styles.symbol}>{semilla.nombre || item.symbol}</Text>
+            <Text style={styles.price}>Precio: U$S {item.price}</Text>
+            <Text style={styles.date}>
+              Fecha: {new Date(item.ts).toLocaleString()}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -101,7 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'center',
     color: '#665996',
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
   },
   list: {
     paddingBottom: 20,
@@ -126,6 +147,11 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginRight: 12,
   },
+  symbol: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2a7d62',
+  },
   price: {
     fontSize: 16,
     marginTop: 4,
@@ -139,7 +165,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#665996',
-    textAlign: 'center'
+    textAlign: 'center',
   },
 });
 

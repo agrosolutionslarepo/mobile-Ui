@@ -1,0 +1,321 @@
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Modal,
+    Alert
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import * as Clipboard from 'expo-clipboard';
+import { MaterialIcons, Feather, Entypo } from '@expo/vector-icons';
+
+
+
+const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
+    const [inviteCodes, setInviteCodes] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedCode, setSelectedCode] = useState<string | null>(null);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const [statusMessage, setStatusMessage] = useState('');
+    const [showCopiedModal, setShowCopiedModal] = useState(false);
+
+
+
+
+    const createInviteCode = async () => {
+        try {
+            setLoading(true);
+            const token = await AsyncStorage.getItem('userToken');
+            const res = await axios.post('http://localhost:3000/inviteCodes/createInviteCode', {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setInviteCodes(prev => [...prev, res.data]);
+            setShowCreateModal(false);
+
+            Alert.alert('Código generado', `Código: ${res.data.codigo}`);
+        } catch (err) {
+            console.error('Error creando código:', err);
+            setShowCreateModal(false);
+            setShowErrorModal(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const checkInviteCode = async (code: string) => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const res = await axios.post('http://localhost:3000/inviteCodes/checkInviteCode', { code }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setStatusMessage(`Código ${code} está ${res.data.valid ? 'ACTIVO' : 'DESACTIVADO'}`);
+            setShowStatusModal(true);
+        } catch (err) {
+            setStatusMessage('Código inválido o expirado');
+            setShowStatusModal(true);
+        }
+    };
+
+    const confirmDeleteCode = (code: string) => {
+        setSelectedCode(code);
+        setShowDeleteModal(true);
+    };
+
+
+    const deleteInviteCode = async () => {
+        if (!selectedCode) return;
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            await axios.delete('http://localhost:3000/inviteCodes/deleteInviteCode', {
+                headers: { Authorization: `Bearer ${token}` },
+                data: { code: selectedCode }
+            });
+            setInviteCodes(prev => prev.filter(c => c.codigo !== selectedCode));
+            setShowDeleteModal(false);
+            setSelectedCode(null);
+
+            Alert.alert('Código eliminado', `Código: ${selectedCode}`);
+        } catch (err) {
+            console.error('Error al eliminar código:', err);
+        }
+    };
+
+    const handleCopyCode = async (code: string) => {
+        await Clipboard.setStringAsync(code);
+        setShowCopiedModal(true);
+    };
+
+
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Empresa</Text>
+
+
+
+            <View style={styles.infoContainer}>
+                <Text style={styles.title}>Código Generado</Text>
+                {inviteCodes.length === 0 ? (
+                    <Text style={[{ textAlign: 'center' }]}>No hay códigos generados aún</Text>
+                ) : (
+                    inviteCodes.map((item, index) => (
+
+                        <View style={styles.codeContainer}>
+                            <View>
+                                <Text style={styles.label}>{item.codigo}</Text>
+                            </View>
+                            <View style={styles.iconGroup}>
+                                <TouchableOpacity onPress={() => checkInviteCode(item.codigo)}>
+                                    <MaterialIcons name="check-circle-outline" size={24} color={item.estado ? 'green' : 'orange'} />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => handleCopyCode(item.codigo)}>
+                                    <Feather name="copy" size={24} color="#007bff" />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => confirmDeleteCode(item.codigo)}>
+                                    <MaterialIcons name="delete-outline" size={24} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+
+
+                    ))
+                )}
+
+                <TouchableOpacity style={styles.editButton} onPress={() => setShowCreateModal(true)}>
+                    <Text style={styles.editButtonText}>Generar código de invitación</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Modal Crear Código */}
+            <Modal visible={showCreateModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalMessage}>¿Deseás generar un nuevo código de invitación?</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={createInviteCode}>
+                            <Text style={styles.modalButtonText}>Confirmar</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ccc' }]} onPress={() => setShowCreateModal(false)}>
+                            <Text style={[styles.modalButtonText, { color: '#333' }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Modal Confirmar Eliminación */}
+            <Modal visible={showDeleteModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Eliminar código</Text>
+                        <Text style={styles.modalMessage}>¿Estás seguro de eliminar el código {selectedCode}?</Text>
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#DC3545' }]} onPress={deleteInviteCode}>
+                            <Text style={styles.modalButtonText}>Eliminar</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ccc' }]} onPress={() => setShowDeleteModal(false)}>
+                            <Text style={[styles.modalButtonText, { color: '#333' }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Modal de error al crear codigo */}
+            <Modal visible={showErrorModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Error</Text>
+                        <Text style={styles.modalMessage}>No se pudo generar el código de invitación. Intentá nuevamente.</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setShowErrorModal(false)}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/*Modal status de codigo*/}
+            <Modal visible={showStatusModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Estado del código</Text>
+                        <Text style={styles.modalMessage}>{statusMessage}</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setShowStatusModal(false)}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/*Modal para copiar el codigo*/}
+            <Modal visible={showCopiedModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>¡Copiado!</Text>
+                        <Text style={styles.modalMessage}>El código fue copiado al portapapeles</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setShowCopiedModal(false)}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+
+
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingTop: 60,
+        backgroundColor: '#FFFCE3'
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        alignSelf: 'center',
+        color: '#665996',
+        textTransform: 'uppercase'
+    },
+    infoContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 5,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15,
+        justifyContent: 'space-between'
+    },
+    label: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: '#333',
+        width: 100,
+    },
+    codeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    iconGroup: {
+        flexDirection: 'row',
+        gap: 15,
+    },
+    value: {
+        fontSize: 16,
+        color: '#666',
+    },
+    editButton: {
+        marginTop: 20,
+        backgroundColor: '#A01BAC',
+        paddingVertical: 10,
+        borderRadius: 25,
+        alignItems: 'center',
+        elevation: 5,
+    },
+    editButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalBox: {
+        backgroundColor: '#FFFCE3',
+        padding: 20,
+        borderRadius: 15,
+        width: '80%',
+        alignItems: 'center'
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10
+    },
+    modalMessage: {
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    modalButton: {
+        backgroundColor: '#A01BAC',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        marginTop: 10
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold'
+    }
+});
+
+export default CompanyScreen;
