@@ -1,8 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface Parcela {
+  _id: string;
+  nombreParcela: string;
+  tamaño: number;
+  ubicacion?: string;
+  estado?: boolean;
+  gdd?: number;
+  latitud?: number;
+  longitud?: number;
+}
 
 const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
   const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar parcela
+  const [parcelas, setParcelas] = useState<Parcela[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const deleteSeed = () => {
     setShowAlertDelete(true);
@@ -20,6 +35,28 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     setActiveContent('editPlot');
   };
 
+  useEffect(() => {
+  const fetchParcelas = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) return;
+
+      const response = await axios.get('http://localhost:3000/parcelas/getAllParcelas', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setParcelas(response.data);
+    } catch (error) {
+      console.error('Error al obtener parcelas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchParcelas();
+}, []);
 
   return (
     <View style={styles.plotsContainer}>
@@ -31,39 +68,46 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       </TouchableOpacity>
 
       <View style={styles.seedsListContainer}>
-        {[...Array(10).keys()].map(index => (
-          <TouchableOpacity style={styles.seedItemContainer} onPress={goToViewPlotScreen}>
-            <Image
-              source={require('../../assets/img/plot.png')}
-              style={styles.seedItemImage}
-              resizeMode="contain"
-            />
-
-            <View style={styles.seedTextContainer}>
-              <Text style={styles.seedName}>Nombre de parcela</Text>
-              <Text style={styles.seedText}>Tamaño de parcela</Text>
-            </View>
-
-
-            <TouchableOpacity onPress={goToEditPlotScreen}>
+        {loading ? (
+          <Text style={{ textAlign: 'center' }}>Cargando parcelas...</Text>
+        ) : (
+          parcelas.map((parcela) => (
+            <TouchableOpacity
+              key={parcela._id}
+              style={styles.seedItemContainer}
+              onPress={goToViewPlotScreen}
+            >
               <Image
-                source={require('../../assets/img/edit.png')}
-                style={styles.editImage}
+                source={require('../../assets/img/plot.png')}
+                style={styles.seedItemImage}
                 resizeMode="contain"
               />
-            </TouchableOpacity>
 
-            <TouchableOpacity onPress={deleteSeed}>
-              <Image
-                source={require('../../assets/img/delete.png')}
-                style={styles.deleteImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+              <View style={styles.seedTextContainer}>
+                <Text style={styles.seedName}>{parcela.nombreParcela}</Text>
+                <Text style={styles.seedText}>{parcela.tamaño}</Text>
+              </View>
 
-          </TouchableOpacity>
-        ))}
+              <TouchableOpacity onPress={goToEditPlotScreen}>
+                <Image
+                  source={require('../../assets/img/edit.png')}
+                  style={styles.editImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={deleteSeed}>
+                <Image
+                  source={require('../../assets/img/delete.png')}
+                  style={styles.deleteImage}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          ))
+        )}
       </View>
+
 
       {/* Modal para la alerta de eliminar parcela*/}
       <Modal
