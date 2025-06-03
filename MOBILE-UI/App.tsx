@@ -29,6 +29,7 @@ import EditProfileScreen from './src/screens/userScreens/EditProfileScreen';
 import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen';
 
 import CompanyScreen from './src/screens/companyScreens/CompanyScreen';
+import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
@@ -120,6 +121,8 @@ const App: React.FC = () => {
       // Empresa
       case 'company':
         return <CompanyScreen setActiveContent={setActiveContent} />
+      case 'editCompany':
+        return <EditCompanyScreen setActiveContent={setActiveContent} />
 
       default:
         return <LoginScreen setActiveContent={setActiveContent} />;
