@@ -177,166 +177,166 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
 const styles = StyleSheet.create({
 
-    plotContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#FFFCE3',
-        width: '100%'
-    },
+  plotContainer: {
+      flex: 1,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      backgroundColor: '#FFFCE3',
+      width: '100%'
+  },
 
-    plotTitle: {
-        color: '#000000',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        textAlign: 'center'
-    },
+  plotTitle: {
+      color: '#000000',
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginTop: 20,
+      textAlign: 'center'
+  },
 
-    formContainer: {
-        flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
-        width: '100%'
-    },
+  formContainer: {
+      flex: 1,
+      alignContent: 'center',
+      justifyContent: 'center',
+      width: '100%'
+  },
 
-    input: {
-        width: '80%',
+  input: {
+      width: '80%',
 
-        height: 40,
-        padding: 10,
+      height: 40,
+      padding: 10,
 
-        marginLeft: '10%',
-        marginRight: '10%',
-        marginBottom: 20,
+      marginLeft: '10%',
+      marginRight: '10%',
+      marginBottom: 20,
 
-        backgroundColor: '#D9D9D9',
-        borderRadius: 25,
+      backgroundColor: '#D9D9D9',
+      borderRadius: 25,
 
-        fontSize:20,
-        fontWeight:'bold',
-        textAlign:'center',
+      fontSize:20,
+      fontWeight:'bold',
+      textAlign:'center',
 
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.75,
+      shadowRadius: 3.84,
+      elevation: 5,
+  },
 
-    formButtonsContainer: {
-        flexDirection: 'row',
-        marginLeft: '10%',
-        marginRight: '10%',
-    },
+  formButtonsContainer: {
+      flexDirection: 'row',
+      marginLeft: '10%',
+      marginRight: '10%',
+  },
 
-    button: {
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
-        backgroundColor: '#A01BAC',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 25,
+  button: {
+      color: '#F5F5F5',
+      marginTop: 20,
+      fontSize: 20,
+      width: '45%',
+      height: 35,
+      backgroundColor: '#A01BAC',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 25,
 
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.75,
+      shadowRadius: 3.84,
+      elevation: 5,
+  },
 
-    cancelButton: {
-        marginLeft: '10%',
+  cancelButton: {
+      marginLeft: '10%',
 
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
-        backgroundColor: '#A01BAC',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 25,
+      color: '#F5F5F5',
+      marginTop: 20,
+      fontSize: 20,
+      width: '45%',
+      height: 35,
+      backgroundColor: '#A01BAC',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 25,
 
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.75,
+      shadowRadius: 3.84,
+      elevation: 5,
+  },
 
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
+  buttonText: {
+      color: '#fff',
+      fontSize: 18,
+      fontWeight: 'bold',
+  },
 
-    seedName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000000'
-    },
+  seedName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#000000'
+  },
 
-    seedText: {
+  seedText: {
 
-    },
+  },
 
-    // Estilos para las alertas
-    modalView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
+  // Estilos para las alertas
+  modalView: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
 
-    alertView: {
-        backgroundColor: '#FFFCE3',
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
+  alertView: {
+      backgroundColor: '#FFFCE3',
+      padding: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+  },
 
-    alertTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
+  alertTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+  },
 
-    alertMessage: {
-        fontSize: 16,
-        marginBottom: 20,
-        textAlign: 'center'
-    },
+  alertMessage: {
+      fontSize: 16,
+      marginBottom: 20,
+      textAlign: 'center'
+  },
 
-    alertButtonsContainer: {
-        flexDirection: 'row',
+  alertButtonsContainer: {
+      flexDirection: 'row',
 
-    },
+  },
 
-    alertButton: {
-        backgroundColor: '#A01BAC',
-        borderRadius: 20,
-        marginLeft: 10,
+  alertButton: {
+      backgroundColor: '#A01BAC',
+      borderRadius: 20,
+      marginLeft: 10,
 
-        paddingLeft: 20,
-        paddingRight: 20
-    },
+      paddingLeft: 20,
+      paddingRight: 20
+  },
 
-    alertButtonText: {
-        fontSize: 18,
-        color: 'white',
-        fontWeight: 'bold',
-    },
+  alertButtonText: {
+      fontSize: 18,
+      color: 'white',
+      fontWeight: 'bold',
+  },
 
-    label: {
-        marginLeft: '10%',
-        marginBottom: 5,
-        fontWeight: 'bold',
-        fontSize: 16,
-        color: '#000000',
+  label: {
+      marginLeft: '10%',
+      marginBottom: 5,
+      fontWeight: 'bold',
+      fontSize: 16,
+      color: '#000000',
   },
 })
 

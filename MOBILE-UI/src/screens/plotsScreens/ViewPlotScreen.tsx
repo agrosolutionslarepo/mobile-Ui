@@ -41,7 +41,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         <Text style={styles.plotText}>{selectedPlot.nombreParcela}</Text>
 
         <Text style={styles.label}>Tamaño</Text>
-        <Text style={styles.plotText}>{selectedPlot.tamaño} ha</Text>
+        <Text style={styles.plotText}>{selectedPlot.tamaño}</Text>
 
         {selectedPlot.ubicacion && (
           <>
