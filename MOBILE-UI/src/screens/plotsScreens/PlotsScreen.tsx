@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -15,23 +15,11 @@ interface Parcela {
 }
 
 const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string, data?: any) => void }) => {
-  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar parcela
+  const [showAlertDelete, setShowAlertDelete] = useState(false);
   const [parcelas, setParcelas] = useState<Parcela[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedParcelaId, setSelectedParcelaId] = useState<string | null>(null);
 
-  const deleteSeed = () => {
-    setShowAlertDelete(true);
-  };
-
-  const goToAddPlotScreen = () => {
-    setActiveContent('addPlot');
-  };
-
-  const goToEditPlotScreen = () => {
-    setActiveContent('editPlot');
-  };
-
-  useEffect(() => {
   const fetchParcelas = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
@@ -51,16 +39,46 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
     }
   };
 
-  fetchParcelas();
-}, []);
+  const confirmDeleteParcela = async () => {
+    if (!selectedParcelaId) return;
+
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) throw new Error('Token no encontrado');
+
+      await axios.delete(`http://localhost:3000/parcelas/deleteParcela/${selectedParcelaId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setShowAlertDelete(false);
+      setSelectedParcelaId(null);
+      fetchParcelas();
+    } catch (error) {
+      console.error('Error al eliminar parcela:', error);
+      Alert.alert('Error', 'No se pudo eliminar la parcela. Intente nuevamente.');
+    }
+  };
+
+  const askDeleteParcela = (id: string) => {
+    setSelectedParcelaId(id);
+    setShowAlertDelete(true);
+  };
+
+  const goToAddPlotScreen = () => {
+    setActiveContent('addPlot');
+  };
+
+  useEffect(() => {
+    fetchParcelas();
+  }, []);
 
   return (
     <View style={styles.plotsContainer}>
       <Text style={styles.plotsTitle}>Parcelas</Text>
       <TouchableOpacity style={styles.addSeedButton} onPress={goToAddPlotScreen}>
-        <Image source={require('../../assets/img/add.png')}
-          style={styles.addSeedImage}
-          resizeMode="contain" />
+        <Image source={require('../../assets/img/add.png')} style={styles.addSeedImage} resizeMode="contain" />
       </TouchableOpacity>
 
       <View style={styles.seedsListContainer}>
@@ -73,11 +91,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
               style={styles.seedItemContainer}
               onPress={() => setActiveContent('viewPlot', parcela)}
             >
-              <Image
-                source={require('../../assets/img/plot.png')}
-                style={styles.seedItemImage}
-                resizeMode="contain"
-              />
+              <Image source={require('../../assets/img/plot.png')} style={styles.seedItemImage} resizeMode="contain" />
 
               <View style={styles.seedTextContainer}>
                 <Text style={styles.seedName}>{parcela.nombreParcela}</Text>
@@ -85,48 +99,27 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
               </View>
 
               <TouchableOpacity onPress={() => setActiveContent('editPlot', parcela)}>
-                <Image
-                  source={require('../../assets/img/edit.png')}
-                  style={styles.editImage}
-                  resizeMode="contain"
-                />
+                <Image source={require('../../assets/img/edit.png')} style={styles.editImage} resizeMode="contain" />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={deleteSeed}>
-                <Image
-                  source={require('../../assets/img/delete.png')}
-                  style={styles.deleteImage}
-                  resizeMode="contain"
-                />
+              <TouchableOpacity onPress={() => askDeleteParcela(parcela._id)}>
+                <Image source={require('../../assets/img/delete.png')} style={styles.deleteImage} resizeMode="contain" />
               </TouchableOpacity>
             </TouchableOpacity>
           ))
         )}
       </View>
 
-
-      {/* Modal para la alerta de eliminar parcela*/}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showAlertDelete}
-      >
+      <Modal animationType="fade" transparent={true} visible={showAlertDelete}>
         <View style={styles.modalView}>
           <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>¿Esta seguro que quiere<br />eliminar esta semilla?</Text>
+            <Text style={styles.alertMessage}>¿Está seguro que quiere eliminar esta parcela?</Text>
 
             <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
-                <Text style={styles.alertButtonText}>Si</Text>
+              <TouchableOpacity onPress={confirmDeleteParcela} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Sí</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
+              <TouchableOpacity onPress={() => setShowAlertDelete(false)} style={styles.alertButton}>
                 <Text style={styles.alertButtonText}>No</Text>
               </TouchableOpacity>
             </View>
@@ -135,7 +128,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
       </Modal>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
 
