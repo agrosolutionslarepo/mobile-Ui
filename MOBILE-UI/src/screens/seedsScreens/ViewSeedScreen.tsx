@@ -52,18 +52,18 @@ const ViewSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
 const styles = StyleSheet.create({
   seedContainer: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#FFFCE3',
-    width: '100%',
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFCE3'
   },
 
   seedTitle: {
-    color: '#000000',
-    fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
+    marginBottom:20,
     textAlign: 'center',
+    fontSize: 22,
+    color: '#665996',
+    textTransform: 'uppercase'
   },
 
   formContainer: {
@@ -71,14 +71,23 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     width: '100%',
+
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 5
   },
 
   label: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     marginLeft: '10%',
     marginBottom: 5,
-    color: '#333333',
+    color: 'rgb(42, 125, 98)',
   },
 
   seedText: {
@@ -87,10 +96,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: '10%',
     marginRight: '10%',
-    marginBottom: 20,
+    marginBottom: 30,
     backgroundColor: '#D9D9D9',
     borderRadius: 25,
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
     shadowColor: '#000000',
