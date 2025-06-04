@@ -1,10 +1,68 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-  const [showAlertDelete, setShowAlertDelete] = useState(false); // Estado para controlar si se muestra la alerta de eliminar parcela
+interface Parcela {
+  _id: string;
+  nombreParcela: string;
+  tamaño: number;
+  ubicacion?: string;
+  estado?: boolean;
+  gdd?: number;
+  latitud?: number;
+  longitud?: number;
+}
 
-  const deleteSeed = () => {
+const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string, data?: any) => void }) => {
+  const [showAlertDelete, setShowAlertDelete] = useState(false);
+  const [parcelas, setParcelas] = useState<Parcela[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedParcelaId, setSelectedParcelaId] = useState<string | null>(null);
+
+  const fetchParcelas = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) return;
+
+      const response = await axios.get('http://localhost:3000/parcelas/getAllParcelas', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setParcelas(response.data);
+    } catch (error) {
+      console.error('Error al obtener parcelas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmDeleteParcela = async () => {
+    if (!selectedParcelaId) return;
+
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) throw new Error('Token no encontrado');
+
+      await axios.delete(`http://localhost:3000/parcelas/deleteParcela/${selectedParcelaId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setShowAlertDelete(false);
+      setSelectedParcelaId(null);
+      fetchParcelas();
+    } catch (error) {
+      console.error('Error al eliminar parcela:', error);
+      Alert.alert('Error', 'No se pudo eliminar la parcela. Intente nuevamente.');
+    }
+  };
+
+  const askDeleteParcela = (id: string) => {
+    setSelectedParcelaId(id);
     setShowAlertDelete(true);
   };
 
@@ -12,81 +70,56 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     setActiveContent('addPlot');
   };
 
-  const goToViewPlotScreen = () => {
-    setActiveContent('viewPlot');
-  };
-
-  const goToEditPlotScreen = () => {
-    setActiveContent('editPlot');
-  };
-
+  useEffect(() => {
+    fetchParcelas();
+  }, []);
 
   return (
     <View style={styles.plotsContainer}>
       <Text style={styles.plotsTitle}>Parcelas</Text>
       <TouchableOpacity style={styles.addSeedButton} onPress={goToAddPlotScreen}>
-        <Image source={require('../../assets/img/add.png')}
-          style={styles.addSeedImage}
-          resizeMode="contain" />
+        <Image source={require('../../assets/img/add.png')} style={styles.addSeedImage} resizeMode="contain" />
       </TouchableOpacity>
 
       <View style={styles.seedsListContainer}>
-        {[...Array(10).keys()].map(index => (
-          <TouchableOpacity style={styles.seedItemContainer} onPress={goToViewPlotScreen}>
-            <Image
-              source={require('../../assets/img/plot.png')}
-              style={styles.seedItemImage}
-              resizeMode="contain"
-            />
+        {loading ? (
+          <Text style={{ textAlign: 'center' }}>Cargando parcelas...</Text>
+        ) : (
+          parcelas.map((parcela) => (
+            <TouchableOpacity
+              key={parcela._id}
+              style={styles.seedItemContainer}
+              onPress={() => setActiveContent('viewPlot', parcela)}
+            >
+              <Image source={require('../../assets/img/plot.png')} style={styles.seedItemImage} resizeMode="contain" />
 
-            <View style={styles.seedTextContainer}>
-              <Text style={styles.seedName}>Nombre de parcela</Text>
-              <Text style={styles.seedText}>Tamaño de parcela</Text>
-            </View>
+              <View style={styles.seedTextContainer}>
+                <Text style={styles.seedName}>{parcela.nombreParcela}</Text>
+                <Text style={styles.seedText}>{parcela.tamaño}</Text>
+              </View>
 
-
-            <TouchableOpacity onPress={goToEditPlotScreen}>
-              <Image
-                source={require('../../assets/img/edit.png')}
-                style={styles.editImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={deleteSeed}>
-              <Image
-                source={require('../../assets/img/delete.png')}
-                style={styles.deleteImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Modal para la alerta de eliminar parcela*/}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showAlertDelete}
-      >
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>¿Esta seguro que quiere<br />eliminar esta semilla?</Text>
-
-            <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
-                <Text style={styles.alertButtonText}>Si</Text>
+              <TouchableOpacity onPress={() => setActiveContent('editPlot', parcela)}>
+                <Image source={require('../../assets/img/edit.png')} style={styles.editImage} resizeMode="contain" />
               </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => setShowAlertDelete(false)}
-                style={styles.alertButton}
-              >
+              <TouchableOpacity onPress={() => askDeleteParcela(parcela._id)}>
+                <Image source={require('../../assets/img/delete.png')} style={styles.deleteImage} resizeMode="contain" />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          ))
+        )}
+      </View>
+
+      <Modal animationType="fade" transparent={true} visible={showAlertDelete}>
+        <View style={styles.modalView}>
+          <View style={styles.alertView}>
+            <Text style={styles.alertMessage}>¿Está seguro que quiere eliminar esta parcela?</Text>
+
+            <View style={styles.alertButtonsContainer}>
+              <TouchableOpacity onPress={confirmDeleteParcela} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Sí</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowAlertDelete(false)} style={styles.alertButton}>
                 <Text style={styles.alertButtonText}>No</Text>
               </TouchableOpacity>
             </View>
@@ -95,7 +128,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       </Modal>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
 

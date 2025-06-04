@@ -34,6 +34,7 @@ import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<any>(null); // NUEVO: estado para almacenar la semilla seleccionada
+  const [selectedPlot, setSelectedPlot] = useState<any>(null); // NUEVO: parcela seleccionada
 
   // Verificamos el token al iniciar la app
   useEffect(() => {
@@ -67,6 +68,10 @@ const App: React.FC = () => {
     if (screen === 'viewSeed' || screen === 'editSeed') {
       setSelectedSeed(data);
     }
+
+     if (screen === 'viewPlot' || screen === 'editPlot') {
+    setSelectedPlot(data);
+    }
   };
 
   const renderContent = () => {
@@ -78,13 +83,13 @@ const App: React.FC = () => {
 
       // Plots
       case 'plots':
-        return <PlotsScreen setActiveContent={setActiveContent} />;
+        return <PlotsScreen setActiveContent={handleSetActiveContent} />;
       case 'addPlot':
         return <AddPlotScreen setActiveContent={setActiveContent} />;
       case 'editPlot':
-        return <EditPlotScreen setActiveContent={setActiveContent} />;
+        return <EditPlotScreen setActiveContent={handleSetActiveContent} selectedPlot={selectedPlot} />;
       case 'viewPlot':
-        return <ViewPlotScreen setActiveContent={setActiveContent} />;
+        return <ViewPlotScreen setActiveContent={handleSetActiveContent} selectedPlot={selectedPlot} />;
 
       // Seeds
       case 'seeds':

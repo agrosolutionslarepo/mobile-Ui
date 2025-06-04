@@ -1,113 +1,167 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddSeedScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertAdd, setShowAlertAdd] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
-    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de agregar semilla
+  const [showAlertAdd, setShowAlertAdd] = useState(false);
+  const [showAlertCancel, setShowAlertCancel] = useState(false);
 
-    const addPlot = () => {
-        setShowAlertAdd(true);
-    };
+  const [nombreParcela, setNombreParcela] = useState('');
+  const [tamaño, setTamaño] = useState('');
+  const [ubicacion, setUbicacion] = useState('');
+  const [gdd, setGdd] = useState('');
+  const [latitud, setLatitud] = useState('');
+  const [longitud, setLongitud] = useState('');
 
-    const cancelPlotAdd = () => {
-        setShowAlertCancel(true);
-    };
+  const allowOnlyNumbers = (value: string) => {
+    return value
+      .replace(/[^0-9.-]/g, '')
+      .replace(/(?!^)-/g, '')
+      .replace(/(\..*?)\./g, '$1');
+  };
 
-    const goToPlotsScreen = () => {
-        setActiveContent('plots');
-    };
+  const allowLettersAndNumbers = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
+  const allowOnlyLetters = (value: string) => value.replace(/[^a-zA-Z\s]/g, '');
 
+  const addPlot = async () => {
+    if (!nombreParcela || !tamaño || !ubicacion || !gdd || !latitud || !longitud) {
+      Alert.alert('Campos incompletos', 'Por favor, complete todos los campos antes de continuar.');
+      return;
+    }
 
-    return (
-        <View style={styles.plotsContainer}>
-            <Text style={styles.plotTitle}>Agregar parcela</Text>
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) throw new Error('Token no encontrado');
 
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de parcela"
-                />
+      await axios.post('http://localhost:3000/parcelas/createParcela', {
+        nombreParcela,
+        tamaño: parseFloat(tamaño),
+        ubicacion,
+        gdd: parseInt(gdd),
+        latitud: parseFloat(latitud),
+        longitud: parseFloat(longitud),
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tamaño"
-                />
+      setShowAlertAdd(true);
+    } catch (error) {
+      console.error('Error al crear la parcela:', error);
+      Alert.alert('Error', 'No se pudo crear la parcela. Intente nuevamente.');
+    }
+  };
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Ubicación"
-                />
+  const cancelPlotAdd = () => {
+    setShowAlertCancel(true);
+  };
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Abono"
-                />
+  const goToPlotsScreen = () => {
+    setActiveContent('plots');
+  };
 
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelPlotAdd}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
+  return (
+    <View style={styles.plotsContainer}>
+      <Text style={styles.plotTitle}>Agregar parcela</Text>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={addPlot}>
-                        <Text style={styles.buttonText}>Agregar</Text>
-                    </TouchableOpacity>
-                </View>
+      <View style={styles.formContainer}>
+        <Text style={styles.label}>Nombre de parcela</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre de parcela"
+          value={nombreParcela}
+          onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))}
+        />
 
-            </View>
+        <Text style={styles.label}>Tamaño</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Tamaño"
+          value={tamaño}
+          keyboardType="numeric"
+          onChangeText={(text) => setTamaño(allowOnlyNumbers(text))}
+        />
 
-            {/* Modal para la alerta de agregar parcela exitoso*/}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertAdd}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Ingreso de parcela exitoso</Text>
+        <Text style={styles.label}>Ubicación</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ubicación"
+          value={ubicacion}
+          onChangeText={(text) => setUbicacion(allowOnlyLetters(text))}
+        />
 
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToPlotsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Continuar</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+        <Text style={styles.label}>GDD</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="GDD"
+          value={gdd}
+          keyboardType="numeric"
+          onChangeText={(text) => setGdd(allowOnlyNumbers(text))}
+        />
 
-            {/* Modal para la alerta de cancelar el ingreso de una nueva parcela */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertCancel}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />el ingreso de esta parcela?</Text>
+        <Text style={styles.label}>Latitud</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Latitud"
+          value={latitud}
+          keyboardType="numeric"
+          onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
+        />
 
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToPlotsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Si</Text>
-                            </TouchableOpacity>
+        <Text style={styles.label}>Longitud</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Longitud"
+          value={longitud}
+          keyboardType="numeric"
+          onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
+        />
 
-                            <TouchableOpacity
-                                onPress={() => setShowAlertCancel(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>No</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+        <View style={styles.formButtonsContainer}>
+          <TouchableOpacity style={styles.button} onPress={cancelPlotAdd}>
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.cancelButton} onPress={addPlot}>
+            <Text style={styles.buttonText}>Agregar</Text>
+          </TouchableOpacity>
         </View>
-    );
-}
+      </View>
+
+      <Modal animationType="fade" transparent={true} visible={showAlertAdd}>
+        <View style={styles.modalView}>
+          <View style={styles.alertView}>
+            <Text style={styles.alertMessage}>Ingreso de parcela exitoso</Text>
+            <View style={styles.alertButtonsContainer}>
+              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Continuar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
+        <View style={styles.modalView}>
+          <View style={styles.alertView}>
+            <Text style={styles.alertMessage}>¿Está seguro que quiere cancelar el ingreso de esta parcela?</Text>
+            <View style={styles.alertButtonsContainer}>
+              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Sí</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+};
+
 
 const styles = StyleSheet.create({
 
@@ -254,6 +308,16 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+
+    label: {
+    width: '80%',
+    marginLeft: '10%',
+    marginBottom: 0,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    },
+
 })
 
 export default AddSeedScreen;
