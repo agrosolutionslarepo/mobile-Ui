@@ -7,18 +7,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface Props {
     setActiveContent: (content: string) => void;
     selectedSeed: {
-      _id: string;
-      nombreSemilla: string;
-      tipoSemilla: string;
-      cantidadSemilla: number;
-      unidad: string;
+        _id: string;
+        nombreSemilla: string;
+        tipoSemilla: string;
+        cantidadSemilla: number;
+        unidad: string;
     } | null;
-  }
+}
 
-  const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => {
+const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => {
     const [showAlertEdit, setShowAlertEdit] = useState(false);
     const [showAlertCancel, setShowAlertCancel] = useState(false);
-  
+
     const [nombreSemilla, setNombreSemilla] = useState(selectedSeed?.nombreSemilla || '');
     const [tipoSemilla, setTipoSemilla] = useState(selectedSeed?.tipoSemilla || '');
     const [cantidadSemilla, setCantidadSemilla] = useState(String(selectedSeed?.cantidadSemilla || ''));
@@ -38,27 +38,27 @@ interface Props {
 
     const editSeed = async () => {
         try {
-          const token = await AsyncStorage.getItem('userToken');
-          if (!token || !selectedSeed) return;
-    
-          const updatedSeed = {
-            nombreSemilla,
-            tipoSemilla,
-            cantidadSemilla: parseFloat(cantidadSemilla),
-            unidad,
-          };
-    
-          await axios.put(`http://localhost:3000/semillas/updateSemilla/${selectedSeed._id}`, updatedSeed, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-    
-          setShowAlertEdit(true);
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token || !selectedSeed) return;
+
+            const updatedSeed = {
+                nombreSemilla,
+                tipoSemilla,
+                cantidadSemilla: parseFloat(cantidadSemilla),
+                unidad,
+            };
+
+            await axios.put(`http://localhost:3000/semillas/updateSemilla/${selectedSeed._id}`, updatedSeed, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setShowAlertEdit(true);
         } catch (error) {
-          console.error('Error al editar la semilla:', error);
+            console.error('Error al editar la semilla:', error);
         }
-      };
+    };
 
     return (
         <View style={styles.seedContainer}>
@@ -67,6 +67,7 @@ interface Props {
             <View style={styles.formContainer}>
                 <TextInput
                     style={styles.input}
+                    placeholderTextColor="#666"
                     placeholder="Nombre Semilla"
                     value={nombreSemilla}
                     onChangeText={setNombreSemilla}
@@ -74,6 +75,7 @@ interface Props {
                 />
                 <TextInput
                     style={styles.input}
+                    placeholderTextColor="#666"
                     placeholder="Tipo de Semilla"
                     value={tipoSemilla}
                     onChangeText={setTipoSemilla}
@@ -81,19 +83,20 @@ interface Props {
                 />
                 <TextInput
                     style={styles.input}
+                    placeholderTextColor="#666"
                     placeholder="Cantidad"
                     value={cantidadSemilla}
                     onChangeText={setCantidadSemilla}
                     keyboardType="numeric"
                 />
-                <View style={styles.input}>
+                <View>
                     <Picker
                         selectedValue={unidad}
                         onValueChange={(itemValue) => {
                             if (itemValue !== '') setUnidad(itemValue);
                         }}
                         style={styles.picker}
-                        >
+                    >
                         {unidad === '' && (
                             <Picker.Item label="Seleccionar unidad" value="" />
                         )}
@@ -119,7 +122,7 @@ interface Props {
                 animationType="fade"
                 transparent={true}
                 visible={showAlertEdit}
-                >
+            >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
                         <Text style={styles.alertMessage}>Modificación de semilla exitoso</Text>
@@ -141,7 +144,7 @@ interface Props {
                 animationType="fade"
                 transparent={true}
                 visible={showAlertCancel}
-                >
+            >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
                         <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta semilla?</Text>
@@ -172,26 +175,36 @@ const styles = StyleSheet.create({
 
     seedContainer: {
         flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#FFFCE3',
-        width: '100%'
+        paddingHorizontal: 20,
+        backgroundColor: '#FFFCE3'
     },
 
     seedTitle: {
-        color: '#000000',
-        fontSize: 20,
         fontWeight: 'bold',
         marginTop: 20,
-        textAlign: 'center'
+        marginBottom:20,
+        textAlign: 'center',
+        fontSize: 22,
+        color: '#665996',
+        textTransform: 'uppercase'
     },
 
     formContainer: {
         flex: 1,
         alignContent: 'center',
         justifyContent: 'center',
-        width: '100%'
+        width: '100%',
+
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 5
     },
+
 
     input: {
         width: '80%',
@@ -206,9 +219,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
 
-        fontSize:20,
-        fontWeight:'bold',
-        textAlign:'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
 
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -277,27 +290,30 @@ const styles = StyleSheet.create({
 
     },
 
-    pickerContainer: {
+
+    picker: {
         width: '80%',
+
+        height: 40,
+        padding: 0,
+
         marginLeft: '10%',
         marginRight: '10%',
         marginBottom: 20,
+
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
-        overflow: 'hidden',
-        shadowColor: '#000',
+
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+
+        shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
         elevation: 5,
-      },
-      picker: {
-        height: 40,
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        color: '#000',
-      },
+    },
 
     // Estilos para las alertas
     modalView: {

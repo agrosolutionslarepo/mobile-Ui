@@ -19,38 +19,62 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 
     useEffect(() => {
         const fetchUserFromApi = async () => {
-          try {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                if (!token) return;
+
+                const response = await axios.get(
+                    'http://localhost:3000/usuarios/getUsuarioAutenticado',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (response.status === 200) {
+                    const data = response.data;
+                    setUserData(data);
+                } else {
+                    console.error('No se pudo obtener los datos del usuario');
+                }
+            } catch (error: any) {
+                console.error('Error al consultar el usuario:', error?.response?.data || error.message);
+            }
+        };
+
+        fetchUserFromApi();
+    }, []);
+
+    const handleConfirmDelete = async () => {
+        setShowConfirmModal(false);
+        try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) return;
-      
-            const response = await axios.get(
-              'http://localhost:3000/usuarios/getUsuarioAutenticado',
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-      
-            if (response.status === 200) {
-              const data = response.data;
-              setUserData(data);
-            } else {
-              console.error('No se pudo obtener los datos del usuario');
-            }
-          } catch (error: any) {
-            console.error('Error al consultar el usuario:', error?.response?.data || error.message);
-          }
-        };
-      
-        fetchUserFromApi();
-      }, []);
 
-    const handleConfirmDelete = () => {
-        setShowConfirmModal(false);
-        setShowPasswordModal(true);
+            const response = await axios.put(
+                'http://localhost:3000/usuarios/deleteUsuario',
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                await AsyncStorage.removeItem('userToken');
+                setActiveContent('login');
+            } else {
+                console.error('No se pudo eliminar el usuario');
+            }
+        } catch (error: any) {
+            console.error('Error al eliminar usuario:', error?.response?.data || error.message);
+        }
     };
+
 
     return (
         <View style={styles.container}>
@@ -116,32 +140,8 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                             <TouchableOpacity onPress={handleConfirmDelete} style={styles.modalButton}>
                                 <Text style={styles.modalButtonText}>Sí, eliminar</Text>
                             </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
 
-            {/* Modal Ingresar contraseña */}
-            <Modal transparent={true} visible={showPasswordModal} animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalBox}>
-                        <Text style={styles.modalTitle}>Confirmá tu contraseña</Text>
-                        <TextInput
-                            placeholder="Contraseña"
-                            secureTextEntry
-                            style={styles.passwordInput}
-                            value={password}
-                            onChangeText={setPassword}
-                        />
-                        <TouchableOpacity style={styles.modalButton}>
-                            <Text style={styles.modalButtonText}>Eliminar cuenta</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => setShowPasswordModal(false)}
-                            style={[styles.modalButton, { backgroundColor: '#aaa', marginTop: 10 }]}
-                        >
-                            <Text style={styles.modalButtonText}>Cancelar</Text>
-                        </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>

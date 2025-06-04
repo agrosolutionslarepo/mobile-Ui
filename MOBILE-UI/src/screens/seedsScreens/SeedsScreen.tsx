@@ -50,11 +50,21 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
     setActiveContent('editSeed', semilla);
   };
 
+  const getSeedImage = (nombreSemilla: string) => {
+    const lower = nombreSemilla.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+    if (lower.includes('maiz')) return require('../../assets/img/maiz.png');
+    if (lower.includes('trigo')) return require('../../assets/img/trigo.png');
+    if (lower.includes('soja')) return require('../../assets/img/soja.png');
+
+    return require('../../assets/img/seed.png');
+  };
+
   return (
     <View style={styles.seedsContainer}>
       <Text style={styles.seedsTitle}>Inventario{'\n'}semillas</Text>
 
-     
+
 
       <View style={styles.seedsListContainer}>
         {loading ? (
@@ -63,10 +73,11 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
           semillas.map((semilla) => (
             <TouchableOpacity key={semilla._id} style={styles.seedItemContainer} onPress={() => setActiveContent('viewSeed', semilla)}>
               <Image
-                source={require('../../assets/img/seed.png')}
+                source={getSeedImage(semilla.nombreSemilla)}
                 style={styles.seedItemImage}
                 resizeMode="contain"
               />
+
 
               <View style={styles.seedTextContainer}>
                 <Text style={styles.seedName}>
@@ -86,7 +97,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-              
+
               {/*
               <TouchableOpacity onPress={deleteSeed}>
                 <Image
@@ -113,11 +124,13 @@ const styles = StyleSheet.create({
   },
 
   seedsTitle: {
-    color: '#000000',
-    fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
-    textAlign: 'center'
+    marginBottom: 20,
+    textAlign: 'center',
+    fontSize: 22,
+    color: '#665996',
+    textTransform: 'uppercase'
   },
 
   addSeedButton: {
@@ -160,6 +173,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
 
+    backgroundColor: '#fff',
+
     borderWidth: 1,
     borderRadius: 10,
     borderColor: '#96947B',
@@ -184,7 +199,7 @@ const styles = StyleSheet.create({
   seedName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000000'
+    color: 'rgb(42, 125, 98)'
   },
 
   seedText: {
@@ -232,7 +247,7 @@ const styles = StyleSheet.create({
 
   alertButtonsContainer: {
     flexDirection: 'row',
-    
+
   },
 
   alertButton: {

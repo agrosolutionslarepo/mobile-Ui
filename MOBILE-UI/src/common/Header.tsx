@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       try {
         const token = await AsyncStorage.getItem('userToken');
         if (!token) return;
-  
+
         const response = await axios.get(
           'http://localhost:3000/usuarios/getUsuarioAutenticado',
           {
@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             },
           }
         );
-  
+
         if (response.status === 200) {
           setUserData(response.data);
         } else {
@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         console.error('Error al consultar el usuario:', error?.response?.data || error.message);
       }
     };
-  
+
     fetchUserFromApi();
   }, []);
 
@@ -98,7 +98,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <Text style={styles.userName}>{userData?.nombreUsuario || 'Usuario'}</Text>
             </View>
 
-            {[{ label: 'Home', key: 'home' }, { label: 'Parcelas', key: 'plots' }, { label: 'Calendario', key: 'calendar' }, { label: 'Semillas', key: 'seeds' }, { label: 'Cosechas', key: 'crops' }, { label: 'Perfil', key: 'profile' }].map((item) => (
+            {[
+              { label: 'Home', key: 'home' },
+              { label: 'Parcelas', key: 'plots' },
+              { label: 'Calendario', key: 'calendar' },
+              { label: 'Semillas', key: 'seeds' },
+              { label: 'Cosechas', key: 'crops' },
+              { label: 'Perfil', key: 'profile' }
+            ].map((item) => (
               <View key={item.key} style={styles.menuButtonContainer}>
                 <TouchableOpacity
                   onPress={() => {
@@ -111,6 +118,23 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 </TouchableOpacity>
               </View>
             ))}
+
+            
+            {userData?.administrador && (
+              <View style={styles.menuButtonContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    closeModal();
+                    onMenuClick('company');
+                  }}
+                  style={[styles.menuButton]}
+                >
+                  <Text style={[styles.menuButtonText]}>Empresa</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
@@ -154,7 +178,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.alertView}>
-          <Text style={styles.alertTitle}>¿Cerrar sesión, {userData?.nombreUsuario || 'Usuario'}?</Text>
+            <Text style={styles.alertTitle}>¿Cerrar sesión, {userData?.nombreUsuario || 'Usuario'}?</Text>
             <Text style={styles.alertMessage}>Vas a salir de tu cuenta actual.</Text>
             <View style={{ flexDirection: 'row', gap: 20, marginTop: 20 }}>
               <TouchableOpacity

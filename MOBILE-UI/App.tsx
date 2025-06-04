@@ -28,6 +28,9 @@ import UserProfileScreen from './src/screens/userScreens/UserProfileScreen';
 import EditProfileScreen from './src/screens/userScreens/EditProfileScreen';
 import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen';
 
+import CompanyScreen from './src/screens/companyScreens/CompanyScreen';
+import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
+
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<any>(null); // NUEVO: estado para almacenar la semilla seleccionada
@@ -114,6 +117,12 @@ const App: React.FC = () => {
         return <EditProfileScreen setActiveContent={setActiveContent} />;
       case 'changePassword':
         return <ChangePasswordScreen setActiveContent={setActiveContent} />;
+
+      // Empresa
+      case 'company':
+        return <CompanyScreen setActiveContent={setActiveContent} />
+      case 'editCompany':
+        return <EditCompanyScreen setActiveContent={setActiveContent} />
 
       default:
         return <LoginScreen setActiveContent={setActiveContent} />;
