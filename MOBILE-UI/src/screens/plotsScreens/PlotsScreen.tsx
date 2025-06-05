@@ -77,25 +77,25 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
   return (
     <View style={styles.plotsContainer}>
       <Text style={styles.plotsTitle}>Parcelas</Text>
-      <TouchableOpacity style={styles.addSeedButton} onPress={goToAddPlotScreen}>
-        <Image source={require('../../assets/img/add.png')} style={styles.addSeedImage} resizeMode="contain" />
+      <TouchableOpacity style={styles.addplotButton} onPress={goToAddPlotScreen}>
+        <Image source={require('../../assets/img/add.png')} style={styles.addplotImage} resizeMode="contain" />
       </TouchableOpacity>
 
-      <View style={styles.seedsListContainer}>
+      <View style={styles.plotsListContainer}>
         {loading ? (
           <Text style={{ textAlign: 'center' }}>Cargando parcelas...</Text>
         ) : (
           parcelas.map((parcela) => (
             <TouchableOpacity
               key={parcela._id}
-              style={styles.seedItemContainer}
+              style={styles.plotItemContainer}
               onPress={() => setActiveContent('viewPlot', parcela)}
             >
-              <Image source={require('../../assets/img/plot.png')} style={styles.seedItemImage} resizeMode="contain" />
+              <Image source={require('../../assets/img/plot.png')} style={styles.plotItemImage} resizeMode="contain" />
 
-              <View style={styles.seedTextContainer}>
-                <Text style={styles.seedName}>{parcela.nombreParcela}</Text>
-                <Text style={styles.seedText}>{parcela.tamaño}</Text>
+              <View style={styles.plotTextContainer}>
+                <Text style={styles.plotName}>{parcela.nombreParcela}</Text>
+                <Text style={styles.plotText}>{parcela.tamaño}</Text>
               </View>
 
               <TouchableOpacity onPress={() => setActiveContent('editPlot', parcela)}>
@@ -140,14 +140,16 @@ const styles = StyleSheet.create({
   },
 
   plotsTitle: {
-    color: '#000000',
-    fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
-    textAlign: 'center'
+    marginBottom: 20,
+    textAlign: 'center',
+    fontSize: 22,
+    color: '#665996',
+    textTransform: 'uppercase'
   },
 
-  addSeedButton: {
+  addplotButton: {
     marginTop: 10,
     marginBottom: 20,
 
@@ -163,16 +165,16 @@ const styles = StyleSheet.create({
 
   },
 
-  addSeedImage: {
+  addplotImage: {
     width: 32,
     height: 36
   },
 
-  seedsListContainer: {
+  plotsListContainer: {
     width: '100%',
   },
 
-  seedItemContainer: {
+  plotItemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -187,6 +189,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
 
+    backgroundColor: '#fff',
+
     borderWidth: 1,
     borderRadius: 10,
     borderColor: '#96947B',
@@ -198,23 +202,23 @@ const styles = StyleSheet.create({
     elevation: 5
   },
 
-  seedItemImage: {
+  plotItemImage: {
     width: 64,
     height: 64,
     marginRight: 10
   },
 
-  seedTextContainer: {
+  plotTextContainer: {
     width: '50%'
   },
 
-  seedName: {
+  plotName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000000'
+    color: 'rgb(42, 125, 98)'
   },
 
-  seedText: {
+  plotText: {
 
   },
 
@@ -243,6 +247,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
+    maxWidth: '80%'
   },
 
   alertTitle: {

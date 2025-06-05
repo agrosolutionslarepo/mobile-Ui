@@ -62,7 +62,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const goToPlotsScreen = () => {
     setActiveContent('plots');
   };
-  
+
   const allowOnlyNumbers = (value: string) => {
     return value
       .replace(/[^0-9.-]/g, '') // permite números, punto decimal y guión
@@ -75,62 +75,80 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const allowOnlyLetters = (value: string) => value.replace(/[^a-zA-Z\s]/g, '');
 
 
- return (
+  return (
     <View style={styles.plotContainer}>
       <Text style={styles.plotTitle}>Modificar Parcela</Text>
 
       <View style={styles.formContainer}>
-        <Text style={styles.label}>Nombre de parcela</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre de parcela"
-          value={nombreParcela}
-          onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>📛 Nombre de parcela</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre de parcela"
+            placeholderTextColor="#666"
+            value={nombreParcela}
+            onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))}
+          />
+        </View>
 
-        <Text style={styles.label}>Tamaño</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Tamaño"
-          value={tamaño}
-          keyboardType="numeric"
-          onChangeText={(text) => setTamaño(allowOnlyNumbers(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>📐 Tamaño</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Tamaño"
+            placeholderTextColor="#666"
+            value={tamaño}
+            keyboardType="numeric"
+            onChangeText={(text) => setTamaño(allowOnlyNumbers(text))}
+          />
+        </View>
 
-        <Text style={styles.label}>Ubicación</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ubicación"
-          value={ubicacion}
-          onChangeText={(text) => setUbicacion(allowOnlyLetters(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>📍 Ubicación</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ubicación"
+            placeholderTextColor="#666"
+            value={ubicacion}
+            onChangeText={(text) => setUbicacion(allowOnlyLetters(text))}
+          />
+        </View>
 
-        <Text style={styles.label}>GDD</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="GDD"
-          value={gdd}
-          keyboardType="numeric"
-          onChangeText={(text) => setGdd(allowOnlyNumbers(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>🌡️ GDD</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="GDD"
+            placeholderTextColor="#666"
+            value={gdd}
+            keyboardType="numeric"
+            onChangeText={(text) => setGdd(allowOnlyNumbers(text))}
+          />
+        </View>
 
-        <Text style={styles.label}>Latitud</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Latitud"
-          value={latitud}
-          keyboardType="numeric"
-          onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>🌐 Latitud</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Latitud"
+            placeholderTextColor="#666"
+            value={latitud}
+            keyboardType="numeric"
+            onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
+          />
+        </View>
 
-        <Text style={styles.label}>Longitud</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Longitud"
-          value={longitud}
-          keyboardType="numeric"
-          onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>🌐 Longitud</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Longitud"
+            placeholderTextColor="#666"
+            value={longitud}
+            keyboardType="numeric"
+            onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
+          />
+        </View>
 
         <View style={styles.formButtonsContainer}>
           <TouchableOpacity style={styles.button} onPress={cancelPlotEdit}>
@@ -178,166 +196,119 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 const styles = StyleSheet.create({
 
   plotContainer: {
-      flex: 1,
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      backgroundColor: '#FFFCE3',
-      width: '100%'
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFCE3'
   },
-
   plotTitle: {
-      color: '#000000',
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginTop: 20,
-      textAlign: 'center'
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+    fontSize: 22,
+    color: '#665996',
+    textTransform: 'uppercase'
   },
-
   formContainer: {
-      flex: 1,
-      alignContent: 'center',
-      justifyContent: 'center',
-      width: '100%'
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginBottom: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 5
   },
-
+  inputGroup: {
+    marginBottom: 15
+  },
   input: {
-      width: '80%',
-
-      height: 40,
-      padding: 10,
-
-      marginLeft: '10%',
-      marginRight: '10%',
-      marginBottom: 20,
-
-      backgroundColor: '#D9D9D9',
-      borderRadius: 25,
-
-      fontSize:20,
-      fontWeight:'bold',
-      textAlign:'center',
-
-      shadowColor: '#000000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.75,
-      shadowRadius: 3.84,
-      elevation: 5,
+    width: '100%',
+    height: 40,
+    padding: 10,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 25,
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.75,
+    shadowRadius: 3.84,
+    elevation: 5
   },
-
-  formButtonsContainer: {
-      flexDirection: 'row',
-      marginLeft: '10%',
-      marginRight: '10%',
-  },
-
-  button: {
-      color: '#F5F5F5',
-      marginTop: 20,
-      fontSize: 20,
-      width: '45%',
-      height: 35,
-      backgroundColor: '#A01BAC',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 25,
-
-      shadowColor: '#000000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.75,
-      shadowRadius: 3.84,
-      elevation: 5,
-  },
-
-  cancelButton: {
-      marginLeft: '10%',
-
-      color: '#F5F5F5',
-      marginTop: 20,
-      fontSize: 20,
-      width: '45%',
-      height: 35,
-      backgroundColor: '#A01BAC',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 25,
-
-      shadowColor: '#000000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.75,
-      shadowRadius: 3.84,
-      elevation: 5,
-  },
-
-  buttonText: {
-      color: '#fff',
-      fontSize: 18,
-      fontWeight: 'bold',
-  },
-
-  seedName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#000000'
-  },
-
-  seedText: {
-
-  },
-
-  // Estilos para las alertas
-  modalView: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-
-  alertView: {
-      backgroundColor: '#FFFCE3',
-      padding: 20,
-      borderRadius: 10,
-      alignItems: 'center',
-  },
-
-  alertTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 10,
-  },
-
-  alertMessage: {
-      fontSize: 16,
-      marginBottom: 20,
-      textAlign: 'center'
-  },
-
-  alertButtonsContainer: {
-      flexDirection: 'row',
-
-  },
-
-  alertButton: {
-      backgroundColor: '#A01BAC',
-      borderRadius: 20,
-      marginLeft: 10,
-
-      paddingLeft: 20,
-      paddingRight: 20
-  },
-
-  alertButtonText: {
-      fontSize: 18,
-      color: 'white',
-      fontWeight: 'bold',
-  },
-
   label: {
-      marginLeft: '10%',
-      marginBottom: 5,
-      fontWeight: 'bold',
-      fontSize: 16,
-      color: '#000000',
+    marginBottom: 5,
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: 'rgb(42, 125, 98)'
   },
+  formButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20
+  },
+  button: {
+    width: '48%',
+    height: 40,
+    backgroundColor: '#A01BAC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    elevation: 5
+  },
+  cancelButton: {
+    width: '48%',
+    height: 40,
+    backgroundColor: '#A01BAC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    elevation: 5
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  alertView: {
+    backgroundColor: '#FFFCE3',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    maxWidth: '80%'
+  },
+  alertMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  alertButtonsContainer: {
+    flexDirection: 'row'
+  },
+  alertButton: {
+    backgroundColor: '#A01BAC',
+    borderRadius: 20,
+    marginHorizontal: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10
+  },
+  alertButtonText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  inputError: {
+    borderColor: 'red',
+    borderWidth: 2,
+  }
 })
 
 export default EditPlotScreen;
