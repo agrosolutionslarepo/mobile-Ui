@@ -82,6 +82,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const menuItems = [
     { label: 'Home', key: 'home' },
     { label: 'Parcelas', key: 'plots' },
+    { label: 'Plantaciones', key: 'plantations' },
     { label: 'Semillas', key: 'seeds' },
     { label: 'Cosechas', key: 'crops' },
     { label: 'Perfil', key: 'profile' }

@@ -151,11 +151,11 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.button} onPress={cancelPlotEdit}>
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotEdit}>
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={editPlot}>
+          <TouchableOpacity style={styles.button} onPress={editPlot}>
             <Text style={styles.buttonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     width: '48%',
     height: 40,
-    backgroundColor: '#A01BAC',
+    backgroundColor: '#aaa',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,

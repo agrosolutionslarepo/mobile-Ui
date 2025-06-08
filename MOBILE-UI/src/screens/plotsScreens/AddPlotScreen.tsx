@@ -122,8 +122,8 @@ const AddSeedScreen = ({ setActiveContent }) => {
         </View>
 
         <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.button} onPress={cancelPlotAdd}><Text style={styles.buttonText}>Cancelar</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={addPlot}><Text style={styles.buttonText}>Agregar</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotAdd}><Text style={styles.buttonText}>Cancelar</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={addPlot}><Text style={styles.buttonText}>Agregar</Text></TouchableOpacity>
         </View>
       </View>
 
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     width: '48%',
     height: 40,
-    backgroundColor: '#A01BAC',
+    backgroundColor: '#aaa',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
