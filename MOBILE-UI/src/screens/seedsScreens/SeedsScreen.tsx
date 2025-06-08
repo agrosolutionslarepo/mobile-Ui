@@ -253,9 +253,9 @@ const styles = StyleSheet.create({
   alertButton: {
     backgroundColor: '#A01BAC',
     borderRadius: 20,
-    marginLeft: 10,
-    paddingLeft: 20,
-    paddingRight: 20
+    marginHorizontal: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10
   },
 
   alertButtonText: {

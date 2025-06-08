@@ -60,7 +60,7 @@ const EditCropScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 animationType="fade"
                 transparent={true}
                 visible={showAlertEdit}
-                >
+            >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
                         <Text style={styles.alertMessage}>Modificación de cosecha exitoso</Text>
@@ -82,7 +82,7 @@ const EditCropScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                 animationType="fade"
                 transparent={true}
                 visible={showAlertCancel}
-                >
+            >
                 <View style={styles.modalView}>
                     <View style={styles.alertView}>
                         <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta cosecha?</Text>
@@ -147,9 +147,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
 
-        fontSize:20,
-        fontWeight:'bold',
-        textAlign:'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
 
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -253,10 +253,9 @@ const styles = StyleSheet.create({
     alertButton: {
         backgroundColor: '#A01BAC',
         borderRadius: 20,
-        marginLeft: 10,
-
-        paddingLeft: 20,
-        paddingRight: 20
+        marginHorizontal: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10
     },
 
     alertButtonText: {

@@ -77,7 +77,7 @@ const HomeScreen = () => {
           />
           <View>
             <Text style={styles.symbol}>{semilla.nombre || item.symbol}</Text>
-            <Text style={styles.price}>Precio: U$S {item.price}</Text>
+            <Text style={styles.price}>¢/bushel {item.price}</Text>
             <Text style={styles.date}>
               Fecha: {new Date(item.ts).toLocaleString()}
             </Text>
@@ -98,7 +98,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cotizaciones de Semillas</Text>
+      <Text style={styles.title}>Cotización de futuros – CME</Text>
       <FlatList
         data={cotizaciones}
         keyExtractor={(item) => item.symbol}

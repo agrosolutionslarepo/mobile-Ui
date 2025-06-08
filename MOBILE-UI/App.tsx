@@ -11,14 +11,14 @@ import AddPlotScreen from './src/screens/plotsScreens/AddPlotScreen';
 import ViewPlotScreen from './src/screens/plotsScreens/ViewPlotScreen';
 import EditPlotScreen from './src/screens/plotsScreens/EditPlotScreen';
 
-import CalendarScreen from './src/screens/CalendarScreen';
-
 import CropsScreen from './src/screens/cropsScreens/CropsScreen';
 import AddCropScreen from './src/screens/cropsScreens/AddCropScreen';
 import ViewCropScreen from './src/screens/cropsScreens/ViewCropScreen';
 import EditCropScreen from './src/screens/cropsScreens/EditCropScreen';
 
 import Header from './src/common/Header';
+import CompanyAlert from './src/common/CompanyAlert';
+
 import HomeScreen from './src/screens/HomeScreen';
 
 import LoginScreen from './src/screens/userScreens/LoginScreen';
@@ -69,8 +69,8 @@ const App: React.FC = () => {
       setSelectedSeed(data);
     }
 
-     if (screen === 'viewPlot' || screen === 'editPlot') {
-    setSelectedPlot(data);
+    if (screen === 'viewPlot' || screen === 'editPlot') {
+      setSelectedPlot(data);
     }
   };
 
@@ -78,8 +78,6 @@ const App: React.FC = () => {
     switch (activeContent) {
       case 'home':
         return <HomeScreen />;
-      case 'calendar':
-        return <CalendarScreen />;
 
       // Plots
       case 'plots':
@@ -145,6 +143,17 @@ const App: React.FC = () => {
     return null;
   };
 
+  const renderCompanyAlert = () => {
+    if (
+      activeContent !== 'login' &&
+      activeContent !== 'register' &&
+      activeContent !== 'recover'
+    ) {
+      return <CompanyAlert onNavigate={(screen) => setActiveContent(screen)} />
+    }
+    return null;
+  }
+
   // Mientras se carga el estado inicial (null), se muestra un loader
   if (activeContent === null) {
     return (
@@ -157,6 +166,7 @@ const App: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       {renderHeader()}
+      {renderCompanyAlert()}
       {renderContent()}
     </View>
   );

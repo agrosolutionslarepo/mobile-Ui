@@ -21,7 +21,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
       try {
         const token = await AsyncStorage.getItem('userToken');
         if (!token) return;
-  
+
         const response = await axios.get(
           'http://localhost:3000/usuarios/getUsuarioAutenticado',
           {
@@ -31,7 +31,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
             },
           }
         );
-  
+
         if (response.status === 200) {
           const data = response.data;
           setNombre(data.nombre || '');
@@ -43,7 +43,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
         console.error('Error al consultar el usuario:', error?.response?.data || error.message);
       }
     };
-  
+
     fetchUserFromApi();
   }, []);
 
@@ -150,10 +150,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 60,
-    backgroundColor: 'rgb(217, 217, 217)',
+    backgroundColor: '#FFFCE3'
   },
   infoContainer: {
-    backgroundColor: '#FFFCE3',
+    backgroundColor: '#FFF',
     borderRadius: 15,
     padding: 20,
     shadowColor: '#000',
@@ -163,10 +163,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
+    alignSelf: 'center',
+    color: '#665996',
+    textTransform: 'uppercase',
   },
   inputGroup: {
     flexDirection: 'row',

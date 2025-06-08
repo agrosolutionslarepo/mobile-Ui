@@ -244,8 +244,11 @@ const styles = StyleSheet.create({
   alertTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
   alertMessage: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
   alertButton: {
-    backgroundColor: '#A01BAC', paddingVertical: 10, paddingHorizontal: 20,
+    backgroundColor: '#A01BAC',
     borderRadius: 20,
+    marginHorizontal: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10
   },
   alertButtonText: { fontSize: 18, color: 'white', fontWeight: 'bold' },
   inputError: { borderColor: 'red', borderWidth: 2 },

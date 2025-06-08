@@ -1,3 +1,4 @@
+// Header.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -78,6 +79,19 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     fetchUserFromApi();
   }, []);
 
+  const menuItems = [
+    { label: 'Home', key: 'home' },
+    { label: 'Parcelas', key: 'plots' },
+    { label: 'Semillas', key: 'seeds' },
+    { label: 'Cosechas', key: 'crops' },
+    { label: 'Perfil', key: 'profile' }
+  ];
+
+  const empresaLimitada = userData?.empresa === '6840da01ba52fec6d68de6bc'; // empresa ficticia
+  const visibleItems = empresaLimitada
+    ? menuItems.filter(item => item.key === 'home' || item.key === 'profile')
+    : menuItems;
+
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={toggleLeftMenu} style={styles.menuContainer}>
@@ -98,14 +112,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <Text style={styles.userName}>{userData?.nombreUsuario || 'Usuario'}</Text>
             </View>
 
-            {[
-              { label: 'Home', key: 'home' },
-              { label: 'Parcelas', key: 'plots' },
-              { label: 'Calendario', key: 'calendar' },
-              { label: 'Semillas', key: 'seeds' },
-              { label: 'Cosechas', key: 'crops' },
-              { label: 'Perfil', key: 'profile' }
-            ].map((item) => (
+            {visibleItems.map((item) => (
               <View key={item.key} style={styles.menuButtonContainer}>
                 <TouchableOpacity
                   onPress={() => {
@@ -119,22 +126,19 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               </View>
             ))}
 
-            
-            {userData?.administrador && (
+            {userData?.administrador && !empresaLimitada && (
               <View style={styles.menuButtonContainer}>
                 <TouchableOpacity
                   onPress={() => {
                     closeModal();
                     onMenuClick('company');
                   }}
-                  style={[styles.menuButton]}
+                  style={styles.menuButton}
                 >
-                  <Text style={[styles.menuButtonText]}>Empresa</Text>
+                  <Text style={styles.menuButtonText}>Empresa</Text>
                 </TouchableOpacity>
               </View>
             )}
-
-
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
