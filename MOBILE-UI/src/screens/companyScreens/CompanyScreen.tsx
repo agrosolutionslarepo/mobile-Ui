@@ -25,6 +25,13 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const [statusMessage, setStatusMessage] = useState('');
     const [showCopiedModal, setShowCopiedModal] = useState(false);
     const [usuariosEmpresa, setUsuariosEmpresa] = useState<any[]>([]);
+    const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
+    const [usuarioAEliminar, setUsuarioAEliminar] = useState<string | null>(null);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [resultMessage, setResultMessage] = useState('');
+    const [isErrorResult, setIsErrorResult] = useState(false);
+
+
 
 
 
@@ -133,6 +140,33 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         }
     };
 
+    const eliminarUsuario = async () => {
+        if (!usuarioAEliminar) return;
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            await axios.put(
+                `http://localhost:3000/usuarios/deleteUsuarioDeMiEmpresa/${usuarioAEliminar}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setShowDeleteUserModal(false);
+            setUsuarioAEliminar(null);
+            fetchUsuariosEmpresa();
+            setResultMessage('✅ Usuario eliminado correctamente');
+            setIsErrorResult(false);
+            setShowResultModal(true);
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            setResultMessage('❌ No se pudo eliminar el usuario');
+            setIsErrorResult(true);
+            setShowResultModal(true);
+        }
+    };
+
+
+
 
     return (
         <View style={styles.container}>
@@ -188,9 +222,14 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                                 <MaterialIcons name="person" size={20} color="#665996" style={{ marginRight: 8 }} />
                                 <Text style={styles.userText}>{usuario.nombreUsuario}</Text>
                             </View>
-                            <TouchableOpacity onPress={() => { /* eliminarUsuario(usuario.id) en el futuro */ }}>
+                            <TouchableOpacity onPress={() => {
+                                setUsuarioAEliminar(usuario._id);
+                                setShowDeleteUserModal(true);
+                            }}>
                                 <MaterialIcons name="delete-outline" size={24} color="red" />
                             </TouchableOpacity>
+
+
                         </View>
 
                     ))
@@ -274,6 +313,51 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                     </View>
                 </View>
             </Modal>
+
+            {/* Modal Confirmar Eliminación de Usuario */}
+            <Modal visible={showDeleteUserModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Eliminar usuario</Text>
+                        <Text style={styles.modalMessage}>¿Estás seguro de que querés eliminar este usuario?</Text>
+
+                        <TouchableOpacity
+                            style={[styles.modalButton, { backgroundColor: '#DC3545' }]}
+                            onPress={eliminarUsuario}
+                        >
+                            <Text style={styles.modalButtonText}>Eliminar</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.modalButton, { backgroundColor: '#ccc' }]}
+                            onPress={() => {
+                                setShowDeleteUserModal(false);
+                                setUsuarioAEliminar(null);
+                            }}
+                        >
+                            <Text style={[styles.modalButtonText, { color: '#333' }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Modal Resultado de Eliminación */}
+            <Modal visible={showResultModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={[styles.modalTitle, { color: isErrorResult ? '#dc3545' : '#28a745' }]}>
+                            {isErrorResult ? 'Error' : 'Éxito'}
+                        </Text>
+                        <Text style={styles.modalMessage}>{resultMessage}</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setShowResultModal(false)}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+
         </View>
     );
 };
@@ -350,17 +434,17 @@ const styles = StyleSheet.create({
         marginBottom: 15
     },
     userItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-},
-userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-},
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
 
     userText: {
         fontSize: 16,

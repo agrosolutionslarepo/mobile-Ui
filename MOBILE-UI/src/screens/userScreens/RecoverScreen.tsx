@@ -10,7 +10,7 @@ const RecoverScreen = ({ setActiveContent }: { setActiveContent: (content: strin
     const handleRecover = () => {
         if (mail !== '' && mail !== 'error') {
             setShowAlertSuccess(true); // Mostrar alerta de envio de recuperación exitoso
-        } else if (mail  == 'error') {
+        } else if (mail == 'error') {
             setShowAlertFail(true); // Mostrar alerta de envio de recuperación fallido
         } else {
             setShowAlertEmpty(true); // Mostrar alerta de falta de campos
@@ -257,9 +257,10 @@ const styles = StyleSheet.create({
 
     alertButton: {
         backgroundColor: '#A01BAC',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
         borderRadius: 20,
+        marginHorizontal: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10
     },
 
     alertButtonText: {

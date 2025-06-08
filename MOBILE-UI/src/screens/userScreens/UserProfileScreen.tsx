@@ -16,6 +16,7 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [password, setPassword] = useState('');
+    const [showAdminWarningModal, setShowAdminWarningModal] = useState(false);
 
     useEffect(() => {
         const fetchUserFromApi = async () => {
@@ -114,9 +115,21 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                         <Text style={styles.editButtonText}>Editar perfil</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.deleteButton} onPress={() => setShowConfirmModal(true)}>
+
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => {
+                            if (userData?.administrador) {
+                                setShowAdminWarningModal(true);
+                            } else {
+                                setShowConfirmModal(true);
+                            }
+                        }}
+                    >
                         <Text style={styles.deleteButtonText}>Eliminar usuario</Text>
                     </TouchableOpacity>
+
+
                     <TouchableOpacity
                         style={styles.changePasswordButton}
                         onPress={() => setActiveContent('changePassword')}
@@ -126,6 +139,36 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 
                 </View>
             )}
+
+            {/* Modal de advertencia para administradores */}
+            <Modal transparent={true} visible={showAdminWarningModal} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Advertencia importante</Text>
+                        <Text style={styles.modalMessage}>
+                            Como administrador, al eliminar tu perfil también se eliminará la empresa asociada. ¿Deseás continuar?
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 20, justifyContent: 'space-evenly', marginTop: 20 }}>
+                            <TouchableOpacity
+                                onPress={() => setShowAdminWarningModal(false)}
+                                style={[styles.modalButton, { backgroundColor: '#aaa' }]}
+                            >
+                                <Text style={styles.modalButtonText}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setShowAdminWarningModal(false);
+                                    setShowConfirmModal(true);
+                                }}
+                                style={styles.modalButton}
+                            >
+                                <Text style={styles.modalButtonText}>Continuar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
 
             {/* Modal Confirmación */}
             <Modal transparent={true} visible={showConfirmModal} animationType="fade">
@@ -150,21 +193,22 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 };
 
 const styles = StyleSheet.create({
-    // ... estilos anteriores
     container: {
         flex: 1,
         paddingHorizontal: 20,
         paddingTop: 60,
-        backgroundColor: 'rgb(217, 217, 217)'
+        backgroundColor: '#FFFCE3'
     },
     title: {
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 30,
+        marginBottom: 20,
+        alignSelf: 'center',
+        color: '#665996',
+        textTransform: 'uppercase',
     },
     infoContainer: {
-        backgroundColor: '#FFFCE3',
+        backgroundColor: '#FFF',
         borderRadius: 15,
         padding: 20,
         shadowColor: '#000',

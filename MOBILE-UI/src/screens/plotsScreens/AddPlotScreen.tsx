@@ -279,15 +279,16 @@ const styles = StyleSheet.create({
   },
   alertButton: {
     backgroundColor: '#A01BAC',
-    borderRadius: 20, 
-    marginHorizontal: 10, 
-    paddingHorizontal: 20, 
+    borderRadius: 20,
+    marginHorizontal: 10,
+    paddingHorizontal: 20,
     paddingVertical: 10
   },
-  alertButtonText: { 
-    fontSize: 18, 
-    color: 'white', 
-    fontWeight: 'bold' },  
+  alertButtonText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold'
+  },
   inputError: {
     borderColor: 'red',
     borderWidth: 2,
