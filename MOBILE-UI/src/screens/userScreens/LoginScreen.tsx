@@ -13,8 +13,19 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Google from 'expo-auth-session/providers/google';
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from '../../config';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const isInExpoGo = Constants.appOwnership === 'expo';
+
+// Client ID para cada plataforma
+const CLIENT_ID_IOS = '916278295990-4k1bs4hnhmjibloil2lhsh083ivbf1hk.apps.googleusercontent.com';
+const CLIENT_ID_WEB = '916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce.apps.googleusercontent.com';
 
 // Función para decodificar JWT sin librerías
 const parseJwt = (token: string) => {
@@ -42,25 +53,21 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   const [showAlertEmpty, setShowAlertEmpty] = useState<boolean>(false);
   const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
   const [showAlertFail, setShowAlertFail] = useState<boolean>(false);
-
-  const discovery = {
-    authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenEndpoint: 'https://oauth2.googleapis.com/token',
-    revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
-  };
   
-  const redirectUri = AuthSession.makeRedirectUri({
-    native: 'com.googleusercontent.apps.916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce:/oauthredirect',
-    useProxy: true,
-  });
+  /*const redirectUri = AuthSession.makeRedirectUri({
+    useProxy: true, // 👈🏼 OBLIGATORIO EN EXPO GO
+  });*/
+
+  
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: '916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce.apps.googleusercontent.com',
-    redirectUri,
-    responseType: 'code',
-    scopes: ['openid', 'profile', 'email'], // 👈🏼 importante incluir "openid"
+    clientId: '916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce.apps.googleusercontent.com', // ID de cliente web
+    redirectUri: AuthSession.makeRedirectUri({
+      useProxy: true, // 👈🏼 OBLIGATORIO EN EXPO GO
+    }),
+    scopes: ['openid', 'profile', 'email'],
   });
-
+  
   useEffect(() => {
     if (response?.type === 'success') {
       const idToken = response.authentication?.idToken;
@@ -71,7 +78,6 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   }, [response]);
   
   const handleGoogleToken = async (idToken: string) => {
-    debugger;
     try {
       const res = await axios.post(`${API_URL}/auth/google/token`, { idToken });
       const { jwt } = res.data;
