@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Platform } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     picker: {
         width: '80%',
 
-        height: Platform.OS === 'ios' ? 180 : 40,
+        height: 40,
         padding: 0,
 
         marginLeft: '10%',
