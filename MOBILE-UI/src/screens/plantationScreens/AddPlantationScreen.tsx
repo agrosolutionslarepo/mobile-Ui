@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, Scro
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { API_URL } from '../../config';
 
 
 const AddPlantationScreen = ({ setActiveContent }) => {
@@ -86,7 +87,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             if (!token) throw new Error('Token no encontrado');
 
             await axios.post(
-                'http://localhost:3000/cultivos/createCultivo',
+                `${API_URL}/cultivos/createCultivo`,
                 {
                     fechaSiembra,
                     fechaCosecha,
@@ -115,10 +116,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
                 if (!token) return;
 
                 const [semillasRes, parcelasRes] = await Promise.all([
-                    axios.get('http://localhost:3000/semillas/getAllSemillas', {
+                    axios.get(`${API_URL}/semillas/getAllSemillas`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                    axios.get('http://localhost:3000/parcelas/getAllParcelas', {
+                    axios.get(`${API_URL}/parcelas/getAllParcelas`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
                 ]);

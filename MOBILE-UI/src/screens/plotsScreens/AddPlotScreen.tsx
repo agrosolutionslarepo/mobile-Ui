@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 const AddSeedScreen = ({ setActiveContent }) => {
   const [showAlertAdd, setShowAlertAdd] = useState(false);
@@ -61,7 +62,7 @@ const AddSeedScreen = ({ setActiveContent }) => {
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
 
-      await axios.post('http://localhost:3000/parcelas/createParcela', {
+      await axios.post(`${API_URL}/parcelas/createParcela`, {
         nombreParcela,
         tamaño: parseFloat(tamaño),
         ubicacion,

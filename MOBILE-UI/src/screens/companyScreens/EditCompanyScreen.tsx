@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
   const [nombreEmpresa, setNombreEmpresa] = useState('');
@@ -19,7 +20,7 @@ const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: st
     const fetchEmpresa = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        const res = await axios.get('http://localhost:3000/empresas/getNombreEmpresa', {
+        const res = await axios.get(`${API_URL}/empresas/getNombreEmpresa`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNombreEmpresa(res.data.nombreEmpresa);
@@ -39,7 +40,7 @@ const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 
     try {
       const token = await AsyncStorage.getItem('userToken');
-      await axios.put('http://localhost:3000/empresas/updateEmpresa',
+      await axios.put(`${API_URL}/empresas/updateEmpresa`,
         { nombreEmpresa },
         { headers: { Authorization: `Bearer ${token}` } }
       );

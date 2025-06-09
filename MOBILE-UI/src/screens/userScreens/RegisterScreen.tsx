@@ -12,6 +12,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
+import { API_URL } from '../../config';
 
 const getDaysInMonth = (month: string, year: string): number => {
   const m = parseInt(month, 10);
@@ -102,7 +103,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/usuarios/registrarse', payload);
+      const response = await axios.post(`${API_URL}/usuarios/registrarse`, payload);
 
       if (response.status === 200 || response.status === 201) {
         setShowEmpresaModal(false);

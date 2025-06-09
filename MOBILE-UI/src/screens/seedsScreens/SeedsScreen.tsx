@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Semilla {
   _id: string;
@@ -21,7 +22,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         const token = await AsyncStorage.getItem('userToken');
         if (!token) return;
 
-        const response = await axios.get('http://localhost:3000/semillas/getAllSemillas', {
+        const response = await axios.get(`${API_URL}/semillas/getAllSemillas`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

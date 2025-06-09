@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Parcela {
   _id: string;
@@ -25,7 +26,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
       const token = await AsyncStorage.getItem('userToken');
       if (!token) return;
 
-      const response = await axios.get('http://localhost:3000/parcelas/getAllParcelas', {
+      const response = await axios.get(`${API_URL}/parcelas/getAllParcelas`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -46,7 +47,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
 
-      await axios.delete(`http://localhost:3000/parcelas/deleteParcela/${selectedParcelaId}`, {
+      await axios.delete(`${API_URL}/parcelas/deleteParcela/${selectedParcelaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

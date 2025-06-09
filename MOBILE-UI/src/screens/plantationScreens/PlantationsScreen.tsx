@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 interface Cultivo {
     _id: string;
@@ -34,7 +35,7 @@ const PlantationsScreen = ({ setActiveContent }: { setActiveContent: (screen: st
             const token = await AsyncStorage.getItem('userToken');
             if (!token) return;
 
-            const response = await axios.get('http://localhost:3000/cultivos/getAllCultivos', {
+            const response = await axios.get(`${API_URL}/cultivos/getAllCultivos`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -53,7 +54,7 @@ const PlantationsScreen = ({ setActiveContent }: { setActiveContent: (screen: st
             const token = await AsyncStorage.getItem('userToken');
             if (!token || !selectedToDelete) return;
 
-            await axios.delete(`http://localhost:3000/cultivos/deleteCultivo/${selectedToDelete}`, {
+            await axios.delete(`${API_URL}/cultivos/deleteCultivo/${selectedToDelete}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

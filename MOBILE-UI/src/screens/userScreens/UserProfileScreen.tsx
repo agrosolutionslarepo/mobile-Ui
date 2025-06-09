@@ -10,6 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
     const [userData, setUserData] = useState<any>(null);
@@ -25,7 +26,7 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                 if (!token) return;
 
                 const response = await axios.get(
-                    'http://localhost:3000/usuarios/getUsuarioAutenticado',
+                    `${API_URL}/usuarios/getUsuarioAutenticado`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -55,7 +56,7 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
             if (!token) return;
 
             const response = await axios.put(
-                'http://localhost:3000/usuarios/deleteUsuario',
+                `${API_URL}/usuarios/deleteUsuario`,
                 {},
                 {
                     headers: {

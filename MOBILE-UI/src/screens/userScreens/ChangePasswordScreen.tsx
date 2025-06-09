@@ -10,6 +10,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -41,7 +42,7 @@ const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen:
             const token = await AsyncStorage.getItem('userToken');
             if (!token) throw new Error('Token no encontrado');
 
-            const response = await axios.put('http://localhost:3000/usuarios/updatePassword', {
+            const response = await axios.put(`${API_URL}/usuarios/updatePassword`, {
                 oldContraseña: currentPassword,
                 contraseña: newPassword
             }, {

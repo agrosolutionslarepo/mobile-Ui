@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import * as Clipboard from 'expo-clipboard';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
+import { API_URL } from '../../config';
 
 const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
     const [inviteCodes, setInviteCodes] = useState<any[]>([]);
@@ -39,7 +40,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         const fetchActiveCode = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
-                const res = await axios.get('http://localhost:3000/inviteCodes/getActiveInviteCode', {
+                const res = await axios.get(`${API_URL}/inviteCodes/getActiveInviteCode`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setActiveCode(res.data.codigo || null);
@@ -57,7 +58,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const fetchNombreEmpresa = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const res = await axios.get('http://localhost:3000/empresas/getNombreEmpresa', {
+            const res = await axios.get(`${API_URL}/empresas/getNombreEmpresa`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNombreEmpresa(res.data.nombreEmpresa);
@@ -70,7 +71,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         try {
             setLoading(true);
             const token = await AsyncStorage.getItem('userToken');
-            const res = await axios.post('http://localhost:3000/inviteCodes/createInviteCode', {}, {
+            const res = await axios.post(`${API_URL}/inviteCodes/createInviteCode`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setInviteCodes([{ codigo: res.data.codigo, estado: true }]);
@@ -89,7 +90,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const checkInviteCode = async (code: string) => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const res = await axios.post('http://localhost:3000/inviteCodes/checkInviteCode', { code }, {
+            const res = await axios.post(`${API_URL}/inviteCodes/checkInviteCode`, { code }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setStatusMessage(`Código ${code} está ${res.data.valid ? 'ACTIVO' : 'DESACTIVADO'}`);
@@ -109,7 +110,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         if (!selectedCode) return;
         try {
             const token = await AsyncStorage.getItem('userToken');
-            await axios.delete('http://localhost:3000/inviteCodes/deleteInviteCode', {
+            await axios.delete(`${API_URL}/inviteCodes/deleteInviteCode`, {
                 headers: { Authorization: `Bearer ${token}` },
                 data: { code: selectedCode }
             });
@@ -131,7 +132,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const fetchUsuariosEmpresa = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const res = await axios.get('http://localhost:3000/usuarios/getUsuariosMismaEmpresa', {
+            const res = await axios.get(`${API_URL}/usuarios/getUsuariosMismaEmpresa`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUsuariosEmpresa(res.data); // ← asumiendo que es un array
@@ -146,7 +147,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         try {
             const token = await AsyncStorage.getItem('userToken');
             await axios.put(
-                `http://localhost:3000/usuarios/deleteUsuarioDeMiEmpresa/${usuarioAEliminar}`,
+                `${API_URL}/usuarios/deleteUsuarioDeMiEmpresa/${usuarioAEliminar}`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
