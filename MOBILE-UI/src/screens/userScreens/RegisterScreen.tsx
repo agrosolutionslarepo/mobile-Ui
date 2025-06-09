@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Image,
   Modal,
+  Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -734,11 +735,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 2,
     width: 85,
-    height: 40,
+    height: Platform.OS === 'ios' ? 180 : 40,
     justifyContent: 'center',
   },
   picker: {
-    height: 40,
+    height: Platform.OS === 'ios' ? 180 : 40,
     borderRadius: 10,
     width: '100%',
     color: '#333',

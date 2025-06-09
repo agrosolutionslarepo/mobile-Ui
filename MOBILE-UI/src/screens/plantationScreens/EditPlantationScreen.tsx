@@ -8,7 +8,8 @@ import {
     Modal,
     ScrollView,
     StyleSheet,
-    Alert
+    Alert,
+    Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     picker: {
         width: '100%',
 
-        height: 40,
+        height: Platform.OS === 'ios' ? 180 : 40,
         padding: 0,
         marginBottom: 20,
 
@@ -324,7 +325,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 2,
         width: 85,
-        height: 40,
+        height: Platform.OS === 'ios' ? 180 : 40,
         justifyContent: 'center',
     },
     modalOverlay: {
