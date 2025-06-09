@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config';
 
 interface HeaderProps {
   onMenuClick: (menuItem: string) => void;
@@ -57,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         if (!token) return;
 
         const response = await axios.get(
-          'http://localhost:3000/usuarios/getUsuarioAutenticado',
+          `${API_URL}/usuarios/getUsuarioAutenticado`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

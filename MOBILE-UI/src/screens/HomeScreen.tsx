@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-
+import { API_URL } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -40,7 +40,7 @@ const HomeScreen = () => {
         if (!token) throw new Error('Token no encontrado');
 
         const symbols = Object.keys(SEMILLAS); // ['ZCUSX', 'ZSUSX', 'KEUSX']
-        const apiBase = 'http://localhost:3000/grain'; // 🔁 Reemplazá con tu IP local
+        const apiBase = `${API_URL}/grain`; // 🔁 Reemplazá con tu IP local
 
         const responses = await Promise.all(
           symbols.map(async (symbol) => {
