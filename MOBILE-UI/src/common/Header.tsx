@@ -145,9 +145,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
-                onPress={() => setShowLogoutConfirm(true)}
+                onPress={() => {
+                  setLeftMenuVisible(false); // cierra el menú que puede bloquear el modal
+                  setShowLogoutConfirm(true); // abre el modal
+                }}
                 style={styles.menuButtonLogOut}
-              >
+                >
                 <Text style={styles.menuButtonLogOutText}>Log out</Text>
               </TouchableOpacity>
             </View>
