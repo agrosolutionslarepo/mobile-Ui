@@ -9,7 +9,8 @@ import {
   Text,
   Animated,
   TouchableWithoutFeedback,
-  ScrollView
+  ScrollView,
+  SafeAreaView
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -95,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     : menuItems;
 
   return (
-    <View style={styles.header}>
+    <SafeAreaView style={styles.header}>
       <TouchableOpacity onPress={toggleLeftMenu} style={styles.menuContainer}>
         <Image source={require('../assets/img/menu_izquierdo.png')} style={styles.menuIcon} />
       </TouchableOpacity>
@@ -216,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
