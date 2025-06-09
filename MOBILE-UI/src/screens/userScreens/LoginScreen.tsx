@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,9 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
+import { API_URL } from '../../config';
 
 // Función para decodificar JWT sin librerías
 const parseJwt = (token: string) => {
@@ -32,13 +35,55 @@ const parseJwt = (token: string) => {
 };
 
 const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [showAlertEmpty, setShowAlertEmpty] = useState(false);
-  const [showAlertSuccess, setShowAlertSuccess] = useState(false);
-  const [showAlertFail, setShowAlertFail] = useState(false);
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [showAlertEmpty, setShowAlertEmpty] = useState<boolean>(false);
+  const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
+  const [showAlertFail, setShowAlertFail] = useState<boolean>(false);
+
+  const discovery = {
+    authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+    tokenEndpoint: 'https://oauth2.googleapis.com/token',
+    revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+  };
+  
+  const redirectUri = AuthSession.makeRedirectUri({
+    native: 'com.googleusercontent.apps.916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce:/oauthredirect',
+    useProxy: true,
+  });
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: '916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce.apps.googleusercontent.com',
+    redirectUri,
+    responseType: 'code',
+    scopes: ['openid', 'profile', 'email'], // 👈🏼 importante incluir "openid"
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const idToken = response.authentication?.idToken;
+      if (idToken) {
+        handleGoogleToken(idToken);
+      }
+    }
+  }, [response]);
+  
+  const handleGoogleToken = async (idToken: string) => {
+    debugger;
+    try {
+      const res = await axios.post(`${API_URL}/auth/google/token`, { idToken });
+      const { jwt } = res.data;
+      const decoded = parseJwt(jwt);
+      await AsyncStorage.setItem('userToken', jwt);
+      await AsyncStorage.setItem('decodedToken', JSON.stringify(decoded));
+      setShowAlertSuccess(true);
+    } catch (e) {
+      console.error('Error al loguear con Google:', e);
+      setShowAlertFail(true);
+    }
+  };
 
   const handleLogin = async () => {
     const isEmailEmpty = username.trim() === '';
@@ -52,34 +97,23 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/login', {
+      const response = await axios.post(`${API_URL}/login`, {
         email: username,
         contraseña: password
       });
 
       if (response.status === 200 || response.status === 201) {
         const token = response.data.jwt;
-
-        if (!token) {
-          console.error('No se recibió el token del backend');
-          setShowAlertFail(true);
-          return;
-        }
-
-        const decodedToken = parseJwt(token);
-        console.log('🔐 Token decodificado:', decodedToken);
-
+        if (!token) throw new Error('Token faltante');
+        const decoded = parseJwt(token);
         await AsyncStorage.setItem('userToken', token);
-        if (decodedToken) {
-          await AsyncStorage.setItem('decodedToken', JSON.stringify(decodedToken));
-        }
-
+        await AsyncStorage.setItem('decodedToken', JSON.stringify(decoded));
         setShowAlertSuccess(true);
       } else {
         setShowAlertFail(true);
       }
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+    } catch (e) {
+      console.error('Error al iniciar sesión:', e);
       setShowAlertFail(true);
     }
   };
@@ -89,24 +123,17 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   const goToRecoverScreen = () => setActiveContent('recover');
 
   return (
-    <ImageBackground
-      source={require('../../assets/img/backgroundLogIn.png')}
-      style={styles.background}
-    >
+    <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
       <View style={styles.container}>
         <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
-        <TouchableOpacity style={styles.googlebutton} onPress={goToHomeScreen}>
+
+        <TouchableOpacity style={styles.googlebutton} onPress={() => promptAsync()}>
           <Image source={require('../../assets/img/google.png')} style={styles.googleImage} resizeMode="contain" />
-          <Text style={styles.googleButtonText}>Continuar con google</Text>
+          <Text style={styles.googleButtonText}>Continuar con Google</Text>
         </TouchableOpacity>
 
         <Text style={styles.textForm}>Email</Text>
-        <View
-          style={[
-            styles.inputWithIcon,
-            emailError && styles.inputError,
-          ]}
-        >
+        <View style={[styles.inputWithIcon, emailError && styles.inputError]}>
           <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
           <TextInput
             placeholder="ejemplo@correo.com"
@@ -120,14 +147,8 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
           />
         </View>
 
-
         <Text style={styles.textForm}>Contraseña</Text>
-        <View
-          style={[
-            styles.inputWithIcon,
-            passwordError && styles.inputError,
-          ]}
-        >
+        <View style={[styles.inputWithIcon, passwordError && styles.inputError]}>
           <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
           <TextInput
             placeholder="******"
@@ -141,7 +162,6 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             }}
           />
         </View>
-
 
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Ingresar</Text>
@@ -172,13 +192,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
           <View style={styles.modalView}>
             <View style={styles.alertView}>
               <Text style={styles.alertTitle}>Inicio de sesión exitoso</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowAlertSuccess(false);
-                  goToHomeScreen();
-                }}
-                style={styles.alertButton}
-              >
+              <TouchableOpacity onPress={() => { setShowAlertSuccess(false); goToHomeScreen(); }} style={styles.alertButton}>
                 <Text style={styles.alertButtonText}>Continuar</Text>
               </TouchableOpacity>
             </View>
@@ -189,9 +203,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
           <View style={styles.modalView}>
             <View style={styles.alertView}>
               <Text style={styles.alertTitle}>Oh no! Algo salió mal!</Text>
-              <Text style={styles.alertMessage}>
-                El email y/o la contraseña son incorrectos. Intente nuevamente.
-              </Text>
+              <Text style={styles.alertMessage}>El email y/o la contraseña son incorrectos. Intente nuevamente.</Text>
               <TouchableOpacity onPress={() => setShowAlertFail(false)} style={styles.alertButton}>
                 <Text style={styles.alertButtonText}>Volver</Text>
               </TouchableOpacity>
@@ -276,17 +288,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     width: '100%'
   },
-  icon: {
-    marginRight: 10,
-  },
-  inputFocused: {
-    borderWidth: 2,
-    borderColor: '#888',
-  },
-  
+  icon: { marginRight: 10 },
+  inputFocused: { borderWidth: 2, borderColor: '#888' },
 });
 
 export default LoginScreen;
-
-
-
