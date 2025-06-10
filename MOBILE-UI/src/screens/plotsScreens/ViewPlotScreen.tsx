@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LineChart, BarChart } from 'react-native-chart-kit';
+import { API_URL } from '../../config';
 
 
 
@@ -58,7 +59,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
           if (!token) return;
 
           const response = await axios.get(
-            `http://localhost:3000/clima/current?lat=${selectedPlot.latitud}&lon=${selectedPlot.longitud}`,
+            `${API_URL}/clima/current?lat=${selectedPlot.latitud}&lon=${selectedPlot.longitud}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
@@ -94,7 +95,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   }
 
   return (
-    <View style={styles.plotContainer}>
+    <ScrollView style={styles.plotContainer}>
       <Text style={styles.plotTitle}>Parcela</Text>
 
       <View style={styles.formContainer}>
@@ -293,7 +294,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
