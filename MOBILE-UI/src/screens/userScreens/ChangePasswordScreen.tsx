@@ -5,7 +5,9 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    Modal
+    Modal,
+    TouchableWithoutFeedback,
+    Keyboard
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -66,6 +68,7 @@ const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen:
     };
 
     return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
             <Text style={styles.title}>Cambiar Contraseña</Text>
 
@@ -204,6 +207,7 @@ const ChangePasswordScreen = ({ setActiveContent }: { setActiveContent: (screen:
 
 
         </View>
+        </TouchableWithoutFeedback>
     );
 };
 

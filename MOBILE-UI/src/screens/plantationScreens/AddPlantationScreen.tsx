@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -142,6 +142,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
     return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Agregar plantación</Text>
 
@@ -448,6 +449,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             </Modal>
 
         </ScrollView>
+        </TouchableWithoutFeedback>
     );
 };
 

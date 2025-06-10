@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image, Modal, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 const RecoverScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
     const [mail, setMail] = useState('');
@@ -22,114 +22,116 @@ const RecoverScreen = ({ setActiveContent }: { setActiveContent: (content: strin
     }
 
     return (
-        <ImageBackground
-            source={require('../../assets/img/backgroundLogIn.png')}
-            style={styles.background}
-        >
-            <View style={styles.container}>
-
-                <Image
-                    source={require('../../assets/img/logoNew.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
-
-                <Text style={styles.recoverText}>¡Recupera tu contraseña!</Text>
-
-                <Text style={styles.textForm}>E-Mail</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder=""
-                    value={mail}
-                    onChangeText={setMail}
-                />
-
-                <TouchableOpacity style={styles.button} onPress={handleRecover}>
-                    <Text style={styles.buttonText}>Enviar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.backButton} onPress={goToLoginScreen}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <ImageBackground
+                source={require('../../assets/img/backgroundLogIn.png')}
+                style={styles.background}
+            >
+                <View style={styles.container}>
 
                     <Image
-                        source={require('../../assets/img/arrowLeft.png')}
-                        style={styles.backImage}
+                        source={require('../../assets/img/logoNew.png')}
+                        style={styles.logo}
                         resizeMode="contain"
                     />
 
-                    <Text style={styles.backButtonText}>Volver</Text>
-                </TouchableOpacity>
+                    <Text style={styles.recoverText}>¡Recupera tu contraseña!</Text>
 
-                {/* Modal para la alerta de falta de campo*/}
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={showAlertEmpty}
-                    onRequestClose={() => {
-                        setShowAlertEmpty(false);
-                    }}
-                >
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertTitle}>Campo incompleto</Text>
-                            <Text style={styles.alertMessage}>Por favor, complete el campo.</Text>
-                            <TouchableOpacity
-                                onPress={() => setShowAlertEmpty(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Volver</Text>
-                            </TouchableOpacity>
+                    <Text style={styles.textForm}>E-Mail</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder=""
+                        value={mail}
+                        onChangeText={setMail}
+                    />
+
+                    <TouchableOpacity style={styles.button} onPress={handleRecover}>
+                        <Text style={styles.buttonText}>Enviar</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.backButton} onPress={goToLoginScreen}>
+
+                        <Image
+                            source={require('../../assets/img/arrowLeft.png')}
+                            style={styles.backImage}
+                            resizeMode="contain"
+                        />
+
+                        <Text style={styles.backButtonText}>Volver</Text>
+                    </TouchableOpacity>
+
+                    {/* Modal para la alerta de falta de campo*/}
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={showAlertEmpty}
+                        onRequestClose={() => {
+                            setShowAlertEmpty(false);
+                        }}
+                    >
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertTitle}>Campo incompleto</Text>
+                                <Text style={styles.alertMessage}>Por favor, complete el campo.</Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowAlertEmpty(false)}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Volver</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
 
-                {/* Modal para la alerta de envio de mail de recuperación exitoso*/}
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={showAlertSuccess}
-                    onRequestClose={() => {
-                        setShowAlertSuccess(false);
-                    }}
-                >
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertTitle}>El mail se envio correctamente</Text>
-                            <Text style={styles.alertMessage}>Te enviaremos un mail a la brevedad.</Text>
-                            <TouchableOpacity
-                                onPress={goToLoginScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Continuar</Text>
-                            </TouchableOpacity>
+                    {/* Modal para la alerta de envio de mail de recuperación exitoso*/}
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={showAlertSuccess}
+                        onRequestClose={() => {
+                            setShowAlertSuccess(false);
+                        }}
+                    >
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertTitle}>El mail se envio correctamente</Text>
+                                <Text style={styles.alertMessage}>Te enviaremos un mail a la brevedad.</Text>
+                                <TouchableOpacity
+                                    onPress={goToLoginScreen}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
 
-                {/* Modal para la alerta de que el mail no existe */}
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={showAlertFail}
-                    onRequestClose={() => {
-                        setShowAlertFail(false);
-                    }}
-                >
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertTitle}>Oh no! Algo salio mal!</Text>
-                            <Text style={styles.alertMessage}>El mail no existe. <br />Intentelo nuevamente.</Text>
-                            <TouchableOpacity
-                                onPress={() => setShowAlertFail(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Volver</Text>
-                            </TouchableOpacity>
+                    {/* Modal para la alerta de que el mail no existe */}
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={showAlertFail}
+                        onRequestClose={() => {
+                            setShowAlertFail(false);
+                        }}
+                    >
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertTitle}>Oh no! Algo salio mal!</Text>
+                                <Text style={styles.alertMessage}>El mail no existe. <br />Intentelo nuevamente.</Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowAlertFail(false)}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Volver</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
 
-            </View>
-        </ImageBackground>
+                </View>
+            </ImageBackground>
+        </TouchableWithoutFeedback>
     );
 };
 

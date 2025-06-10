@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 const EditCropScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
     const [showAlertEdit, setShowAlertEdit] = useState(false); // Estado para controlar si se muestra la alerta de editar cosecha
@@ -19,93 +19,95 @@ const EditCropScreen = ({ setActiveContent }: { setActiveContent: (content: stri
 
 
     return (
-        <View style={styles.cropContainer}>
-            <Text style={styles.cropTitle}>Modificar cosecha</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.cropContainer}>
+                <Text style={styles.cropTitle}>Modificar cosecha</Text>
 
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de cosecha"
-                />
+                <View style={styles.formContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nombre de cosecha"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Parcela"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Parcela"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Semilla"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Semilla"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Día de cosecha"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Día de cosecha"
+                    />
 
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelCropEdit}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
+                    <View style={styles.formButtonsContainer}>
+                        <TouchableOpacity style={styles.button} onPress={cancelCropEdit}>
+                            <Text style={styles.buttonText}>Cancelar</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={editCrop}>
-                        <Text style={styles.buttonText}>Guardar</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.cancelButton} onPress={editCrop}>
+                            <Text style={styles.buttonText}>Guardar</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
+                {/* Modal para la alerta de modificación de cosecha exitoso*/}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertEdit}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Modificación de cosecha exitoso</Text>
+
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity
+                                    onPress={goToCropsScreen}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Modal para la alerta de cancelar la edición de una cosecha */}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertCancel}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta cosecha?</Text>
+
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity
+                                    onPress={goToCropsScreen}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Si</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => setShowAlertCancel(false)}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>No</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
-
-            {/* Modal para la alerta de modificación de cosecha exitoso*/}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertEdit}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Modificación de cosecha exitoso</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Continuar</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Modal para la alerta de cancelar la edición de una cosecha */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertCancel}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta cosecha?</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Si</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                onPress={() => setShowAlertCancel(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>No</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 

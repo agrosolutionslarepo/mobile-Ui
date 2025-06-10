@@ -69,7 +69,7 @@ const SeedsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
 
       <View style={styles.seedsListContainer}>
         {loading ? (
-          <Text>Cargando semillas...</Text>
+          <Text style={{ textAlign: 'center' }}>Cargando semillas...</Text>
         ) : (
           semillas.map((semilla) => (
             <TouchableOpacity key={semilla._id} style={styles.seedItemContainer} onPress={() => setActiveContent('viewSeed', semilla)}>

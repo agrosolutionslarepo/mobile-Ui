@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 const AddCropScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
     const [showAlertAdd, setShowAlertAdd] = useState(false); // Estado para controlar si se muestra la alerta de agregar cosecha
@@ -19,93 +19,95 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (content: strin
 
 
     return (
-        <View style={styles.cropContainer}>
-            <Text style={styles.cropTitle}>Agregar cosecha</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.cropContainer}>
+                <Text style={styles.cropTitle}>Agregar cosecha</Text>
 
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de cosecha"
-                />
+                <View style={styles.formContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nombre de cosecha"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Parcela"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Parcela"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Semilla"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Semilla"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Día de la coseha"
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Día de la coseha"
+                    />
 
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelCropAdd}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
+                    <View style={styles.formButtonsContainer}>
+                        <TouchableOpacity style={styles.button} onPress={cancelCropAdd}>
+                            <Text style={styles.buttonText}>Cancelar</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={addCrop}>
-                        <Text style={styles.buttonText}>Agregar</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.cancelButton} onPress={addCrop}>
+                            <Text style={styles.buttonText}>Agregar</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
+                {/* Modal para la alerta de agregar cosecha exitoso*/}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertAdd}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Ingreso de cosecha exitoso</Text>
+
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity
+                                    onPress={goToCropsScreen}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* Modal para la alerta de cancelar el ingreso de una nueva cosecha */}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertCancel}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />el ingreso de esta cosecha?</Text>
+
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity
+                                    onPress={goToCropsScreen}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Si</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => setShowAlertCancel(false)}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>No</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
-
-            {/* Modal para la alerta de agregar cosecha exitoso*/}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertAdd}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Ingreso de cosecha exitoso</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Continuar</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Modal para la alerta de cancelar el ingreso de una nueva cosecha */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertCancel}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />el ingreso de esta cosecha?</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Si</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                onPress={() => setShowAlertCancel(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>No</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 
@@ -147,9 +149,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
 
-        fontSize:20,
-        fontWeight:'bold',
-        textAlign:'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
 
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -242,10 +244,10 @@ const styles = StyleSheet.create({
 
     alertButton: {
         backgroundColor: '#A01BAC',
-    borderRadius: 20,
-    marginHorizontal: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 10
+        borderRadius: 20,
+        marginHorizontal: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10
     },
 
     alertButtonText: {

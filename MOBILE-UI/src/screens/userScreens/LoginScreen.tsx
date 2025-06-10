@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
-  Image,
-  Modal
+  Image,  
+  Modal,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -48,7 +50,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     tokenEndpoint: 'https://oauth2.googleapis.com/token',
     revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
   };
-  
+
   const redirectUri = AuthSession.makeRedirectUri({
     native: 'com.googleusercontent.apps.916278295990-bh438sjqpfjmja0df5afmubvlroeq2ce:/oauthredirect',
     useProxy: true,
@@ -69,7 +71,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       }
     }
   }, [response]);
-  
+
   const handleGoogleToken = async (idToken: string) => {
     debugger;
     try {
@@ -123,95 +125,98 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   const goToRecoverScreen = () => setActiveContent('recover');
 
   return (
-    <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
-      <View style={styles.container}>
-        <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
+        <View style={styles.container}>
+          <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
 
-        <TouchableOpacity style={styles.googlebutton} onPress={() => promptAsync()}>
-          <Image source={require('../../assets/img/google.png')} style={styles.googleImage} resizeMode="contain" />
-          <Text style={styles.googleButtonText}>Continuar con Google</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.googlebutton} onPress={() => promptAsync()}>
+            <Image source={require('../../assets/img/google.png')} style={styles.googleImage} resizeMode="contain" />
+            <Text style={styles.googleButtonText}>Continuar con Google</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.textForm}>Email</Text>
-        <View style={[styles.inputWithIcon, emailError && styles.inputError]}>
-          <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            placeholder="ejemplo@correo.com"
-            placeholderTextColor="#888"
-            style={styles.input}
-            value={username}
-            onChangeText={text => {
-              setUsername(text);
-              setEmailError(false);
-            }}
-          />
+          <Text style={styles.textForm}>Email</Text>
+          <View style={[styles.inputWithIcon, emailError && styles.inputError]}>
+            <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              placeholder="ejemplo@correo.com"
+              placeholderTextColor="#888"
+              style={styles.input}
+              value={username}
+              onChangeText={text => {
+                setUsername(text);
+                setEmailError(false);
+              }}
+            />
+          </View>
+
+          <Text style={styles.textForm}>Contraseña</Text>
+          <View style={[styles.inputWithIcon, passwordError && styles.inputError]}>
+            <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              placeholder="******"
+              placeholderTextColor="#888"
+              secureTextEntry
+              style={styles.input}
+              value={password}
+              onChangeText={text => {
+                setPassword(text);
+                setPasswordError(false);
+              }}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Ingresar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.recoverPasswordButton} onPress={goToRecoverScreen}>
+            <Text style={styles.recoverPasswordText}>Olvidé mi contraseña</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.registerText}>¿Todavía no tenés cuenta?</Text>
+          <TouchableOpacity style={styles.registerButton} onPress={goToRegisterScreen}>
+            <Text style={styles.registerButtonText}>Registrarse</Text>
+          </TouchableOpacity>
+
+          <Modal transparent visible={showAlertEmpty}>
+            <View style={styles.modalView}>
+              <View style={styles.alertView}>
+                <Text style={styles.alertTitle}>Campos incompletos</Text>
+                <Text style={styles.alertMessage}>Por favor, complete todos los campos.</Text>
+                <TouchableOpacity onPress={() => setShowAlertEmpty(false)} style={styles.alertButton}>
+                  <Text style={styles.alertButtonText}>Volver</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          <Modal transparent visible={showAlertSuccess}>
+            <View style={styles.modalView}>
+              <View style={styles.alertView}>
+                <Text style={styles.alertTitle}>Inicio de sesión exitoso</Text>
+                <TouchableOpacity onPress={() => { setShowAlertSuccess(false); goToHomeScreen(); }} style={styles.alertButton}>
+                  <Text style={styles.alertButtonText}>Continuar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          <Modal transparent visible={showAlertFail}>
+            <View style={styles.modalView}>
+              <View style={styles.alertView}>
+                <Text style={styles.alertTitle}>Oh no! Algo salió mal!</Text>
+                <Text style={styles.alertMessage}>El email y/o la contraseña son incorrectos. Intente nuevamente.</Text>
+                <TouchableOpacity onPress={() => setShowAlertFail(false)} style={styles.alertButton}>
+                  <Text style={styles.alertButtonText}>Volver</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
+      </ImageBackground>
 
-        <Text style={styles.textForm}>Contraseña</Text>
-        <View style={[styles.inputWithIcon, passwordError && styles.inputError]}>
-          <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            placeholder="******"
-            placeholderTextColor="#888"
-            secureTextEntry
-            style={styles.input}
-            value={password}
-            onChangeText={text => {
-              setPassword(text);
-              setPasswordError(false);
-            }}
-          />
-        </View>
-
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Ingresar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.recoverPasswordButton} onPress={goToRecoverScreen}>
-          <Text style={styles.recoverPasswordText}>Olvidé mi contraseña</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.registerText}>¿Todavía no tenés cuenta?</Text>
-        <TouchableOpacity style={styles.registerButton} onPress={goToRegisterScreen}>
-          <Text style={styles.registerButtonText}>Registrarse</Text>
-        </TouchableOpacity>
-
-        <Modal transparent visible={showAlertEmpty}>
-          <View style={styles.modalView}>
-            <View style={styles.alertView}>
-              <Text style={styles.alertTitle}>Campos incompletos</Text>
-              <Text style={styles.alertMessage}>Por favor, complete todos los campos.</Text>
-              <TouchableOpacity onPress={() => setShowAlertEmpty(false)} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>Volver</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal transparent visible={showAlertSuccess}>
-          <View style={styles.modalView}>
-            <View style={styles.alertView}>
-              <Text style={styles.alertTitle}>Inicio de sesión exitoso</Text>
-              <TouchableOpacity onPress={() => { setShowAlertSuccess(false); goToHomeScreen(); }} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>Continuar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal transparent visible={showAlertFail}>
-          <View style={styles.modalView}>
-            <View style={styles.alertView}>
-              <Text style={styles.alertTitle}>Oh no! Algo salió mal!</Text>
-              <Text style={styles.alertMessage}>El email y/o la contraseña son incorrectos. Intente nuevamente.</Text>
-              <TouchableOpacity onPress={() => setShowAlertFail(false)} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>Volver</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      </View>
-    </ImageBackground>
+    </TouchableWithoutFeedback>
   );
 };
 
