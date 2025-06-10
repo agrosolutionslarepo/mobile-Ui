@@ -1,115 +1,148 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
 
-const ViewCropScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-
-    const goToCropsScreen = () => {
-        setActiveContent('crops');
-    };
-
-
-    return (
-        <View style={styles.cropContainer}>
-            <Text style={styles.cropTitle}>Cosecha</Text>
-
-            <View style={styles.formContainer}>
-
-                <Text style={styles.plotText}>Nombre de cosecha</Text>
-
-                <Text style={styles.plotText}>Parcela</Text>
-
-                <Text style={styles.plotText}>Semilla</Text>
-
-                <Text style={styles.plotText}>Día de cosecha</Text>
-
-                <TouchableOpacity style={styles.button} onPress={goToCropsScreen}>
-                    <Text style={styles.buttonText}>Volver</Text>
-                </TouchableOpacity>
-
-            </View>
-        </View>
-    );
+interface Props {
+  setActiveContent: (screen: string) => void;
+  selectedCrop: any; // ideally typed
 }
 
+const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => {
+  const goBack = () => setActiveContent('crops');
+
+  if (!selectedCrop) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>No se encontró la cosecha</Text>
+        <TouchableOpacity style={styles.button} onPress={goBack}>
+          <Text style={styles.buttonText}>Volver</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const {
+    fechaCosecha,
+    cantidadCosechada,
+    unidad,
+    observaciones,
+    cultivo,
+    estado,
+  } = selectedCrop;
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Cosecha</Text>
+
+      <View style={styles.box}>
+        <Text style={styles.label}>📅 Fecha de cosecha</Text>
+        <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
+
+        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+        <Text style={styles.value}>{`${cantidadCosechada} ${unidad}`}</Text>
+
+        <Text style={styles.label}>⚙️ Estado</Text>
+        <Text style={styles.value}>{estado ? 'Activo' : 'Inactivo'}</Text>
+
+        {observaciones ? (
+          <>
+            <Text style={styles.label}>📝 Observaciones</Text>
+            <Text style={styles.value}>{observaciones}</Text>
+          </>
+        ) : null}
+      </View>
+
+      <Text style={styles.title}>Cultivo asociado</Text>
+
+      <View style={styles.box}>
+        <Text style={styles.label}>🌱 Semilla</Text>
+        <Text style={styles.value}>{cultivo?.semilla?.nombreSemilla || 'N/D'}</Text>
+
+        <Text style={styles.label}>🌿 Parcela</Text>
+        <Text style={styles.value}>{cultivo?.parcela?.nombreParcela || 'N/D'}</Text>
+
+        <Text style={styles.label}>📅 Fecha de siembra</Text>
+        <Text style={styles.value}>{cultivo?.fechaSiembra?.split('T')[0] || 'N/D'}</Text>
+
+        <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
+        <Text style={styles.value}>{cultivo?.fechaCosecha?.split('T')[0] || 'N/D'}</Text>
+
+        <Text style={styles.label}>🌱 Cantidad sembrada</Text>
+        <Text style={styles.value}>{cultivo?.cantidadSemilla ? `${cultivo.cantidadSemilla} ${cultivo.unidad}` : 'N/D'}</Text>
+
+        <Text style={styles.label}>⚙️ Estado del cultivo</Text>
+        <Text style={styles.value}>{cultivo?.estado ? 'Activo' : 'Inactivo'}</Text>
+
+        {cultivo?.gdd && (
+          <>
+            <Text style={styles.label}>🌡️ GDD</Text>
+            <Text style={styles.value}>{cultivo.gdd}</Text>
+          </>
+        )}
+
+        <TouchableOpacity style={styles.button} onPress={goBack}>
+          <Text style={styles.buttonText}>Volver</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+};
+
 const styles = StyleSheet.create({
-
-    cropContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#FFFCE3',
-        width: '100%'
-    },
-
-    cropTitle: {
-        color: '#000000',
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        textAlign: 'center'
-    },
-
-    formContainer: {
-        flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
-        width: '100%'
-    },
-
-    plotText: {
-        width: '80%',
-
-        height: 40,
-        padding: 10,
-
-        marginLeft: '10%',
-        marginRight: '10%',
-        marginBottom: 20,
-
-        backgroundColor: '#D9D9D9',
-        borderRadius: 25,
-
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-
-    button: {
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '50%',
-        marginLeft:'25%',
-        height: 35,
-        backgroundColor: '#A01BAC',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 25,
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-
-    seedName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000000'
-    },
-})
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFCE3',
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#665996',
+    textAlign: 'center',
+    marginVertical: 20,
+    textTransform: 'uppercase',
+  },
+  box: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    paddingVertical: 20,
+    marginBottom: 20,
+    elevation: 5,
+  },
+  label: {
+    marginLeft: '5%',
+    marginBottom: 5,
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: 'rgb(42, 125, 98)',
+  },
+  value: {
+    width: '90%',
+    marginLeft: '5%',
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 25,
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    elevation: 3,
+  },
+  button: {
+    marginTop: 20,
+    width: '50%',
+    marginLeft: '25%',
+    height: 40,
+    backgroundColor: '#A01BAC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    elevation: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
 
 export default ViewCropScreen;

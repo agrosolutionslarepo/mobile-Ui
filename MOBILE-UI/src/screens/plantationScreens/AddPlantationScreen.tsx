@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -142,6 +142,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
     return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Agregar plantación</Text>
 
@@ -194,68 +195,77 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
                 <View>
                     <Text style={styles.label}>⚖️ Unidad</Text>
-                    <View>
-                        <Picker
-                            selectedValue={unidad}
-                            onValueChange={(value) => {
-                                setUnidad(value);
-                                setUnidadError(false);
-                            }}
-                            style={[styles.picker, unidadError && styles.inputError]}
-                        >
-                            <Picker.Item label="Seleccione unidad" value="" />
-                            <Picker.Item label="Kilogramos (kg)" value="kg" />
-                            <Picker.Item label="Toneladas (ton)" value="ton" />
-                        </Picker>
+                    <View style={styles.pickerInputContainer}>
+                        <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
+                            <Picker
+                                selectedValue={unidad}
+                                onValueChange={(value) => {
+                                    setUnidad(value);
+                                    setUnidadError(false);
+                                }}
+                                style={styles.pickerInput}
+                            >
+                                <Picker.Item label="Seleccione unidad" value="" />
+                                <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                <Picker.Item label="Toneladas (ton)" value="ton" />
+                            </Picker>
+                        </View>
                     </View>
                 </View>
+
 
 
                 <View>
                     <Text style={styles.label}>🌽 Seleccionar semilla</Text>
-                    <View>
-                        <Picker
-                            selectedValue={semilla}
-                            onValueChange={(itemValue) => {
-                                setSemilla(itemValue);
-                                setSemillaError(false);
-                            }}
-                            style={[styles.picker, semillaError && styles.inputError]}
-                        >
-                            <Picker.Item label="Seleccione una semilla" value="" />
-                            {semillasDisponibles.map((item) => (
-                                <Picker.Item key={item._id} label={item.nombreSemilla} value={item._id} />
-                            ))}
-                        </Picker>
+                    <View style={styles.pickerInputContainer}>
+                        <View style={[styles.pickerInputWrapper, semillaError && styles.inputError]}>
+                            <Picker
+                                selectedValue={semilla}
+                                onValueChange={(itemValue) => {
+                                    setSemilla(itemValue);
+                                    setSemillaError(false);
+                                }}
+                                style={styles.pickerInput}
+                            >
+                                <Picker.Item label="Seleccione una semilla" value="" />
+                                {semillasDisponibles.map((item) => (
+                                    <Picker.Item key={item._id} label={item.nombreSemilla} value={item._id} />
+                                ))}
+                            </Picker>
+                        </View>
                     </View>
                 </View>
 
+
                 <View>
                     <Text style={styles.label}>🧱 Seleccionar parcela</Text>
-                    <View>
-                        <Picker
-                            selectedValue={parcela}
-                            onValueChange={(itemValue) => {
-                                setParcela(itemValue);
-                                setParcelaError(false);
-                            }}
-                            style={[styles.picker, parcelaError && styles.inputError]}
-                        >
-                            <Picker.Item label="Seleccione una parcela" value="" />
-                            {parcelasDisponibles.map((item) => (
-                                <Picker.Item key={item._id} label={item.nombreParcela} value={item._id} />
-                            ))}
-                        </Picker>
+                    <View style={styles.pickerInputContainer}>
+                        <View style={[styles.pickerInputWrapper, parcelaError && styles.inputError]}>
+                            <Picker
+                                selectedValue={parcela}
+                                onValueChange={(itemValue) => {
+                                    setParcela(itemValue);
+                                    setParcelaError(false);
+                                }}
+                                style={styles.pickerInput}
+                            >
+                                <Picker.Item label="Seleccione una parcela" value="" />
+                                {parcelasDisponibles.map((item) => (
+                                    <Picker.Item key={item._id} label={item.nombreParcela} value={item._id} />
+                                ))}
+                            </Picker>
+                        </View>
                     </View>
                 </View>
+
 
 
 
                 <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={() => setShowAlertCancel(true)}>
+                    <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAlertCancel(true)}>
                         <Text style={styles.buttonText}>Cancelar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.cancelButton} onPress={addPlantation}>
+                    <TouchableOpacity style={styles.button} onPress={addPlantation}>
                         <Text style={styles.buttonText}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
@@ -310,7 +320,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             {/*Modal de fecha*/}
             <Modal transparent visible={showDateModal} animationType="fade">
                 <View style={styles.modalView}>
-                    <View style={styles.alertView}>
+                    <View style={styles.alertViewDate}>
                         <Text style={styles.alertTitle}>
                             Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
                         </Text>
@@ -439,6 +449,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             </Modal>
 
         </ScrollView>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -480,7 +491,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
-        elevation: 5
+        elevation: 5,
     },
     label: {
         marginBottom: 5,
@@ -504,7 +515,7 @@ const styles = StyleSheet.create({
     cancelButton: {
         width: '48%',
         height: 40,
-        backgroundColor: '#A01BAC',
+        backgroundColor: '#aaa',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25
@@ -527,6 +538,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         maxWidth: '80%'
     },
+    alertViewDate: {
+        backgroundColor: '#FFFCE3',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '90%',
+        minHeight: Platform.OS === 'ios' ? 550 : 250,
+        maxHeight: Platform.OS === 'ios' ? 700 : undefined,
+    },
+
     alertMessage: {
         fontSize: 16,
         marginBottom: 20,
@@ -574,36 +595,54 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     pickerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: 'column', // antes: 'row'
         alignItems: 'center',
-        maxWidth: '100%',
+        width: '100%',
         marginVertical: 10,
         gap: 12,
     },
     pickerBox: {
         backgroundColor: '#fff',
         borderRadius: 15,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.15,
-        shadowRadius: 2,
-        width: 85,
-        height: 40,
+        width: '100%',
+        height: 120, // ⬅ más compacto
         justifyContent: 'center',
+        overflow: 'hidden', // 👈 esto es CLAVE en iOS
+        alignItems: 'center', // 👈 Asegura que el picker no se desplace horizontalmente
+        ...Platform.select({
+            ios: {
+                height: 120,
+            },
+            android: {
+                height: 48,
+            },
+        }),
+
     },
+
     pickerDate: {
-        height: 40,
-        borderRadius: 10,
+        height: Platform.OS === 'ios' ? 220 : 40,
         width: '100%',
         color: '#333',
-        fontSize: 14,
+        fontSize: Platform.OS === 'ios' ? 20 : 16, // más grande y centrado en iOS
+        textAlign: 'center',                      // 👈 asegura alineación del texto
+        textAlignVertical: 'center',              // 👈 centra el valor en Android
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
     },
+
+
     pickerGroup: {
         alignItems: 'center',
-        marginHorizontal: 4,
-        flex: 1,
+        marginBottom: 10,
+        width: '100%', // para ocupar todo el ancho
     },
     pickerLabel: {
         fontSize: 13,
@@ -631,7 +670,46 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 
+    pickerInputContainer: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
 
+    pickerInputWrapper: {
+        backgroundColor: '#D9D9D9',
+        borderRadius: 25,
+        marginBottom: 20,
+        ...Platform.select({
+            ios: {
+                height: 120,
+                justifyContent: 'center',
+                overflow: 'hidden',
+            },
+            android: {
+                height: 50,
+                justifyContent: 'center',
+            },
+        }),
+    },
+
+    pickerInput: {
+        width: '100%',
+        color: '#000',
+        fontSize: 16,
+        textAlign: 'center',
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
 
 
 });

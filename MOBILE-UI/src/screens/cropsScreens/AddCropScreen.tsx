@@ -1,258 +1,400 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
+import { API_URL } from '../../config';
 
-const AddCropScreen = ({ setActiveContent }: { setActiveContent: (content: string) => void }) => {
-    const [showAlertAdd, setShowAlertAdd] = useState(false); // Estado para controlar si se muestra la alerta de agregar cosecha
-    const [showAlertCancel, setShowAlertCancel] = useState(false); // Estado para controlar si se muestra la alerta de agregar cosecha
+interface Cultivo {
+    _id: string;
+    semilla: {
+        nombreSemilla: string;
+    };
+    parcela: {
+        nombreParcela: string;
+    };
+}
 
-    const addCrop = () => {
-        setShowAlertAdd(true);
+const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
+    const [cantidadCosechada, setCantidadCosechada] = useState('');
+    const [unidad, setUnidad] = useState('');
+    const [observaciones, setObservaciones] = useState('');
+    const [cultivo, setCultivo] = useState('');
+    const [cultivosDisponibles, setCultivosDisponibles] = useState<Cultivo[]>([]);
+
+    const [showAlertAdd, setShowAlertAdd] = useState(false);
+    const [showAlertCancel, setShowAlertCancel] = useState(false);
+    const [showIncompleteModal, setShowIncompleteModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+
+    const [cantidadError, setCantidadError] = useState(false);
+    const [unidadError, setUnidadError] = useState(false);
+    const [cultivoError, setCultivoError] = useState(false);
+
+    const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
+    const allowAlphanumeric = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
+
+    const goToCropsScreen = () => setActiveContent('crops');
+    const cancelCropAdd = () => setShowAlertCancel(true);
+
+    const fetchCultivos = async () => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) return;
+
+            const response = await axios.get(`${API_URL}/cultivos/getAllCultivos`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setCultivosDisponibles(response.data);
+        } catch (error) {
+            console.error('Error al cargar cultivos:', error);
+        }
     };
 
-    const cancelCropAdd = () => {
-        setShowAlertCancel(true);
-    };
+    useEffect(() => {
+        fetchCultivos();
+    }, []);
 
-    const goToCropsScreen = () => {
-        setActiveContent('crops');
-    };
+    const addCrop = async () => {
+        const isCantidadEmpty = !cantidadCosechada;
+        const isUnidadEmpty = !unidad;
+        const isCultivoEmpty = !cultivo;
 
+        setCantidadError(isCantidadEmpty);
+        setUnidadError(isUnidadEmpty);
+        setCultivoError(isCultivoEmpty);
+
+        if (isCantidadEmpty || isUnidadEmpty || isCultivoEmpty) {
+            setShowIncompleteModal(true);
+            return;
+        }
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) throw new Error('Token no encontrado');
+
+            await axios.post(
+                `${API_URL}/cosechas/createCosecha`,
+                {
+                    cantidadCosechada: parseFloat(cantidadCosechada),
+                    unidad,
+                    observaciones,
+                    cultivo,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            setShowAlertAdd(true);
+        } catch (error) {
+            console.error('Error al crear la cosecha:', error);
+            setShowErrorModal(true);
+        }
+    };
 
     return (
-        <View style={styles.cropContainer}>
-            <Text style={styles.cropTitle}>Agregar cosecha</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>Agregar cosecha</Text>
+                <View style={styles.formContainer}>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+                        <TextInput
+                            style={[styles.input, cantidadError && styles.inputError]}
+                            placeholder="Ej: 120"
+                            placeholderTextColor="#999"
+                            value={cantidadCosechada}
+                            keyboardType="numeric"
+                            onChangeText={(text) => {
+                                setCantidadCosechada(allowOnlyNumbers(text));
+                                setCantidadError(false);
+                            }}
+                        />
+                    </View>
 
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de cosecha"
-                />
+                    <View>
+                        <Text style={styles.label}>⚖️ Unidad</Text>
+                        <View style={styles.pickerInputContainer}>
+                            <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
+                                <Picker
+                                    selectedValue={unidad}
+                                    onValueChange={(value) => {
+                                        setUnidad(value);
+                                        setUnidadError(false);
+                                    }}
+                                    style={styles.pickerInput}
+                                >
+                                    <Picker.Item label="Seleccione unidad" value="" />
+                                    <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                    <Picker.Item label="Toneladas (ton)" value="ton" />
+                                </Picker>
+                            </View>
+                        </View>
+                    </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Parcela"
-                />
+                    <View>
+                        <Text style={styles.label}>🌱 Seleccionar cultivo</Text>
+                        <View style={styles.pickerInputContainer}>
+                            <View style={[styles.pickerInputWrapper, cultivoError && styles.inputError]}>
+                                <Picker
+                                    selectedValue={cultivo}
+                                    onValueChange={(value) => {
+                                        setCultivo(value);
+                                        setCultivoError(false);
+                                    }}
+                                    style={styles.pickerInput}
+                                >
+                                    <Picker.Item label="Seleccione un cultivo" value="" />
+                                    {cultivosDisponibles.map((item) => (
+                                        <Picker.Item
+                                            key={item._id}
+                                            label={`${item.semilla.nombreSemilla} - ${item.parcela.nombreParcela}`}
+                                            value={item._id}
+                                        />
+                                    ))}
+                                </Picker>
+                            </View>
+                        </View>
+                    </View>
+                    
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>📝 Observaciones</Text>
+                        <TextInput
+                            style={styles.textArea}
+                            multiline
+                            numberOfLines={4}
+                            placeholder="Opcional"
+                            placeholderTextColor="#999"
+                            value={observaciones}
+                            onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
+                        />
+                    </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Semilla"
-                />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Día de la coseha"
-                />
-
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelCropAdd}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.cancelButton} onPress={addCrop}>
-                        <Text style={styles.buttonText}>Agregar</Text>
-                    </TouchableOpacity>
+                    <View style={styles.formButtonsContainer}>
+                        <TouchableOpacity style={styles.cancelButton} onPress={cancelCropAdd}>
+                            <Text style={styles.buttonText}>Cancelar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={addCrop}>
+                            <Text style={styles.buttonText}>Agregar</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
-            </View>
-
-            {/* Modal para la alerta de agregar cosecha exitoso*/}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertAdd}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Ingreso de cosecha exitoso</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
+                <Modal animationType="fade" transparent visible={showAlertAdd}>
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Cosecha creada exitosamente</Text>
+                            <TouchableOpacity onPress={goToCropsScreen} style={styles.alertButton}>
                                 <Text style={styles.alertButtonText}>Continuar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
 
-            {/* Modal para la alerta de cancelar el ingreso de una nueva cosecha */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertCancel}
-                >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />el ingreso de esta cosecha?</Text>
+                <Modal animationType="fade" transparent visible={showAlertCancel}>
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>¿Cancelar ingreso de cosecha?</Text>
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity onPress={goToCropsScreen} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Sí</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>No</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToCropsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Si</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                onPress={() => setShowAlertCancel(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>No</Text>
+                <Modal animationType="fade" transparent visible={showIncompleteModal}>
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Completa todos los campos requeridos.</Text>
+                            <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
+                                <Text style={styles.alertButtonText}>Aceptar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
+                </Modal>
+
+                <Modal animationType="fade" transparent visible={showErrorModal}>
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Error al crear la cosecha. Intente nuevamente.</Text>
+                            <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
+                                <Text style={styles.alertButtonText}>Cerrar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </ScrollView>
+        </TouchableWithoutFeedback>
     );
-}
+};
 
 const styles = StyleSheet.create({
-
-    cropContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
+    container: {
+        flexGrow: 1,
+        paddingHorizontal: 20,
         backgroundColor: '#FFFCE3',
-        width: '100%'
     },
-
-    cropTitle: {
-        color: '#000000',
-        fontSize: 20,
+    title: {
         fontWeight: 'bold',
         marginTop: 20,
-        textAlign: 'center'
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 22,
+        color: '#665996',
+        textTransform: 'uppercase',
     },
-
     formContainer: {
-        flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
-        width: '100%'
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        marginBottom: 20,
+        padding: 20,
+        elevation: 5,
     },
-
+    inputGroup: {
+        marginBottom: 15,
+    },
     input: {
-        width: '80%',
-
+        width: '100%',
         height: 40,
         padding: 10,
-
-        marginLeft: '10%',
-        marginRight: '10%',
-        marginBottom: 20,
-
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
-
-        fontSize:20,
-        fontWeight:'bold',
-        textAlign:'center',
-
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
         elevation: 5,
     },
-
+    textArea: {
+        width: '100%',
+        height: 100,
+        padding: 10,
+        backgroundColor: '#D9D9D9',
+        borderRadius: 15,
+        fontSize: 16,
+        textAlignVertical: 'top',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    label: {
+        marginBottom: 5,
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: 'rgb(42, 125, 98)',
+    },
     formButtonsContainer: {
         flexDirection: 'row',
-        marginLeft: '10%',
-        marginRight: '10%',
+        justifyContent: 'space-between',
+        marginTop: 20,
     },
-
     button: {
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
+        width: '48%',
+        height: 40,
         backgroundColor: '#A01BAC',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25,
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
-
     cancelButton: {
-        marginLeft: '10%',
-
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
-        backgroundColor: '#A01BAC',
+        width: '48%',
+        height: 40,
+        backgroundColor: '#aaa',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25,
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
-
     buttonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
     },
-
-    // Estilos para las alertas
     modalView: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
-
     alertView: {
         backgroundColor: '#FFFCE3',
         padding: 20,
         borderRadius: 10,
         alignItems: 'center',
+        maxWidth: '80%',
     },
-
-    alertTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-
     alertMessage: {
         fontSize: 16,
         marginBottom: 20,
-        textAlign: 'center'
+        textAlign: 'center',
     },
-
     alertButtonsContainer: {
         flexDirection: 'row',
-
     },
-
     alertButton: {
         backgroundColor: '#A01BAC',
-    borderRadius: 20,
-    marginHorizontal: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 10
+        borderRadius: 20,
+        marginHorizontal: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
-
     alertButtonText: {
         fontSize: 18,
         color: 'white',
         fontWeight: 'bold',
     },
-})
+    pickerInputContainer: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    pickerInputWrapper: {
+        backgroundColor: '#D9D9D9',
+        borderRadius: 25,
+        marginBottom: 20,
+        ...Platform.select({
+            ios: {
+                height: 120,
+                justifyContent: 'center',
+                overflow: 'hidden',
+            },
+            android: {
+                height: 50,
+                justifyContent: 'center',
+            },
+        }),
+    },
+    pickerInput: {
+        width: '100%',
+        color: '#000',
+        fontSize: 16,
+        textAlign: 'center',
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
+    inputError: {
+        borderColor: 'red',
+        borderWidth: 2,
+    },
+});
 
 export default AddCropScreen;

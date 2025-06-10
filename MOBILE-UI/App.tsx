@@ -47,6 +47,8 @@ const App: React.FC = () => {
   const [selectedSeed, setSelectedSeed] = useState<any>(null);
   const [selectedPlot, setSelectedPlot] = useState<any>(null);
   const [selectedCultivo, setSelectedCultivo] = useState<any>(null);
+  const [selectedCrop, setSelectedCrop] = useState<any>(null);
+  
 
   useEffect(() => {
     const checkUserToken = async () => {
@@ -83,6 +85,10 @@ const App: React.FC = () => {
       setSelectedCultivo(data);
     }
 
+    if (screen === 'viewCrop' || screen === 'editCrop') {
+      setSelectedCrop(data);
+    }
+
     setActiveContent(screen); // <-- esto debe ir al final
   };
 
@@ -115,9 +121,10 @@ const App: React.FC = () => {
       case 'addCrop':
         return <AddCropScreen setActiveContent={handleSetActiveContent} />;
       case 'editCrop':
-        return <EditCropScreen setActiveContent={handleSetActiveContent} />;
+        return (<EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>
+        );
       case 'viewCrop':
-        return <ViewCropScreen setActiveContent={handleSetActiveContent} />;
+        return <ViewCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>;
 
       // Plantaciones
       case 'plantations':

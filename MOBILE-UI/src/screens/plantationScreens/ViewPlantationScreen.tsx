@@ -60,6 +60,9 @@ const ViewPlantationScreen: React.FC<Props> = ({ setActiveContent, selectedPlant
                 <Text style={styles.label}>📍 Ubicación</Text>
                 <Text style={styles.value}>{parcela.ubicacion}</Text>
 
+                <Text style={styles.label}>🌡️ GDD</Text>
+                <Text style={styles.value}>{parcela.gdd}</Text>
+
                 <Text style={styles.label}>🌐 Coordenadas</Text>
                 <Text style={styles.value}>Lat: {parcela.latitud}, Lon: {parcela.longitud}</Text>
 

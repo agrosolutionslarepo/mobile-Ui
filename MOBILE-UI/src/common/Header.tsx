@@ -9,7 +9,9 @@ import {
   Text,
   Animated,
   TouchableWithoutFeedback,
-  ScrollView
+  ScrollView,
+  SafeAreaView,
+  Platform
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -95,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     : menuItems;
 
   return (
-    <View style={styles.header}>
+    <SafeAreaView style={styles.header}>
       <TouchableOpacity onPress={toggleLeftMenu} style={styles.menuContainer}>
         <Image source={require('../assets/img/menu_izquierdo.png')} style={styles.menuIcon} />
       </TouchableOpacity>
@@ -157,27 +159,30 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </TouchableOpacity>
       </Modal>
 
-      <TouchableWithoutFeedback onPress={closeModal}>
-        <Modal visible={rightMenuVisible} transparent={true}>
-          <View style={styles.modalContainer}>
-            <Animated.View style={[styles.modalContentRight, { transform: [{ translateX: rightMenuPosition }] }]}>
-              <View style={styles.notificationContainerTitle}>
-                <Text style={styles.notificationTitle}>Notificaciones</Text>
-              </View>
-              <ScrollView>
-                {[...Array(10).keys()].map((index) => (
-                  <View key={index} style={styles.notificationContainer}>
-                    <TouchableOpacity onPress={() => console.log('Opción seleccionada')} style={styles.notificationButton}>
-                      <Image source={require('../assets/img/notificacion.png')} style={styles.notificationLogo} resizeMode="contain" />
-                      <Text style={styles.notificationText}>Alerta climática</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </Animated.View>
+      <Modal visible={rightMenuVisible} transparent={true} animationType="fade">
+  <TouchableWithoutFeedback onPress={closeModal}>
+    <View style={styles.modalContainer}>
+      <TouchableWithoutFeedback onPress={() => {}}>
+        <Animated.View style={[styles.modalContentRight, { transform: [{ translateX: rightMenuPosition }] }]}>
+          <View style={styles.notificationContainerTitle}>
+            <Text style={styles.notificationTitle}>Notificaciones</Text>
           </View>
-        </Modal>
+          <ScrollView>
+            {[...Array(10).keys()].map((index) => (
+              <View key={index} style={styles.notificationContainer}>
+                <TouchableOpacity onPress={() => console.log('Opción seleccionada')} style={styles.notificationButton}>
+                  <Image source={require('../assets/img/notificacion.png')} style={styles.notificationLogo} resizeMode="contain" />
+                  <Text style={styles.notificationText}>Alerta climática</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        </Animated.View>
       </TouchableWithoutFeedback>
+    </View>
+  </TouchableWithoutFeedback>
+</Modal>
+
 
       <Modal
         transparent
@@ -219,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -232,7 +237,15 @@ const styles = StyleSheet.create({
   },
   userImage: {
     width: 41,
-    height: 42
+    height: 42,
+    ...Platform.select({
+      ios: {
+        marginTop: 40,
+      },
+      android: {
+
+      },
+    }),
   },
   userName: {
     fontSize: 20,
@@ -293,7 +306,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9D9',
     padding: 20,
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 20,
+    ...Platform.select({
+      ios: {
+        paddingTop: 60,
+      },
+      android: {
+
+      },
+    }),
   },
   notificationTitle: {
     fontWeight: 'bold',
@@ -339,7 +360,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#CFCAE3',
     borderBottomWidth: 1,
-    borderBottomColor: '#CFCAE3'
+    borderBottomColor: '#CFCAE3',
+    ...Platform.select({
+      ios: {
+
+      },
+      android: {
+        paddingTop: 40,
+      },
+    }),
   },
   menuContainer: {
     width: 50,

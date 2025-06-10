@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Props {
     setActiveContent: (content: string) => void;
@@ -17,7 +18,8 @@ interface Props {
 
 const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => {
     const [showAlertEdit, setShowAlertEdit] = useState(false);
-    const [showAlertCancel, setShowAlertCancel] = useState(false);
+    //const [showAlertCancel, setShowAlertCancel] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     const [nombreSemilla, setNombreSemilla] = useState(selectedSeed?.nombreSemilla || '');
     const [tipoSemilla, setTipoSemilla] = useState(selectedSeed?.tipoSemilla || '');
@@ -27,14 +29,6 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
     /*const editSeed = () => {
         setShowAlertEdit(true);
     };*/
-
-    const cancelSeedEdit = () => {
-        setShowAlertCancel(true);
-    };
-
-    const goToSeedsScreen = () => {
-        setActiveContent('seeds');
-    };
 
     const editSeed = async () => {
         try {
@@ -48,7 +42,7 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                 unidad,
             };
 
-            await axios.put(`http://localhost:3000/semillas/updateSemilla/${selectedSeed._id}`, updatedSeed, {
+            await axios.put(`${API_URL}/semillas/updateSemilla/${selectedSeed._id}`, updatedSeed, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -61,113 +55,109 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
     };
 
     return (
-        <View style={styles.seedContainer}>
-            <Text style={styles.seedTitle}>Modificar semilla</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.seedContainer}>
+                <Text style={styles.seedTitle}>Modificar semilla</Text>
 
-            <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#666"
-                    placeholder="Nombre Semilla"
-                    value={nombreSemilla}
-                    onChangeText={setNombreSemilla}
-                    editable={false} // ❌ Deshabilitado
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#666"
-                    placeholder="Tipo de Semilla"
-                    value={tipoSemilla}
-                    onChangeText={setTipoSemilla}
-                    editable={false} // ❌ Deshabilitado
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#666"
-                    placeholder="Cantidad"
-                    value={cantidadSemilla}
-                    onChangeText={setCantidadSemilla}
-                    keyboardType="numeric"
-                />
-                <View>
-                    <Picker
-                        selectedValue={unidad}
-                        onValueChange={(itemValue) => {
-                            if (itemValue !== '') setUnidad(itemValue);
-                        }}
-                        style={styles.picker}
-                    >
-                        {unidad === '' && (
-                            <Picker.Item label="Seleccionar unidad" value="" />
-                        )}
-                        <Picker.Item label="Toneladas (ton)" value="ton" />
-                        <Picker.Item label="Kilogramos (kg)" value="kg" />
-                    </Picker>
+                <View style={styles.formContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholderTextColor="#666"
+                        placeholder="Nombre Semilla"
+                        value={nombreSemilla}
+                        onChangeText={setNombreSemilla}
+                        editable={false} // ❌ Deshabilitado
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholderTextColor="#666"
+                        placeholder="Tipo de Semilla"
+                        value={tipoSemilla}
+                        onChangeText={setTipoSemilla}
+                        editable={false} // ❌ Deshabilitado
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholderTextColor="#666"
+                        placeholder="Cantidad"
+                        value={cantidadSemilla}
+                        onChangeText={setCantidadSemilla}
+                        keyboardType="numeric"
+                    />
+
+                    <View>
+                        <View style={styles.pickerInputContainer}>
+                            <View style={styles.pickerInputWrapper}>
+                                <Picker
+                                    selectedValue={unidad}
+                                    onValueChange={(itemValue) => {
+                                        if (itemValue !== '') setUnidad(itemValue);
+                                    }}
+                                    style={styles.pickerInput}
+                                >
+                                    {unidad === '' && (
+                                        <Picker.Item label="Seleccionar unidad" value="" />
+                                    )}
+                                    <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                    <Picker.Item label="Toneladas (ton)" value="ton" />
+                                </Picker>
+                            </View>
+                        </View>
+                    </View>
+
+
+                    <View style={styles.formButtonsContainer}>
+                        <TouchableOpacity style={styles.button} onPress={() => setShowCancelModal(true)}>
+                            <Text style={styles.buttonText}>Cancelar</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.cancelButton} onPress={editSeed}>
+                            <Text style={styles.buttonText}>Guardar</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={cancelSeedEdit}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
+                {/* Modal para la alerta de modificación de semilla exitoso*/}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showAlertEdit}
+                >
+                    <View style={styles.modalView}>
+                        <View style={styles.alertView}>
+                            <Text style={styles.alertMessage}>Modificación de semilla exitoso</Text>
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={editSeed}>
-                        <Text style={styles.buttonText}>Guardar</Text>
-                    </TouchableOpacity>
-                </View>
+                            <View style={styles.alertButtonsContainer}>
+                                <TouchableOpacity
+                                    onPress={() => setActiveContent('seeds')}
+                                    style={styles.alertButton}
+                                >
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
+                {/* MODAL CANCELAR */}
+                <Modal visible={showCancelModal} transparent animationType="fade">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.confirmBox}>
+                            <Text style={styles.confirmText}>¿Está seguro que quiere cancelar la edición?</Text>
+                            <View style={styles.confirmButtons}>
+                                <TouchableOpacity style={styles.confirmButton} onPress={() => setActiveContent('seeds')}>
+                                    <Text style={styles.confirmButtonText}>Sí</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.confirmButton} onPress={() => setShowCancelModal(false)}>
+                                    <Text style={styles.confirmButtonText}>No</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
-
-            {/* Modal para la alerta de modificación de semilla exitoso*/}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertEdit}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Modificación de semilla exitoso</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToSeedsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Continuar</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Modal para la alerta de cancelar la edición de una semilla */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={showAlertCancel}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Esta seguro que quiere cancelar<br />la modificación de esta semilla?</Text>
-
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity
-                                onPress={goToSeedsScreen}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>Si</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                onPress={() => setShowAlertCancel(false)}
-                                style={styles.alertButton}
-                            >
-                                <Text style={styles.alertButtonText}>No</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 
@@ -182,7 +172,7 @@ const styles = StyleSheet.create({
     seedTitle: {
         fontWeight: 'bold',
         marginTop: 20,
-        marginBottom:20,
+        marginBottom: 20,
         textAlign: 'center',
         fontSize: 22,
         color: '#665996',
@@ -290,31 +280,6 @@ const styles = StyleSheet.create({
 
     },
 
-
-    picker: {
-        width: '80%',
-
-        height: 40,
-        padding: 0,
-
-        marginLeft: '10%',
-        marginRight: '10%',
-        marginBottom: 20,
-
-        backgroundColor: '#D9D9D9',
-        borderRadius: 25,
-
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-
     // Estilos para las alertas
     modalView: {
         flex: 1,
@@ -348,7 +313,7 @@ const styles = StyleSheet.create({
     },
 
     alertButton: {
-       backgroundColor: '#A01BAC',
+        backgroundColor: '#A01BAC',
         borderRadius: 20,
         marginHorizontal: 10,
         paddingHorizontal: 20,
@@ -359,6 +324,91 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'white',
         fontWeight: 'bold',
+    },
+
+    pickerInputContainer: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+        width: '80%',
+        marginLeft: '10%',
+        marginRight: '10%'
+    },
+    pickerInputWrapper: {
+        backgroundColor: '#D9D9D9',
+        borderRadius: 25,
+        marginBottom: 20,
+        ...Platform.select({
+            ios: {
+                height: 120,
+                justifyContent: 'center',
+                overflow: 'hidden',
+            },
+            android: {
+                height: 50,
+                justifyContent: 'center',
+            },
+        }),
+    },
+    pickerInput: {
+        width: '100%',
+        color: '#000',
+        fontSize: 16,
+        textAlign: 'center',
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    confirmBox: {
+        backgroundColor: '#FFFCE3',
+        padding: 25,
+        borderRadius: 12,
+        alignItems: 'center',
+        width: '80%'
+    },
+
+    confirmText: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
+        color: '#333',
+        fontWeight: '500'
+    },
+
+    confirmButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%'
+    },
+
+    confirmButton: {
+        backgroundColor: '#A01BAC',
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+        borderRadius: 25,
+        marginHorizontal: 10
+    },
+
+    confirmButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16
     },
 })
 
