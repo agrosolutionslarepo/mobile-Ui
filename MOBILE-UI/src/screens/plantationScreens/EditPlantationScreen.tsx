@@ -8,10 +8,12 @@ import {
     Modal,
     ScrollView,
     StyleSheet,
-    Alert
+    Alert,
+    Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { API_URL } from '../../config';
 
 const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const [fechaSiembra, setFechaSiembra] = useState('');
@@ -50,7 +52,7 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) throw new Error('Token no encontrado');
 
-            await fetch(`http://localhost:3000/cultivos/updateCultivo/${selectedCultivo._id}`,
+            await fetch(`${API_URL}/cultivos/updateCultivo/${selectedCultivo._id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -118,13 +120,19 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                     keyboardType="numeric"
                 />
 
-                <Text style={styles.label}>⚖️ Unidad</Text>
                 <View>
-                    <Picker selectedValue={unidad} onValueChange={setUnidad} style={styles.picker}>
-                        <Picker.Item label="Seleccione unidad" value="" />
-                        <Picker.Item label="Kilogramos (kg)" value="kg" />
-                        <Picker.Item label="Toneladas (ton)" value="ton" />
-                    </Picker>
+                    <Text style={styles.label}>⚖️ Unidad</Text>
+                    <View style={styles.pickerInputContainer}>
+                        <View style={styles.pickerInputWrapper}>
+                            <Picker
+                                selectedValue={unidad} onValueChange={setUnidad} style={styles.pickerInput}
+                            >
+                                <Picker.Item label="Seleccione unidad" value="" />
+                                <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                <Picker.Item label="Toneladas (ton)" value="ton" />
+                            </Picker>
+                        </View>
+                    </View>
                 </View>
 
 
@@ -139,36 +147,102 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                 </View>
             </View>
 
-            {/* MODAL FECHA */}
-            <Modal visible={showDateModal} transparent animationType="fade">
+            {/*Modal de fecha*/}
+            <Modal transparent visible={showDateModal} animationType="fade">
                 <View style={styles.modalView}>
-                    <View style={styles.modalBox}>
-                        <Text style={styles.label}>Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}</Text>
-                        <View style={styles.pickerRow}>
-                            <Picker selectedValue={selectedDay} onValueChange={setSelectedDay} style={styles.datePicker}>
-                                {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
-                                    const day = String(i + 1).padStart(2, '0');
-                                    return <Picker.Item key={day} label={day} value={day} />;
-                                })}
-                            </Picker>
-                            <Picker selectedValue={selectedMonth} onValueChange={setSelectedMonth} style={styles.datePicker}>
-                                {Array.from({ length: 12 }, (_, i) => {
-                                    const month = String(i + 1).padStart(2, '0');
-                                    return <Picker.Item key={month} label={month} value={month} />;
-                                })}
-                            </Picker>
-                            <Picker selectedValue={selectedYear} onValueChange={setSelectedYear} style={styles.datePicker}>
-                                {Array.from({ length: 10 }, (_, i) => {
-                                    const year = String(new Date().getFullYear() + i);
-                                    return <Picker.Item key={year} label={year} value={year} />;
-                                })}
-                            </Picker>
+                    <View style={styles.alertViewDate}>
+                        <Text style={styles.alertTitle}>
+                            Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
+                        </Text>
+
+                        <View style={styles.pickerContainer}>
+                            {/* DÍA */}
+                            <View style={styles.pickerGroup}>
+                                <Text style={styles.pickerLabel}>Día</Text>
+                                <View style={styles.pickerBox}>
+                                    <Picker
+                                        selectedValue={selectedDay}
+                                        onValueChange={(value) => setSelectedDay(value)}
+                                        style={styles.pickerDate}
+                                    >
+                                        {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
+                                            const day = (i + 1).toString().padStart(2, '0');
+                                            return <Picker.Item key={day} label={day} value={day} />;
+                                        })}
+                                    </Picker>
+                                </View>
+                            </View>
+
+                            {/* MES */}
+                            <View style={styles.pickerGroup}>
+                                <Text style={styles.pickerLabel}>Mes</Text>
+                                <View style={styles.pickerBox}>
+                                    <Picker
+                                        selectedValue={selectedMonth}
+                                        onValueChange={(value) => {
+                                            setSelectedMonth(value);
+                                            const maxDay = getDaysInMonth(value, selectedYear);
+                                            if (parseInt(selectedDay) > maxDay) {
+                                                setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                            }
+                                        }}
+                                        style={styles.pickerDate}
+                                    >
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const month = (i + 1).toString().padStart(2, '0');
+                                            return <Picker.Item key={month} label={month} value={month} />;
+                                        })}
+                                    </Picker>
+                                </View>
+                            </View>
+
+                            {/* AÑO */}
+                            <View style={styles.pickerGroup}>
+                                <Text style={styles.pickerLabel}>Año</Text>
+                                <View style={styles.pickerBox}>
+                                    <Picker
+                                        selectedValue={selectedYear}
+                                        onValueChange={(value) => {
+                                            setSelectedYear(value);
+                                            const maxDay = getDaysInMonth(selectedMonth, value);
+                                            if (parseInt(selectedDay) > maxDay) {
+                                                setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                            }
+                                        }}
+                                        style={styles.pickerDate}
+                                    >
+                                        {Array.from({ length: 10 }, (_, i) => {
+                                            const year = (new Date().getFullYear() + i).toString(); // desde hoy a futuro
+                                            return <Picker.Item key={year} label={year} value={year} />;
+                                        })}
+                                    </Picker>
+                                </View>
+                            </View>
                         </View>
-                        <TouchableOpacity style={styles.saveButton} onPress={handleConfirmDate}>
-                            <Text style={styles.buttonText}>Confirmar</Text>
+
+                        <TouchableOpacity
+                            style={styles.alertButtonDate}
+                            onPress={() => {
+                                const localDate = new Date(Number(selectedYear), Number(selectedMonth) - 1, Number(selectedDay));
+                                const dateISO = localDate.toISOString();
+
+                                if (isSiembraPicker) {
+                                    setFechaSiembra(dateISO);
+                                } else {
+                                    setFechaCosecha(dateISO);
+                                }
+                                setShowDateModal(false);
+                            }}
+
+                        >
+                            <Text style={styles.alertButtonTextDate}>Confirmar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowDateModal(false)}>
-                            <Text style={styles.buttonText}>Cancelar</Text>
+
+                        <TouchableOpacity
+                            style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
+                            onPress={() => setShowDateModal(false)}
+                        >
+                            <Text style={styles.alertButtonTextDate}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -248,10 +322,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     pickerContainer: {
-        backgroundColor: '#D9D9D9',
-        borderRadius: 25,
-        overflow: 'hidden',
-        marginBottom: 20
+        flexDirection: 'column', // antes: 'row'
+        alignItems: 'center',
+        width: '100%',
+        marginVertical: 10,
+        gap: 12,
     },
     picker: {
         width: '100%',
@@ -364,7 +439,120 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16
     },
+    pickerInputContainer: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.75,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    pickerInputWrapper: {
+        backgroundColor: '#D9D9D9',
+        borderRadius: 25,
+        marginBottom: 20,
+        ...Platform.select({
+            ios: {
+                height: 120,
+                justifyContent: 'center',
+                overflow: 'hidden',
+            },
+            android: {
+                height: 50,
+                justifyContent: 'center',
+            },
+        }),
+    },
+    pickerInput: {
+        width: '100%',
+        color: '#000',
+        fontSize: 16,
+        textAlign: 'center',
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
+    alertViewDate: {
+        backgroundColor: '#FFFCE3',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '90%',
+        minHeight: Platform.OS === 'ios' ? 550 : 250,
+        maxHeight: Platform.OS === 'ios' ? 700 : undefined,
+    },
+    alertTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
+    pickerGroup: {
+        alignItems: 'center',
+        marginBottom: 10,
+        width: '100%', 
+    },
+    pickerLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        marginBottom: 4,
+        color: '#555',
+    },
+    pickerBox: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        width: '100%',
+        height: 120, // ⬅ más compacto
+        justifyContent: 'center',
+        overflow: 'hidden', // 👈 esto es CLAVE en iOS
+        alignItems: 'center', // 👈 Asegura que el picker no se desplace horizontalmente
+        ...Platform.select({
+            ios: {
+                height: 120,
+            },
+            android: {
+                height: 48,
+            },
+        }),
 
+    },
+    pickerDate: {
+        height: Platform.OS === 'ios' ? 220 : 40,
+        width: '100%',
+        color: '#333',
+        fontSize: Platform.OS === 'ios' ? 20 : 16, // más grande y centrado en iOS
+        textAlign: 'center',                      // 👈 asegura alineación del texto
+        textAlignVertical: 'center',              // 👈 centra el valor en Android
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
+    
+    alertButtonDate: {
+        backgroundColor: '#A01BAC',
+        borderRadius: 20,
+        marginHorizontal: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 10
+    },
+    
+    alertButtonTextDate: {
+        fontSize: 18,
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 });
 
 export default EditPlantationScreen;

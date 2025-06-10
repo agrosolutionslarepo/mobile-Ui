@@ -8,6 +8,7 @@ import {
   ImageBackground,
   Image,
   Modal,
+  Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -269,7 +270,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
           onRequestClose={() => setShowDateModal(false)}
         >
           <View style={styles.modalView}>
-            <View style={styles.alertView}>
+            <View style={styles.alertViewDate}>
               <Text style={styles.alertTitle}>Seleccioná tu fecha de nacimiento</Text>
 
               <View style={styles.pickerContainer}>
@@ -278,7 +279,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                   <View style={styles.pickerBox}>
                     <Picker
                       selectedValue={selectedDay}
-                      style={styles.picker}
+                      style={styles.pickerDate}
                       onValueChange={(itemValue) => setSelectedDay(itemValue)}
                     >
                       {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
@@ -294,7 +295,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                   <View style={styles.pickerBox}>
                     <Picker
                       selectedValue={selectedMonth}
-                      style={styles.picker}
+                      style={styles.pickerDate}
                       onValueChange={(itemValue) => {
                         setSelectedMonth(itemValue);
                         const maxDay = getDaysInMonth(itemValue, selectedYear);
@@ -316,7 +317,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                   <View style={styles.pickerBox}>
                     <Picker
                       selectedValue={selectedYear}
-                      style={styles.picker}
+                      style={styles.pickerDate}
                       onValueChange={(itemValue) => {
                         setSelectedYear(itemValue);
                         const maxDay = getDaysInMonth(selectedMonth, itemValue);
@@ -718,24 +719,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   pickerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
     alignItems: 'center',
-    maxWidth: '100%',
+    width: '100%',
     marginVertical: 10,
     gap: 12,
   },
   pickerBox: {
     backgroundColor: '#fff',
     borderRadius: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    width: 85,
-    height: 40,
+    width: '100%',
+    height: 120, // ⬅ más compacto
     justifyContent: 'center',
+    overflow: 'hidden', // 👈 esto es CLAVE en iOS
+    alignItems: 'center', // 👈 Asegura que el picker no se desplace horizontalmente
+    ...Platform.select({
+      ios: {
+        height: 120,
+      },
+      android: {
+        height: 48,
+      },
+    }),
   },
   picker: {
     height: 40,
@@ -746,8 +751,8 @@ const styles = StyleSheet.create({
   },
   pickerGroup: {
     alignItems: 'center',
-    marginHorizontal: 4,
-    flex: 1,
+    marginBottom: 10,
+    width: '100%', // para ocupar todo el ancho
   },
   pickerLabel: {
     fontSize: 13,
@@ -773,6 +778,34 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 10,
   },
+
+  alertViewDate: {
+    backgroundColor: '#FFFCE3',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '90%',
+    minHeight: Platform.OS === 'ios' ? 550 : 250,
+    maxHeight: Platform.OS === 'ios' ? 700 : undefined,
+  },
+
+   pickerDate: {
+        height: Platform.OS === 'ios' ? 220 : 40,
+        width: '100%',
+        color: '#333',
+        fontSize: Platform.OS === 'ios' ? 20 : 16, // más grande y centrado en iOS
+        textAlign: 'center',                      // 👈 asegura alineación del texto
+        textAlignVertical: 'center',              // 👈 centra el valor en Android
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
+    },
 
 });
 

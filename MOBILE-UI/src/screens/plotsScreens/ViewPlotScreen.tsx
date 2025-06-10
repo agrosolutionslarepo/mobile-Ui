@@ -15,7 +15,6 @@ interface Props {
     tamaño: number;
     ubicacion?: string;
     estado?: boolean;
-    gdd?: number;
     latitud?: number;
     longitud?: number;
   } | null;
@@ -112,13 +111,6 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
           </>
         )}
 
-        {selectedPlot.gdd !== undefined && (
-          <>
-            <Text style={styles.label}>🌡️ GDD</Text>
-            <Text style={styles.plotText}>{selectedPlot.gdd}</Text>
-          </>
-        )}
-
         {(selectedPlot.latitud !== undefined && selectedPlot.longitud !== undefined) && (
           <>
             <Text style={styles.label}>🌐 Coordenadas</Text>
@@ -131,6 +123,10 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         <Text style={styles.label}>⚙️ Estado</Text>
         <Text style={styles.plotText}>{selectedPlot.estado ? 'Activa' : 'Inactiva'}</Text>
 
+
+            <TouchableOpacity style={styles.button} onPress={goToPlotsScreen}>
+              <Text style={styles.buttonText}>Volver</Text>
+            </TouchableOpacity>
       </View>
 
       {loadingClima ? (
@@ -293,11 +289,6 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
             <Text style={{ textAlign: 'center', fontSize: 14, marginVertical: 20, width: '90%',marginLeft: '5%' }}>
               Estos valores diarios muestran cómo se comportaron la evapotranspiración (ET0) y los grados día de desarrollo (GDD). Son útiles para evaluar si las condiciones climáticas han favorecido el crecimiento de los cultivos o si se requería riego adicional.
             </Text>
-
-
-            <TouchableOpacity style={styles.button} onPress={goToPlotsScreen}>
-              <Text style={styles.buttonText}>Volver</Text>
-            </TouchableOpacity>
           </View>
 
         </View>

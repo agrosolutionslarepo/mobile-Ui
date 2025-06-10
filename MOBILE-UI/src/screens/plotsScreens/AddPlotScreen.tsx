@@ -14,20 +14,50 @@ const AddSeedScreen = ({ setActiveContent }) => {
   const [nombreParcela, setNombreParcela] = useState('');
   const [tamaño, setTamaño] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [gdd, setGdd] = useState('');
   const [latitud, setLatitud] = useState('');
   const [longitud, setLongitud] = useState('');
 
   const [nombreParcelaError, setNombreParcelaError] = useState(false);
   const [tamañoError, setTamañoError] = useState(false);
   const [ubicacionError, setUbicacionError] = useState(false);
-  const [gddError, setGddError] = useState(false);
   const [latitudError, setLatitudError] = useState(false);
   const [longitudError, setLongitudError] = useState(false);
 
 
 
-  const allowOnlyNumbers = (value) => value.replace(/[^0-9.-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*?)\./g, '$1');
+  const allowOnlyNumbers = (value: string) => {
+    // Solo permite un "-" al principio y un solo "."
+    let sanitized = value.replace(/[^0-9.-]/g, '');
+
+    // Asegura que solo haya un "-" al principio
+    sanitized = sanitized.replace(/(?!^)-/g, '');
+
+    // Asegura que solo haya un "." y lo deja en su primera aparición
+    const parts = sanitized.split('.');
+    if (parts.length > 2) {
+      sanitized = parts[0] + '.' + parts.slice(1).join('').replace(/\./g, '');
+    }
+
+    return sanitized;
+  };
+
+  const allowDecimalInput = (value: string) => {
+    // Permite solo números, punto y coma
+    let sanitized = value.replace(/[^0-9.,]/g, '');
+
+    // Solo mantener el primer punto o coma
+    const commaCount = (sanitized.match(/,/g) || []).length;
+    const dotCount = (sanitized.match(/\./g) || []).length;
+
+    if (commaCount > 1 || dotCount > 1 || (commaCount && dotCount)) {
+      // Si hay más de un separador decimal o ambos tipos, dejar solo el primero válido
+      sanitized = sanitized.replace(/[,\.](?=.*[,\.])/, '');
+    }
+
+    return sanitized;
+  };
+
+
   const allowLettersAndNumbers = (value) => value.replace(/[^a-zA-Z0-9\s]/g, '');
   const allowOnlyLetters = (value) => value.replace(/[^a-zA-Z\s]/g, '');
 
@@ -36,7 +66,6 @@ const AddSeedScreen = ({ setActiveContent }) => {
     const isNombreEmpty = !nombreParcela;
     const isTamañoEmpty = !tamaño;
     const isUbicacionEmpty = !ubicacion;
-    const isGddEmpty = !gdd;
     const isLatitudEmpty = !latitud;
     const isLongitudEmpty = !longitud;
 
@@ -44,14 +73,12 @@ const AddSeedScreen = ({ setActiveContent }) => {
     setNombreParcelaError(isNombreEmpty);
     setTamañoError(isTamañoEmpty);
     setUbicacionError(isUbicacionEmpty);
-    setGddError(isGddEmpty);
     setLatitudError(isLatitudEmpty);
     setLongitudError(isLongitudEmpty);
 
     // Mostrar modal si hay al menos un campo vacío
     if (
-      isNombreEmpty || isTamañoEmpty || isUbicacionEmpty ||
-      isGddEmpty || isLatitudEmpty || isLongitudEmpty
+      isNombreEmpty || isTamañoEmpty || isUbicacionEmpty || isLatitudEmpty || isLongitudEmpty
     ) {
       setShowIncompleteModal(true);
       return;
@@ -64,9 +91,8 @@ const AddSeedScreen = ({ setActiveContent }) => {
 
       await axios.post(`${API_URL}/parcelas/createParcela`, {
         nombreParcela,
-        tamaño: parseFloat(tamaño),
+        tamaño: parseFloat(tamaño.replace(',', '.')),
         ubicacion,
-        gdd: parseInt(gdd),
         latitud: parseFloat(latitud),
         longitud: parseFloat(longitud),
       }, {
@@ -98,12 +124,7 @@ const AddSeedScreen = ({ setActiveContent }) => {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>📐 Tamaño (ha)</Text>
-          <TextInput style={[styles.input, tamañoError && styles.inputError]} placeholder="Ej: 5.5" placeholderTextColor="#999" value={tamaño} keyboardType="numeric" onChangeText={(text) => setTamaño(allowOnlyNumbers(text))} />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌡️ GDD</Text>
-          <TextInput style={[styles.input, gddError && styles.inputError]} placeholder="Ej: 1200" placeholderTextColor="#999" value={gdd} keyboardType="numeric" onChangeText={(text) => setGdd(allowOnlyNumbers(text))} />
+          <TextInput style={[styles.input, tamañoError && styles.inputError]} placeholder="Ej: 5.5" placeholderTextColor="#999" value={tamaño} keyboardType="numeric" onChangeText={(text) => setTamaño(allowDecimalInput(text))} />
         </View>
 
         {/* Ubicación */}
@@ -114,12 +135,12 @@ const AddSeedScreen = ({ setActiveContent }) => {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>🌐 Latitud</Text>
-          <TextInput style={[styles.input, latitudError && styles.inputError]} placeholder="Ej: -31.417" placeholderTextColor="#999" value={latitud} keyboardType="numeric" onChangeText={(text) => setLatitud(allowOnlyNumbers(text))} />
+          <TextInput style={[styles.input, latitudError && styles.inputError]} placeholder="Ej: -31.417" placeholderTextColor="#999" value={latitud} keyboardType="default" onChangeText={(text) => setLatitud(allowOnlyNumbers(text))} />
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>🌐 Longitud</Text>
-          <TextInput style={[styles.input, longitudError && styles.inputError]} placeholder="Ej: -64.183" placeholderTextColor="#999" value={longitud} keyboardType="numeric" onChangeText={(text) => setLongitud(allowOnlyNumbers(text))} />
+          <TextInput style={[styles.input, longitudError && styles.inputError]} placeholder="Ej: -64.183" placeholderTextColor="#999" value={longitud} keyboardType="default" onChangeText={(text) => setLongitud(allowOnlyNumbers(text))} />
         </View>
 
         <View style={styles.formButtonsContainer}>

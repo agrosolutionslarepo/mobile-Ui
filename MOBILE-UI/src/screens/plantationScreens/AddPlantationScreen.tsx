@@ -261,10 +261,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
                 <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={() => setShowAlertCancel(true)}>
+                    <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAlertCancel(true)}>
                         <Text style={styles.buttonText}>Cancelar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.cancelButton} onPress={addPlantation}>
+                    <TouchableOpacity style={styles.button} onPress={addPlantation}>
                         <Text style={styles.buttonText}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
-        elevation: 5
+        elevation: 5,
     },
     label: {
         marginBottom: 5,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     cancelButton: {
         width: '48%',
         height: 40,
-        backgroundColor: '#A01BAC',
+        backgroundColor: '#aaa',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25
@@ -607,6 +607,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         overflow: 'hidden', // 👈 esto es CLAVE en iOS
         alignItems: 'center', // 👈 Asegura que el picker no se desplace horizontalmente
+        ...Platform.select({
+            ios: {
+                height: 120,
+            },
+            android: {
+                height: 48,
+            },
+        }),
 
     },
 
@@ -617,6 +625,15 @@ const styles = StyleSheet.create({
         fontSize: Platform.OS === 'ios' ? 20 : 16, // más grande y centrado en iOS
         textAlign: 'center',                      // 👈 asegura alineación del texto
         textAlignVertical: 'center',              // 👈 centra el valor en Android
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
     },
 
 
@@ -656,26 +673,42 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
-        elevation: 5
+        elevation: 5,
     },
 
     pickerInputWrapper: {
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
-        height: 120,
-        justifyContent: 'center',
-        overflow: 'hidden',
         marginBottom: 20,
+        ...Platform.select({
+            ios: {
+                height: 120,
+                justifyContent: 'center',
+                overflow: 'hidden',
+            },
+            android: {
+                height: 50,
+                justifyContent: 'center',
+            },
+        }),
     },
 
     pickerInput: {
-        height: 220,
         width: '100%',
         color: '#000',
         fontSize: 16,
         textAlign: 'center',
-        textAlignVertical: 'center',
+        ...Platform.select({
+            ios: {
+                height: 220,
+                textAlignVertical: 'center',
+            },
+            android: {
+                height: 60,
+            },
+        }),
     },
+
 
 });
 

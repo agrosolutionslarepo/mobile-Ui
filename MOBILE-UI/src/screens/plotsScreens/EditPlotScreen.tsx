@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Parcela {
   _id: string;
@@ -35,7 +36,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
 
-      await axios.put(`http://localhost:3000/parcelas/updateParcela/${selectedPlot._id}`, {
+      await axios.put(`${API_URL}/parcelas/updateParcela/${selectedPlot._id}`, {
         nombreParcela,
         tamaño: parseFloat(tamaño),
         ubicacion,
