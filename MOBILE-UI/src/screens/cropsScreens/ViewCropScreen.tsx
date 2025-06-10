@@ -20,11 +20,38 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
     );
   }
 
-  const { fechaCosecha, cantidadCosechada, unidad, observaciones, cultivo } = selectedCrop;
+  const {
+    fechaCosecha,
+    cantidadCosechada,
+    unidad,
+    observaciones,
+    cultivo,
+    estado,
+  } = selectedCrop;
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Cosecha</Text>
+
+      <View style={styles.box}>
+        <Text style={styles.label}>📅 Fecha de cosecha</Text>
+        <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
+
+        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+        <Text style={styles.value}>{`${cantidadCosechada} ${unidad}`}</Text>
+
+        <Text style={styles.label}>⚙️ Estado</Text>
+        <Text style={styles.value}>{estado ? 'Activo' : 'Inactivo'}</Text>
+
+        {observaciones ? (
+          <>
+            <Text style={styles.label}>📝 Observaciones</Text>
+            <Text style={styles.value}>{observaciones}</Text>
+          </>
+        ) : null}
+      </View>
+
+      <Text style={styles.title}>Cultivo asociado</Text>
 
       <View style={styles.box}>
         <Text style={styles.label}>🌱 Semilla</Text>
@@ -33,18 +60,24 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
         <Text style={styles.label}>🌿 Parcela</Text>
         <Text style={styles.value}>{cultivo?.parcela?.nombreParcela || 'N/D'}</Text>
 
-        <Text style={styles.label}>📅 Fecha de cosecha</Text>
-        <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
+        <Text style={styles.label}>📅 Fecha de siembra</Text>
+        <Text style={styles.value}>{cultivo?.fechaSiembra?.split('T')[0] || 'N/D'}</Text>
 
-        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
-        <Text style={styles.value}>{`${cantidadCosechada} ${unidad}`}</Text>
+        <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
+        <Text style={styles.value}>{cultivo?.fechaCosecha?.split('T')[0] || 'N/D'}</Text>
 
-        {observaciones ? (
+        <Text style={styles.label}>🌱 Cantidad sembrada</Text>
+        <Text style={styles.value}>{cultivo?.cantidadSemilla ? `${cultivo.cantidadSemilla} ${cultivo.unidad}` : 'N/D'}</Text>
+
+        <Text style={styles.label}>⚙️ Estado del cultivo</Text>
+        <Text style={styles.value}>{cultivo?.estado ? 'Activo' : 'Inactivo'}</Text>
+
+        {cultivo?.gdd && (
           <>
-            <Text style={styles.label}>📝 Observaciones</Text>
-            <Text style={styles.value}>{observaciones}</Text>
+            <Text style={styles.label}>🌡️ GDD</Text>
+            <Text style={styles.value}>{cultivo.gdd}</Text>
           </>
-        ) : null}
+        )}
 
         <TouchableOpacity style={styles.button} onPress={goBack}>
           <Text style={styles.buttonText}>Volver</Text>
