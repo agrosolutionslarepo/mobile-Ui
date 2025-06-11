@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 const AddSeedScreen = ({ setActiveContent }) => {
   const [showAlertAdd, setShowAlertAdd] = useState(false);
@@ -13,20 +14,50 @@ const AddSeedScreen = ({ setActiveContent }) => {
   const [nombreParcela, setNombreParcela] = useState('');
   const [tamaño, setTamaño] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [gdd, setGdd] = useState('');
   const [latitud, setLatitud] = useState('');
   const [longitud, setLongitud] = useState('');
 
   const [nombreParcelaError, setNombreParcelaError] = useState(false);
   const [tamañoError, setTamañoError] = useState(false);
   const [ubicacionError, setUbicacionError] = useState(false);
-  const [gddError, setGddError] = useState(false);
   const [latitudError, setLatitudError] = useState(false);
   const [longitudError, setLongitudError] = useState(false);
 
 
 
-  const allowOnlyNumbers = (value) => value.replace(/[^0-9.-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*?)\./g, '$1');
+  const allowOnlyNumbers = (value: string) => {
+    // Solo permite un "-" al principio y un solo "."
+    let sanitized = value.replace(/[^0-9.-]/g, '');
+
+    // Asegura que solo haya un "-" al principio
+    sanitized = sanitized.replace(/(?!^)-/g, '');
+
+    // Asegura que solo haya un "." y lo deja en su primera aparición
+    const parts = sanitized.split('.');
+    if (parts.length > 2) {
+      sanitized = parts[0] + '.' + parts.slice(1).join('').replace(/\./g, '');
+    }
+
+    return sanitized;
+  };
+
+  const allowDecimalInput = (value: string) => {
+    // Permite solo números, punto y coma
+    let sanitized = value.replace(/[^0-9.,]/g, '');
+
+    // Solo mantener el primer punto o coma
+    const commaCount = (sanitized.match(/,/g) || []).length;
+    const dotCount = (sanitized.match(/\./g) || []).length;
+
+    if (commaCount > 1 || dotCount > 1 || (commaCount && dotCount)) {
+      // Si hay más de un separador decimal o ambos tipos, dejar solo el primero válido
+      sanitized = sanitized.replace(/[,\.](?=.*[,\.])/, '');
+    }
+
+    return sanitized;
+  };
+
+
   const allowLettersAndNumbers = (value) => value.replace(/[^a-zA-Z0-9\s]/g, '');
   const allowOnlyLetters = (value) => value.replace(/[^a-zA-Z\s]/g, '');
 
@@ -35,7 +66,6 @@ const AddSeedScreen = ({ setActiveContent }) => {
     const isNombreEmpty = !nombreParcela;
     const isTamañoEmpty = !tamaño;
     const isUbicacionEmpty = !ubicacion;
-    const isGddEmpty = !gdd;
     const isLatitudEmpty = !latitud;
     const isLongitudEmpty = !longitud;
 
@@ -43,14 +73,12 @@ const AddSeedScreen = ({ setActiveContent }) => {
     setNombreParcelaError(isNombreEmpty);
     setTamañoError(isTamañoEmpty);
     setUbicacionError(isUbicacionEmpty);
-    setGddError(isGddEmpty);
     setLatitudError(isLatitudEmpty);
     setLongitudError(isLongitudEmpty);
 
     // Mostrar modal si hay al menos un campo vacío
     if (
-      isNombreEmpty || isTamañoEmpty || isUbicacionEmpty ||
-      isGddEmpty || isLatitudEmpty || isLongitudEmpty
+      isNombreEmpty || isTamañoEmpty || isUbicacionEmpty || isLatitudEmpty || isLongitudEmpty
     ) {
       setShowIncompleteModal(true);
       return;
@@ -61,11 +89,10 @@ const AddSeedScreen = ({ setActiveContent }) => {
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
 
-      await axios.post('http://localhost:3000/parcelas/createParcela', {
+      await axios.post(`${API_URL}/parcelas/createParcela`, {
         nombreParcela,
-        tamaño: parseFloat(tamaño),
+        tamaño: parseFloat(tamaño.replace(',', '.')),
         ubicacion,
-        gdd: parseInt(gdd),
         latitud: parseFloat(latitud),
         longitud: parseFloat(longitud),
       }, {
@@ -84,97 +111,94 @@ const AddSeedScreen = ({ setActiveContent }) => {
   const goToPlotsScreen = () => setActiveContent('plots');
 
   return (
-    <ScrollView contentContainerStyle={styles.plotsContainer}>
-      <Text style={styles.plotTitle}>Agregar parcela</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView contentContainerStyle={styles.plotsContainer}>
+        <Text style={styles.plotTitle}>Agregar parcela</Text>
 
-      <View style={styles.formContainer}>
+        <View style={styles.formContainer}>
 
-        {/* Datos generales */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>📛 Nombre de parcela</Text>
-          <TextInput style={[styles.input, nombreParcelaError && styles.inputError]} placeholder="Ej: Lote Norte" placeholderTextColor="#999" value={nombreParcela} onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))} />
-        </View>
+          {/* Datos generales */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>📛 Nombre de parcela</Text>
+            <TextInput style={[styles.input, nombreParcelaError && styles.inputError]} placeholder="Ej: Lote Norte" placeholderTextColor="#999" value={nombreParcela} onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))} />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>📐 Tamaño (ha)</Text>
-          <TextInput style={[styles.input, tamañoError && styles.inputError]} placeholder="Ej: 5.5" placeholderTextColor="#999" value={tamaño} keyboardType="numeric" onChangeText={(text) => setTamaño(allowOnlyNumbers(text))} />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>📐 Tamaño (ha)</Text>
+            <TextInput style={[styles.input, tamañoError && styles.inputError]} placeholder="Ej: 5.5" placeholderTextColor="#999" value={tamaño} keyboardType="numeric" onChangeText={(text) => setTamaño(allowDecimalInput(text))} />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌡️ GDD</Text>
-          <TextInput style={[styles.input, gddError && styles.inputError]} placeholder="Ej: 1200" placeholderTextColor="#999" value={gdd} keyboardType="numeric" onChangeText={(text) => setGdd(allowOnlyNumbers(text))} />
-        </View>
+          {/* Ubicación */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>📍 Ubicación</Text>
+            <TextInput style={[styles.input, ubicacionError && styles.inputError]} placeholder="Ej: Córdoba, AR" placeholderTextColor="#999" value={ubicacion} onChangeText={(text) => setUbicacion(allowOnlyLetters(text))} />
+          </View>
 
-        {/* Ubicación */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>📍 Ubicación</Text>
-          <TextInput style={[styles.input, ubicacionError && styles.inputError]} placeholder="Ej: Córdoba, AR" placeholderTextColor="#999" value={ubicacion} onChangeText={(text) => setUbicacion(allowOnlyLetters(text))} />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>🌐 Latitud</Text>
+            <TextInput style={[styles.input, latitudError && styles.inputError]} placeholder="Ej: -31.417" placeholderTextColor="#999" value={latitud} keyboardType="default" onChangeText={(text) => setLatitud(allowOnlyNumbers(text))} />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌐 Latitud</Text>
-          <TextInput style={[styles.input, latitudError && styles.inputError]} placeholder="Ej: -31.417" placeholderTextColor="#999" value={latitud} keyboardType="numeric" onChangeText={(text) => setLatitud(allowOnlyNumbers(text))} />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>🌐 Longitud</Text>
+            <TextInput style={[styles.input, longitudError && styles.inputError]} placeholder="Ej: -64.183" placeholderTextColor="#999" value={longitud} keyboardType="default" onChangeText={(text) => setLongitud(allowOnlyNumbers(text))} />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌐 Longitud</Text>
-          <TextInput style={[styles.input, longitudError && styles.inputError]} placeholder="Ej: -64.183" placeholderTextColor="#999" value={longitud} keyboardType="numeric" onChangeText={(text) => setLongitud(allowOnlyNumbers(text))} />
-        </View>
-
-        <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.button} onPress={cancelPlotAdd}><Text style={styles.buttonText}>Cancelar</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={addPlot}><Text style={styles.buttonText}>Agregar</Text></TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Modal éxito */}
-      <Modal animationType="fade" transparent={true} visible={showAlertAdd}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>Ingreso de parcela exitoso</Text>
-            <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Continuar</Text></TouchableOpacity>
+          <View style={styles.formButtonsContainer}>
+            <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotAdd}><Text style={styles.buttonText}>Cancelar</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={addPlot}><Text style={styles.buttonText}>Agregar</Text></TouchableOpacity>
           </View>
         </View>
-      </Modal>
 
-      {/* Modal cancelar */}
-      <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>¿Está seguro que quiere cancelar el ingreso de esta parcela?</Text>
-            <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Sí</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}><Text style={styles.alertButtonText}>No</Text></TouchableOpacity>
+        {/* Modal éxito */}
+        <Modal animationType="fade" transparent={true} visible={showAlertAdd}>
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertMessage}>Ingreso de parcela exitoso</Text>
+              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Continuar</Text></TouchableOpacity>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* Modal de campos incompletos */}
-      <Modal animationType="fade" transparent={true} visible={showIncompleteModal}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>Por favor, complete todos los campos antes de continuar.</Text>
-            <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
-              <Text style={styles.alertButtonText}>Aceptar</Text>
-            </TouchableOpacity>
+        {/* Modal cancelar */}
+        <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertMessage}>¿Está seguro que quiere cancelar el ingreso de esta parcela?</Text>
+              <View style={styles.alertButtonsContainer}>
+                <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Sí</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}><Text style={styles.alertButtonText}>No</Text></TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* Modal de error */}
-      <Modal animationType="fade" transparent={true} visible={showErrorModal}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>Error al crear la parcela. Intente nuevamente.</Text>
-            <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
-              <Text style={styles.alertButtonText}>Cerrar</Text>
-            </TouchableOpacity>
+        {/* Modal de campos incompletos */}
+        <Modal animationType="fade" transparent={true} visible={showIncompleteModal}>
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertMessage}>Por favor, complete todos los campos antes de continuar.</Text>
+              <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-    </ScrollView>
+        {/* Modal de error */}
+        <Modal animationType="fade" transparent={true} visible={showErrorModal}>
+          <View style={styles.modalView}>
+            <View style={styles.alertView}>
+              <Text style={styles.alertMessage}>Error al crear la parcela. Intente nuevamente.</Text>
+              <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
+                <Text style={styles.alertButtonText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -245,7 +269,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     width: '48%',
     height: 40,
-    backgroundColor: '#A01BAC',
+    backgroundColor: '#aaa',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,

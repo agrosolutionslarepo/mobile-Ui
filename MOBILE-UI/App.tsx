@@ -2,25 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Seeds
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
 import ViewSeedScreen from './src/screens/seedsScreens/ViewSeedScreen';
 import EditSeedScreen from './src/screens/seedsScreens/EditSeedScreen';
 
+// Plots
 import PlotsScreen from './src/screens/plotsScreens/PlotsScreen';
 import AddPlotScreen from './src/screens/plotsScreens/AddPlotScreen';
 import ViewPlotScreen from './src/screens/plotsScreens/ViewPlotScreen';
 import EditPlotScreen from './src/screens/plotsScreens/EditPlotScreen';
 
+// Crops
 import CropsScreen from './src/screens/cropsScreens/CropsScreen';
 import AddCropScreen from './src/screens/cropsScreens/AddCropScreen';
 import ViewCropScreen from './src/screens/cropsScreens/ViewCropScreen';
 import EditCropScreen from './src/screens/cropsScreens/EditCropScreen';
 
+// Plantations
+import PlantationsScreen from './src/screens/plantationScreens/PlantationsScreen';
+import AddPlantationScreen from './src/screens/plantationScreens/AddPlantationScreen';
+import EditPlantationScreen from './src/screens/plantationScreens/EditPlantationScreen';
+import ViewPlantationScreen from './src/screens/plantationScreens/ViewPlantationScreen';
+
+// Others
 import Header from './src/common/Header';
 import CompanyAlert from './src/common/CompanyAlert';
-
 import HomeScreen from './src/screens/HomeScreen';
 
+// Users
 import LoginScreen from './src/screens/userScreens/LoginScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
@@ -28,28 +38,28 @@ import UserProfileScreen from './src/screens/userScreens/UserProfileScreen';
 import EditProfileScreen from './src/screens/userScreens/EditProfileScreen';
 import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen';
 
+// Company
 import CompanyScreen from './src/screens/companyScreens/CompanyScreen';
 import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
-  const [selectedSeed, setSelectedSeed] = useState<any>(null); // NUEVO: estado para almacenar la semilla seleccionada
-  const [selectedPlot, setSelectedPlot] = useState<any>(null); // NUEVO: parcela seleccionada
+  const [selectedSeed, setSelectedSeed] = useState<any>(null);
+  const [selectedPlot, setSelectedPlot] = useState<any>(null);
+  const [selectedCultivo, setSelectedCultivo] = useState<any>(null);
+  const [selectedCrop, setSelectedCrop] = useState<any>(null);
+  
 
-  // Verificamos el token al iniciar la app
   useEffect(() => {
     const checkUserToken = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        console.log('🔑 Token recuperado:', token);
-
         const decoded = await AsyncStorage.getItem('decodedToken');
-        if (decoded) {
-          console.log('🧠 Token decodificado:', JSON.parse(decoded));
-        }
 
+        if (decoded) console.log('🧠 Token decodificado:', JSON.parse(decoded));
         if (token) {
-          setActiveContent('home'); // ⚠️ Esto es lo que asegura que se quede en la home
+          console.log('🔑 Token recuperado:', token);
+          setActiveContent('home');
         } else {
           setActiveContent('login');
         }
@@ -62,9 +72,7 @@ const App: React.FC = () => {
     checkUserToken();
   }, []);
 
-  // NUEVO: función para cambiar de pantalla y pasar datos
   const handleSetActiveContent = (screen: string, data?: any) => {
-    setActiveContent(screen);
     if (screen === 'viewSeed' || screen === 'editSeed') {
       setSelectedSeed(data);
     }
@@ -72,6 +80,16 @@ const App: React.FC = () => {
     if (screen === 'viewPlot' || screen === 'editPlot') {
       setSelectedPlot(data);
     }
+
+    if (screen === 'editPlantation' || screen === 'viewPlantation') {
+      setSelectedCultivo(data);
+    }
+
+    if (screen === 'viewCrop' || screen === 'editCrop') {
+      setSelectedCrop(data);
+    }
+
+    setActiveContent(screen); // <-- esto debe ir al final
   };
 
   const renderContent = () => {
@@ -83,7 +101,7 @@ const App: React.FC = () => {
       case 'plots':
         return <PlotsScreen setActiveContent={handleSetActiveContent} />;
       case 'addPlot':
-        return <AddPlotScreen setActiveContent={setActiveContent} />;
+        return <AddPlotScreen setActiveContent={handleSetActiveContent} />;
       case 'editPlot':
         return <EditPlotScreen setActiveContent={handleSetActiveContent} selectedPlot={selectedPlot} />;
       case 'viewPlot':
@@ -99,13 +117,24 @@ const App: React.FC = () => {
 
       // Crops
       case 'crops':
-        return <CropsScreen setActiveContent={setActiveContent} />;
+        return <CropsScreen setActiveContent={handleSetActiveContent} />;
       case 'addCrop':
-        return <AddCropScreen setActiveContent={setActiveContent} />;
+        return <AddCropScreen setActiveContent={handleSetActiveContent} />;
       case 'editCrop':
-        return <EditCropScreen setActiveContent={setActiveContent} />;
+        return (<EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>
+        );
       case 'viewCrop':
-        return <ViewCropScreen setActiveContent={setActiveContent} />;
+        return <ViewCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>;
+
+      // Plantaciones
+      case 'plantations':
+        return <PlantationsScreen setActiveContent={handleSetActiveContent} />;
+      case 'addPlantation':
+        return <AddPlantationScreen setActiveContent={handleSetActiveContent} />;
+      case 'editPlantation':
+        return <EditPlantationScreen setActiveContent={handleSetActiveContent} selectedCultivo={selectedCultivo} />;
+      case 'viewPlantation':
+        return <ViewPlantationScreen setActiveContent={handleSetActiveContent} selectedPlantation={selectedCultivo} />;
 
       // Usuario
       case 'login':
@@ -123,9 +152,9 @@ const App: React.FC = () => {
 
       // Empresa
       case 'company':
-        return <CompanyScreen setActiveContent={setActiveContent} />
+        return <CompanyScreen setActiveContent={setActiveContent} />;
       case 'editCompany':
-        return <EditCompanyScreen setActiveContent={setActiveContent} />
+        return <EditCompanyScreen setActiveContent={setActiveContent} />;
 
       default:
         return <LoginScreen setActiveContent={setActiveContent} />;
@@ -149,12 +178,11 @@ const App: React.FC = () => {
       activeContent !== 'register' &&
       activeContent !== 'recover'
     ) {
-      return <CompanyAlert onNavigate={(screen) => setActiveContent(screen)} />
+      return <CompanyAlert onNavigate={(screen) => setActiveContent(screen)} />;
     }
     return null;
-  }
+  };
 
-  // Mientras se carga el estado inicial (null), se muestra un loader
   if (activeContent === null) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

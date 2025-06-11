@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Parcela {
   _id: string;
@@ -35,7 +36,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
 
-      await axios.put(`http://localhost:3000/parcelas/updateParcela/${selectedPlot._id}`, {
+      await axios.put(`${API_URL}/parcelas/updateParcela/${selectedPlot._id}`, {
         nombreParcela,
         tamaño: parseFloat(tamaño),
         ubicacion,
@@ -76,6 +77,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.plotContainer}>
       <Text style={styles.plotTitle}>Modificar Parcela</Text>
 
@@ -151,11 +153,11 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.button} onPress={cancelPlotEdit}>
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotEdit}>
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={editPlot}>
+          <TouchableOpacity style={styles.button} onPress={editPlot}>
             <Text style={styles.buttonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
@@ -190,6 +192,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
       </Modal>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     width: '48%',
     height: 40,
-    backgroundColor: '#A01BAC',
+    backgroundColor: '#aaa',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,

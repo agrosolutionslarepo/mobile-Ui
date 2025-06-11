@@ -12,6 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
+import { API_URL } from '../config';
 
 const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onNavigate }) => {
   const [shouldShowCard, setShouldShowCard] = useState(false);
@@ -30,7 +31,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
       const token = await AsyncStorage.getItem('userToken');
       if (!token) return;
 
-      const response = await axios.get('http://localhost:3000/usuarios/getUsuarioAutenticado', {
+      const response = await axios.get(`${API_URL}/usuarios/getUsuarioAutenticado`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,7 +78,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
 
       if (tipoRegistro === 'empresa') {
         response = await axios.post(
-          'http://localhost:3000/empresas/crearEmpresaDesdeGoogle',
+          `${API_URL}/empresas/crearEmpresaDesdeGoogle`,
           { nombreEmpresa: empresaName },
           {
             headers: {
@@ -91,7 +92,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
 
       if (tipoRegistro === 'codigo') {
         response = await axios.post(
-          'http://localhost:3000/inviteCodes/joinCompanyWithCode',
+          `${API_URL}/inviteCodes/joinCompanyWithCode`,
           { codigo: codigoInvitacion },
           {
             headers: {

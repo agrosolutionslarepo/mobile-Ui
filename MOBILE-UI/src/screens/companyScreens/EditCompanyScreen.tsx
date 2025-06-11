@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
   const [nombreEmpresa, setNombreEmpresa] = useState('');
@@ -19,7 +22,7 @@ const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: st
     const fetchEmpresa = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        const res = await axios.get('http://localhost:3000/empresas/getNombreEmpresa', {
+        const res = await axios.get(`${API_URL}/empresas/getNombreEmpresa`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNombreEmpresa(res.data.nombreEmpresa);
@@ -39,7 +42,7 @@ const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 
     try {
       const token = await AsyncStorage.getItem('userToken');
-      await axios.put('http://localhost:3000/empresas/updateEmpresa',
+      await axios.put(`${API_URL}/empresas/updateEmpresa`,
         { nombreEmpresa },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -51,59 +54,61 @@ const EditCompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: st
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Editar nombre de empresa</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Editar nombre de empresa</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Nuevo nombre de empresa"
-          value={nombreEmpresa}
-          onChangeText={setNombreEmpresa}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Nuevo nombre de empresa"
+            value={nombreEmpresa}
+            onChangeText={setNombreEmpresa}
+          />
 
-        <TouchableOpacity style={styles.button} onPress={actualizarEmpresa}>
-          <Text style={styles.buttonText}>Guardar cambios</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={actualizarEmpresa}>
+            <Text style={styles.buttonText}>Guardar cambios</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => setActiveContent('company')}>
-          <Text style={styles.cancelText}>Cancelar</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setActiveContent('company')}>
+            <Text style={styles.cancelText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ✅ Modal de éxito */}
+        <Modal visible={showSuccessModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Actualización exitosa</Text>
+              <Text style={styles.modalMessage}>El nombre de la empresa fue actualizado correctamente.</Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setShowSuccessModal(false);
+                  setActiveContent('company');
+                }}>
+                <Text style={styles.modalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* ❌ Modal de error */}
+        <Modal visible={showErrorModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Error</Text>
+              <Text style={styles.modalMessage}>No se pudo actualizar el nombre. Intentá nuevamente.</Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowErrorModal(false)}>
+                <Text style={styles.modalButtonText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
-
-      {/* ✅ Modal de éxito */}
-      <Modal visible={showSuccessModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Actualización exitosa</Text>
-            <Text style={styles.modalMessage}>El nombre de la empresa fue actualizado correctamente.</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setShowSuccessModal(false);
-                setActiveContent('company');
-              }}>
-              <Text style={styles.modalButtonText}>Aceptar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* ❌ Modal de error */}
-      <Modal visible={showErrorModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Error</Text>
-            <Text style={styles.modalMessage}>No se pudo actualizar el nombre. Intentá nuevamente.</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setShowErrorModal(false)}>
-              <Text style={styles.modalButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

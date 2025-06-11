@@ -6,10 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: string) => void }) => {
   const [nombre, setNombre] = useState('');
@@ -23,7 +26,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
         if (!token) return;
 
         const response = await axios.get(
-          'http://localhost:3000/usuarios/getUsuarioAutenticado',
+          `${API_URL}/usuarios/getUsuarioAutenticado`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -56,7 +59,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
       }
 
       const response = await axios.put(
-        'http://localhost:3000/usuarios/updateUsuario',
+        `${API_URL}/usuarios/updateUsuario`,
         {
           nombre,
           apellido,
@@ -80,68 +83,70 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Editar Perfil</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Editar Perfil</Text>
 
-      <View style={styles.infoContainer}>
-        <View style={styles.inputGroup}>
-          <MaterialIcons name="person" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            value={nombre}
-            onChangeText={setNombre}
-            placeholder="Nombre"
-            placeholderTextColor="#888"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <MaterialIcons name="person-outline" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            value={apellido}
-            onChangeText={setApellido}
-            placeholder="Apellido"
-            placeholderTextColor="#888"
-          />
-        </View>
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Guardar cambios</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => setActiveContent('profile')}
-        >
-          <Text style={styles.cancelButtonText}>Cancelar</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Modal de éxito */}
-      <Modal
-        transparent
-        visible={showSuccessModal}
-        animationType="fade"
-        onRequestClose={() => setShowSuccessModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Perfil actualizado correctamente</Text>
-            <TouchableOpacity
-              onPress={() => {
-                setShowSuccessModal(false);
-                setActiveContent('refresh');
-                setTimeout(() => setActiveContent('profile'), 0);
-              }}
-              style={styles.modalButton}
-            >
-              <Text style={styles.modalButtonText}>Aceptar</Text>
-            </TouchableOpacity>
+        <View style={styles.infoContainer}>
+          <View style={styles.inputGroup}>
+            <MaterialIcons name="person" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              value={nombre}
+              onChangeText={setNombre}
+              placeholder="Nombre"
+              placeholderTextColor="#888"
+            />
           </View>
+
+          <View style={styles.inputGroup}>
+            <MaterialIcons name="person-outline" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              value={apellido}
+              onChangeText={setApellido}
+              placeholder="Apellido"
+              placeholderTextColor="#888"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Guardar cambios</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setActiveContent('profile')}
+          >
+            <Text style={styles.cancelButtonText}>Cancelar</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+
+        {/* Modal de éxito */}
+        <Modal
+          transparent
+          visible={showSuccessModal}
+          animationType="fade"
+          onRequestClose={() => setShowSuccessModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Perfil actualizado correctamente</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowSuccessModal(false);
+                  setActiveContent('refresh');
+                  setTimeout(() => setActiveContent('profile'), 0);
+                }}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
