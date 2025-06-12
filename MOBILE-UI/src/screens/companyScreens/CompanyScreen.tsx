@@ -5,7 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Modal,
-    Alert
+    Alert, ScrollView
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -170,7 +170,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
 
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
 
             <View style={styles.infoContainer}>
                 <Text style={styles.title}>Empresa</Text>
@@ -359,7 +359,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
             </Modal>
 
 
-        </View>
+        </ScrollView>
     );
 };
 

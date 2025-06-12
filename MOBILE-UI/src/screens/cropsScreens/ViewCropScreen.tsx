@@ -1,5 +1,9 @@
-import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
   setActiveContent: (screen: string) => void;
@@ -7,9 +11,61 @@ interface Props {
 }
 
 const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => {
+  const [crop, setCrop] = useState<any | null>(selectedCrop);
+  const [loading, setLoading] = useState(true);
+
   const goBack = () => setActiveContent('crops');
 
-  if (!selectedCrop) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token || !selectedCrop?._id) {
+          setLoading(false);
+          return;
+        }
+
+        const cosechaRes = await axios.get(
+          `${API_URL}/cosechas/getCosechaById/${selectedCrop._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const cosecha = cosechaRes.data;
+
+        const [semillaRes, parcelaRes] = await Promise.all([
+          axios.get(`${API_URL}/semillas/getSemillaById/${cosecha.cultivo.semilla}`,
+            { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${API_URL}/parcelas/getParcelaById/${cosecha.cultivo.parcela}`,
+            { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        setCrop({
+          ...cosecha,
+          cultivo: {
+            ...cosecha.cultivo,
+            semilla: semillaRes.data,
+            parcela: parcelaRes.data,
+          },
+        });
+      } catch (error) {
+        console.error('Error al obtener datos de la cosecha:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedCrop]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color="#665996" />
+      </View>
+    );
+  }
+
+  if (!crop) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>No se encontró la cosecha</Text>
@@ -27,25 +83,37 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
     observaciones,
     cultivo,
     estado,
-  } = selectedCrop;
+  } = crop;
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Cosecha</Text>
 
       <View style={styles.box}>
-        <Text style={styles.label}>📅 Fecha de cosecha</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha de cosecha</Text>
+        </View>
         <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
 
-        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad cosechada</Text>
+        </View>
         <Text style={styles.value}>{`${cantidadCosechada} ${unidad}`}</Text>
 
-        <Text style={styles.label}>⚙️ Estado</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Estado</Text>
+        </View>
         <Text style={styles.value}>{estado ? 'Activo' : 'Inactivo'}</Text>
 
         {observaciones ? (
           <>
-            <Text style={styles.label}>📝 Observaciones</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Observaciones</Text>
+            </View>
             <Text style={styles.value}>{observaciones}</Text>
           </>
         ) : null}
@@ -54,27 +122,48 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
       <Text style={styles.title}>Cultivo asociado</Text>
 
       <View style={styles.box}>
-        <Text style={styles.label}>🌱 Semilla</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Semilla</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.semilla?.nombreSemilla || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌿 Parcela</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="landscape" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Parcela</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.parcela?.nombreParcela || 'N/D'}</Text>
 
-        <Text style={styles.label}>📅 Fecha de siembra</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha de siembra</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.fechaSiembra?.split('T')[0] || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="agriculture" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha estimada de cosecha</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.fechaCosecha?.split('T')[0] || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌱 Cantidad sembrada</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad sembrada</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.cantidadSemilla ? `${cultivo.cantidadSemilla} ${cultivo.unidad}` : 'N/D'}</Text>
 
-        <Text style={styles.label}>⚙️ Estado del cultivo</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Estado del cultivo</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.estado ? 'Activo' : 'Inactivo'}</Text>
 
         {cultivo?.gdd && (
           <>
-            <Text style={styles.label}>🌡️ GDD</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>GDD</Text>
+            </View>
             <Text style={styles.value}>{cultivo.gdd}</Text>
           </>
         )}
@@ -108,11 +197,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     elevation: 5,
   },
-  label: {
-    marginLeft: '5%',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+    marginLeft: '5%',
+  },
+  label: {
     fontWeight: 'bold',
-    fontSize: 18,
+    marginLeft: 6, // Espaciado entre ícono y texto
+    fontSize: 16,
     color: 'rgb(42, 125, 98)',
   },
   value: {

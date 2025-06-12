@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
   setActiveContent: (screen: string) => void;
@@ -18,8 +19,8 @@ const ViewSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
 
   if (!selectedSeed) {
     return (
-      <View style={styles.seedContainer}>
-        <Text style={styles.seedTitle}>No se encontró la semilla</Text>
+      <View style={styles.container}>
+        <Text style={styles.title}>No se encontró la semilla</Text>
         <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
           <Text style={styles.buttonText}>Volver</Text>
         </TouchableOpacity>
@@ -28,35 +29,44 @@ const ViewSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
   }
 
   return (
-    <View style={styles.seedContainer}>
-      <Text style={styles.seedTitle}>Semilla</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Semilla</Text>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Nombre de la semilla</Text>
-        <Text style={styles.seedText}>{selectedSeed.nombreSemilla}</Text>
+      <View style={styles.box}>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="local-florist" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Nombre de la semilla</Text>
+        </View>
+        <Text style={styles.value}>{selectedSeed.nombreSemilla}</Text>
 
-        <Text style={styles.label}>Tipo de semilla</Text>
-        <Text style={styles.seedText}>{selectedSeed.tipoSemilla}</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="category" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Tipo de semilla</Text>
+        </View>
+        <Text style={styles.value}>{selectedSeed.tipoSemilla}</Text>
 
-        <Text style={styles.label}>Cantidad</Text>
-        <Text style={styles.seedText}>{selectedSeed.cantidadSemilla} {selectedSeed.unidad}</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad</Text>
+        </View>
+        <Text style={styles.value}>{`${selectedSeed.cantidadSemilla} ${selectedSeed.unidad}`}</Text>
 
         <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
           <Text style={styles.buttonText}>Volver</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  seedContainer: {
+  container: {
     flex: 1,
     paddingHorizontal: 20,
     backgroundColor: '#FFFCE3'
   },
 
-  seedTitle: {
+  title: {
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom:20,
@@ -66,64 +76,50 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase'
   },
 
-  formContainer: {
-    flex: 1,
-    alignContent: 'center',
-    justifyContent: 'center',
-    width: '100%',
-
+  box: {
     backgroundColor: '#fff',
     borderRadius: 15,
+    paddingVertical: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
     elevation: 5
   },
 
-  label: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: '10%',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+    marginLeft: '5%',
+  },
+
+  label: {
+    fontWeight: 'bold',
+    marginLeft: 6,
+    fontSize: 18,
     color: 'rgb(42, 125, 98)',
   },
 
-  seedText: {
-    width: '80%',
-    height: 40,
+  value: {
+    width: '90%',
+    marginLeft: '5%',
+    marginBottom: 15,
     padding: 10,
-    marginLeft: '10%',
-    marginRight: '10%',
-    marginBottom: 30,
     backgroundColor: '#D9D9D9',
     borderRadius: 25,
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 3,
   },
 
   button: {
-    color: '#F5F5F5',
     marginTop: 20,
-    fontSize: 20,
     width: '50%',
     marginLeft: '25%',
-    height: 35,
+    height: 40,
     backgroundColor: '#A01BAC',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.75,
-    shadowRadius: 3.84,
     elevation: 5,
   },
 

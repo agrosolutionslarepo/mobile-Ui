@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -99,7 +100,10 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                 <Text style={styles.title}>Agregar cosecha</Text>
                 <View style={styles.formContainer}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Cantidad cosechada</Text>
+                        </View>
                         <TextInput
                             style={[styles.input, cantidadError && styles.inputError]}
                             placeholder="Ej: 120"
@@ -114,7 +118,10 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                     </View>
 
                     <View>
-                        <Text style={styles.label}>⚖️ Unidad</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" /> 
+                            <Text style={styles.label}>Unidad</Text>
+                        </View>
                         <View style={styles.pickerInputContainer}>
                             <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
                                 <Picker
@@ -134,7 +141,10 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                     </View>
 
                     <View>
-                        <Text style={styles.label}>🌱 Seleccionar cultivo</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" /> 
+                            <Text style={styles.label}>Seleccionar cultivo</Text>
+                        </View>
                         <View style={styles.pickerInputContainer}>
                             <View style={[styles.pickerInputWrapper, cultivoError && styles.inputError]}>
                                 <Picker
@@ -157,9 +167,12 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                             </View>
                         </View>
                     </View>
-                    
+
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>📝 Observaciones</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Observaciones</Text>
+                        </View>
                         <TextInput
                             style={styles.textArea}
                             multiline
@@ -288,10 +301,15 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
-    label: {
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
+    },
+    label: {
         fontWeight: 'bold',
-        fontSize: 18,
+        marginLeft: 6, // Espaciado entre ícono y texto
+        fontSize: 16,
         color: 'rgb(42, 125, 98)',
     },
     formButtonsContainer: {

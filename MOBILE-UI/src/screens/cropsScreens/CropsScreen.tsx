@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../../config';
@@ -32,7 +32,34 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         },
       });
 
-      setCosechas(response.data);
+      const dataWithNames = await Promise.all(
+        response.data.map(async (cosecha: any) => {
+          try {
+            const [semillaRes, parcelaRes] = await Promise.all([
+              axios.get(`${API_URL}/semillas/getSemillaById/${cosecha.cultivo.semilla}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              axios.get(`${API_URL}/parcelas/getParcelaById/${cosecha.cultivo.parcela}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+
+            return {
+              ...cosecha,
+              cultivo: {
+                ...cosecha.cultivo,
+                semilla: semillaRes.data,
+                parcela: parcelaRes.data,
+              },
+            };
+          } catch (error) {
+            console.error('Error al obtener semilla o parcela:', error);
+            return cosecha;
+          }
+        })
+      );
+
+      setCosechas(dataWithNames);
     } catch (error) {
       console.error('Error al obtener cosechas:', error);
     } finally {
@@ -86,7 +113,7 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         <Image source={require('../../assets/img/add.png')} style={styles.addImage} resizeMode="contain" />
       </TouchableOpacity>
 
-      <View style={styles.listContainer}>
+      <ScrollView style={styles.listContainer}>
         {loading ? (
           <Text style={{ textAlign: 'center' }}>Cargando cosechas...</Text>
         ) : (
@@ -120,7 +147,7 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
             </TouchableOpacity>
           ))
         )}
-      </View>
+      </ScrollView>
 
       <Modal animationType="fade" transparent={true} visible={showAlertDelete}>
         <View style={styles.modalView}>

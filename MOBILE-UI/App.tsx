@@ -42,12 +42,21 @@ import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen
 import CompanyScreen from './src/screens/companyScreens/CompanyScreen';
 import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 
+// Desactiva las imprsiones por consola cuando esta en producción
+if (!__DEV__) {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
+
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<any>(null);
   const [selectedPlot, setSelectedPlot] = useState<any>(null);
   const [selectedCultivo, setSelectedCultivo] = useState<any>(null);
   const [selectedCrop, setSelectedCrop] = useState<any>(null);
+  const [headerKey, setHeaderKey] = useState(0);
+  const refreshHeader = () => setHeaderKey(prev => prev + 1);
   
 
   useEffect(() => {
@@ -89,7 +98,7 @@ const App: React.FC = () => {
       setSelectedCrop(data);
     }
 
-    setActiveContent(screen); // <-- esto debe ir al final
+    setActiveContent(screen); 
   };
 
   const renderContent = () => {
@@ -167,7 +176,12 @@ const App: React.FC = () => {
       activeContent !== 'register' &&
       activeContent !== 'recover'
     ) {
-      return <Header onMenuClick={(menuItem) => setActiveContent(menuItem)} />;
+      return (
+        <Header
+          key={headerKey}
+          onMenuClick={(menuItem) => setActiveContent(menuItem)}
+        />
+      );
     }
     return null;
   };
@@ -178,7 +192,12 @@ const App: React.FC = () => {
       activeContent !== 'register' &&
       activeContent !== 'recover'
     ) {
-      return <CompanyAlert onNavigate={(screen) => setActiveContent(screen)} />;
+      return (
+        <CompanyAlert
+          onNavigate={(screen) => setActiveContent(screen)}
+          onRefreshHeader={refreshHeader}
+        />
+      );
     }
     return null;
   };

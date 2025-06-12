@@ -146,13 +146,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
             <View style={styles.menuButtonLogOutContainer}>
               <TouchableOpacity
-              onPress={() => {
-                setLeftMenuVisible(false); // cierra el menú que puede bloquear el modal
-                setShowLogoutConfirm(true); // abre el modal
-              }}
-              style={styles.menuButtonLogOut}
+                onPress={() => {
+                  setLeftMenuVisible(false); // cierra el menú que puede bloquear el modal
+                  setShowLogoutConfirm(true); // abre el modal
+                }}
+                style={styles.menuButtonLogOut}
               >
-              <Text style={styles.menuButtonLogOutText}>Log out</Text>
+                <Text style={styles.menuButtonLogOutText}>Log out</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -160,28 +160,28 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       </Modal>
 
       <Modal visible={rightMenuVisible} transparent={true} animationType="fade">
-  <TouchableWithoutFeedback onPress={closeModal}>
-    <View style={styles.modalContainer}>
-      <TouchableWithoutFeedback onPress={() => {}}>
-        <Animated.View style={[styles.modalContentRight, { transform: [{ translateX: rightMenuPosition }] }]}>
-          <View style={styles.notificationContainerTitle}>
-            <Text style={styles.notificationTitle}>Notificaciones</Text>
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => { }}>
+              <Animated.View style={[styles.modalContentRight, { transform: [{ translateX: rightMenuPosition }] }]}>
+                <View style={styles.notificationContainerTitle}>
+                  <Text style={styles.notificationTitle}>Notificaciones</Text>
+                </View>
+                <ScrollView>
+                  {[...Array(10).keys()].map((index) => (
+                    <View key={index} style={styles.notificationContainer}>
+                      <TouchableOpacity onPress={() => console.log('Opción seleccionada')} style={styles.notificationButton}>
+                        <Image source={require('../assets/img/notificacion.png')} style={styles.notificationLogo} resizeMode="contain" />
+                        <Text style={styles.notificationText}>Alerta climática</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            </TouchableWithoutFeedback>
           </View>
-          <ScrollView>
-            {[...Array(10).keys()].map((index) => (
-              <View key={index} style={styles.notificationContainer}>
-                <TouchableOpacity onPress={() => console.log('Opción seleccionada')} style={styles.notificationButton}>
-                  <Image source={require('../assets/img/notificacion.png')} style={styles.notificationLogo} resizeMode="contain" />
-                  <Text style={styles.notificationText}>Alerta climática</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
-        </Animated.View>
-      </TouchableWithoutFeedback>
-    </View>
-  </TouchableWithoutFeedback>
-</Modal>
+        </TouchableWithoutFeedback>
+      </Modal>
 
 
       <Modal
@@ -374,7 +374,17 @@ const styles = StyleSheet.create({
     width: 50,
     height: 53,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        paddingLeft: 40,
+        paddingRight: 40
+      },
+      android: {
+        paddingTop:20,
+        paddingBottom: 20 
+      },
+    }),
   },
   menuIcon: {
     width: 50,
