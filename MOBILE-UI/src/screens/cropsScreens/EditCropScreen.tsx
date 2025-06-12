@@ -15,6 +15,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Cosecha {
   _id: string;
@@ -45,10 +46,10 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
     selectedCrop?.observaciones || ''
   );
 
-const [showAlertEdit, setShowAlertEdit] = useState(false);
-const [showAlertCancel, setShowAlertCancel] = useState(false);
-const [showIncompleteModal, setShowIncompleteModal] = useState(false);
-const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showAlertEdit, setShowAlertEdit] = useState(false);
+  const [showAlertCancel, setShowAlertCancel] = useState(false);
+  const [showIncompleteModal, setShowIncompleteModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('01');
@@ -117,7 +118,10 @@ const [showErrorModal, setShowErrorModal] = useState(false);
 
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>📅 Fecha de cosecha</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Fecha de cosecha</Text>
+            </View>
             <TouchableOpacity
               style={[styles.input, fechaError && styles.inputError]}
               onPress={() => setShowDateModal(true)}
@@ -129,7 +133,10 @@ const [showErrorModal, setShowErrorModal] = useState(false);
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Cantidad cosechada</Text>
+            </View>
             <TextInput
               style={[styles.input, cantidadError && styles.inputError]}
               placeholder="Ej: 120"
@@ -144,7 +151,10 @@ const [showErrorModal, setShowErrorModal] = useState(false);
           </View>
 
           <View>
-            <Text style={styles.label}>⚖️ Unidad</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Unidad</Text>
+            </View>
             <View style={styles.pickerInputContainer}>
               <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
                 <Picker
@@ -164,7 +174,10 @@ const [showErrorModal, setShowErrorModal] = useState(false);
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>📝 Observaciones</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Observaciones</Text>
+            </View>
             <TextInput
               style={styles.textArea}
               multiline
@@ -387,10 +400,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  label: {
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+  },
+  label: {
     fontWeight: 'bold',
-    fontSize: 18,
+    marginLeft: 6, // Espaciado entre ícono y texto
+    fontSize: 16,
     color: 'rgb(42, 125, 98)',
   },
   formButtonsContainer: {

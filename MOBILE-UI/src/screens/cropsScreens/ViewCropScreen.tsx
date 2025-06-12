@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity, ScrollView, ActivityIndicator
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
   setActiveContent: (screen: string) => void;
@@ -89,18 +90,30 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
       <Text style={styles.title}>Cosecha</Text>
 
       <View style={styles.box}>
-        <Text style={styles.label}>📅 Fecha de cosecha</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha de cosecha</Text>
+        </View>
         <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
 
-        <Text style={styles.label}>🔢 Cantidad cosechada</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad cosechada</Text>
+        </View>
         <Text style={styles.value}>{`${cantidadCosechada} ${unidad}`}</Text>
 
-        <Text style={styles.label}>⚙️ Estado</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Estado</Text>
+        </View>
         <Text style={styles.value}>{estado ? 'Activo' : 'Inactivo'}</Text>
 
         {observaciones ? (
           <>
-            <Text style={styles.label}>📝 Observaciones</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Observaciones</Text>
+            </View>
             <Text style={styles.value}>{observaciones}</Text>
           </>
         ) : null}
@@ -109,27 +122,48 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
       <Text style={styles.title}>Cultivo asociado</Text>
 
       <View style={styles.box}>
-        <Text style={styles.label}>🌱 Semilla</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Semilla</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.semilla?.nombreSemilla || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌿 Parcela</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="landscape" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Parcela</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.parcela?.nombreParcela || 'N/D'}</Text>
 
-        <Text style={styles.label}>📅 Fecha de siembra</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha de siembra</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.fechaSiembra?.split('T')[0] || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="agriculture" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Fecha estimada de cosecha</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.fechaCosecha?.split('T')[0] || 'N/D'}</Text>
 
-        <Text style={styles.label}>🌱 Cantidad sembrada</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad sembrada</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.cantidadSemilla ? `${cultivo.cantidadSemilla} ${cultivo.unidad}` : 'N/D'}</Text>
 
-        <Text style={styles.label}>⚙️ Estado del cultivo</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Estado del cultivo</Text>
+        </View>
         <Text style={styles.value}>{cultivo?.estado ? 'Activo' : 'Inactivo'}</Text>
 
         {cultivo?.gdd && (
           <>
-            <Text style={styles.label}>🌡️ GDD</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>GDD</Text>
+            </View>
             <Text style={styles.value}>{cultivo.gdd}</Text>
           </>
         )}
@@ -163,11 +197,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     elevation: 5,
   },
-  label: {
-    marginLeft: '5%',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+    marginLeft: '5%',
+  },
+  label: {
     fontWeight: 'bold',
-    fontSize: 18,
+    marginLeft: 6, // Espaciado entre ícono y texto
+    fontSize: 16,
     color: 'rgb(42, 125, 98)',
   },
   value: {
