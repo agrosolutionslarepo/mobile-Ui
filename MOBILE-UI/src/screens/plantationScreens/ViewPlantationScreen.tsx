@@ -33,7 +33,7 @@ const ViewPlantationScreen: React.FC<Props> = ({ setActiveContent, selectedPlant
                 <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
                 <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
 
-                <Text style={styles.label}>🌱 Cantidad sembrada</Text>
+                <Text style={styles.label}>🔢 Cantidad sembrada</Text>
                 <Text style={styles.value}>{cantidadSemilla} {unidad}</Text>
 
                 <Text style={styles.label}>⚙️ Estado</Text>

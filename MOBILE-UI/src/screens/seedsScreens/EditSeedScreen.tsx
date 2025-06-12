@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import {
+    View,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    Modal,
+    TextInput,
+    Platform,
+    TouchableWithoutFeedback,
+    Keyboard,
+    ScrollView,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -56,36 +67,43 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.seedContainer}>
-                <Text style={styles.seedTitle}>Modificar semilla</Text>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>Modificar semilla</Text>
 
                 <View style={styles.formContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#666"
-                        placeholder="Nombre Semilla"
-                        value={nombreSemilla}
-                        onChangeText={setNombreSemilla}
-                        editable={false} // ❌ Deshabilitado
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#666"
-                        placeholder="Tipo de Semilla"
-                        value={tipoSemilla}
-                        onChangeText={setTipoSemilla}
-                        editable={false} // ❌ Deshabilitado
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#666"
-                        placeholder="Cantidad"
-                        value={cantidadSemilla}
-                        onChangeText={setCantidadSemilla}
-                        keyboardType="numeric"
-                    />
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>📛 Nombre Semilla</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholderTextColor="#666"
+                            value={nombreSemilla}
+                            editable={false}
+                        />
+                    </View>
 
-                    <View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>🌱 Tipo de Semilla</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholderTextColor="#666"
+                            value={tipoSemilla}
+                            editable={false}
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>🔢 Cantidad</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholderTextColor="#666"
+                            value={cantidadSemilla}
+                            onChangeText={setCantidadSemilla}
+                            keyboardType="numeric"
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>⚖️ Unidad</Text>
                         <View style={styles.pickerInputContainer}>
                             <View style={styles.pickerInputWrapper}>
                                 <Picker
@@ -95,9 +113,7 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                                     }}
                                     style={styles.pickerInput}
                                 >
-                                    {unidad === '' && (
-                                        <Picker.Item label="Seleccionar unidad" value="" />
-                                    )}
+                                    <Picker.Item label="Seleccione unidad" value="" />
                                     <Picker.Item label="Kilogramos (kg)" value="kg" />
                                     <Picker.Item label="Toneladas (ton)" value="ton" />
                                 </Picker>
@@ -105,13 +121,12 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                         </View>
                     </View>
 
-
                     <View style={styles.formButtonsContainer}>
-                        <TouchableOpacity style={styles.button} onPress={() => setShowCancelModal(true)}>
+                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCancelModal(true)}>
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.cancelButton} onPress={editSeed}>
+                        <TouchableOpacity style={styles.button} onPress={editSeed}>
                             <Text style={styles.buttonText}>Guardar</Text>
                         </TouchableOpacity>
                     </View>
@@ -156,20 +171,20 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                         </View>
                     </View>
                 </Modal>
-            </View>
+            </ScrollView>
         </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
 
-    seedContainer: {
-        flex: 1,
+    container: {
+        flexGrow: 1,
         paddingHorizontal: 20,
         backgroundColor: '#FFFCE3'
     },
 
-    seedTitle: {
+    title: {
         fontWeight: 'bold',
         marginTop: 20,
         marginBottom: 20,
@@ -180,39 +195,33 @@ const styles = StyleSheet.create({
     },
 
     formContainer: {
-        flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
-        width: '100%',
-
         backgroundColor: '#fff',
         borderRadius: 15,
         marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
+        padding: 20,
         elevation: 5
     },
 
+    inputGroup: {
+        marginBottom: 15
+    },
+
+    label: {
+        marginBottom: 5,
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: 'rgb(42, 125, 98)'
+    },
 
     input: {
-        width: '80%',
-
+        width: '100%',
         height: 40,
         padding: 10,
-
-        marginLeft: '10%',
-        marginRight: '10%',
-        marginBottom: 20,
-
         backgroundColor: '#D9D9D9',
         borderRadius: 25,
-
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
-
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.75,
@@ -222,62 +231,32 @@ const styles = StyleSheet.create({
 
     formButtonsContainer: {
         flexDirection: 'row',
-        marginLeft: '10%',
-        marginRight: '10%',
+        justifyContent: 'space-between',
+        marginTop: 20
     },
 
     button: {
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
+        width: '48%',
+        height: 40,
         backgroundColor: '#A01BAC',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25,
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
 
     cancelButton: {
-        marginLeft: '10%',
-
-        color: '#F5F5F5',
-        marginTop: 20,
-        fontSize: 20,
-        width: '45%',
-        height: 35,
-        backgroundColor: '#A01BAC',
+        width: '48%',
+        height: 40,
+        backgroundColor: '#aaa',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 25,
-
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.75,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
 
     buttonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
-    },
-
-    seedName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000000'
-    },
-
-    seedText: {
-
     },
 
     // Estilos para las alertas
@@ -332,9 +311,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.75,
         shadowRadius: 3.84,
         elevation: 5,
-        width: '80%',
-        marginLeft: '10%',
-        marginRight: '10%'
     },
     pickerInputWrapper: {
         backgroundColor: '#D9D9D9',
