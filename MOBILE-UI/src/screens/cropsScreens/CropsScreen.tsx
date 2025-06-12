@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../../config';
@@ -86,7 +86,7 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         <Image source={require('../../assets/img/add.png')} style={styles.addImage} resizeMode="contain" />
       </TouchableOpacity>
 
-      <View style={styles.listContainer}>
+      <ScrollView style={styles.listContainer}>
         {loading ? (
           <Text style={{ textAlign: 'center' }}>Cargando cosechas...</Text>
         ) : (
@@ -120,7 +120,7 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
             </TouchableOpacity>
           ))
         )}
-      </View>
+      </ScrollView>
 
       <Modal animationType="fade" transparent={true} visible={showAlertDelete}>
         <View style={styles.modalView}>

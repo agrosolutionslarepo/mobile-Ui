@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
@@ -82,7 +82,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         <Image source={require('../../assets/img/add.png')} style={styles.addplotImage} resizeMode="contain" />
       </TouchableOpacity>
 
-      <View style={styles.plotsListContainer}>
+      <ScrollView style={styles.plotsListContainer}>
         {loading ? (
           <Text style={{ textAlign: 'center' }}>Cargando parcelas...</Text>
         ) : (
@@ -109,7 +109,7 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
             </TouchableOpacity>
           ))
         )}
-      </View>
+      </ScrollView>
 
       <Modal animationType="fade" transparent={true} visible={showAlertDelete}>
         <View style={styles.modalView}>

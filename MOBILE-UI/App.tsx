@@ -42,6 +42,13 @@ import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen
 import CompanyScreen from './src/screens/companyScreens/CompanyScreen';
 import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 
+// Desactiva las imprsiones por consola cuando esta en producción
+if (!__DEV__) {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
+
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<any>(null);
@@ -89,7 +96,7 @@ const App: React.FC = () => {
       setSelectedCrop(data);
     }
 
-    setActiveContent(screen); // <-- esto debe ir al final
+    setActiveContent(screen); 
   };
 
   const renderContent = () => {

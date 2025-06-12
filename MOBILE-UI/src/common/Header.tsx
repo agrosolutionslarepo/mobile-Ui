@@ -374,7 +374,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 53,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingLeft: 40,
+    paddingRight: 40
   },
   menuIcon: {
     width: 50,
