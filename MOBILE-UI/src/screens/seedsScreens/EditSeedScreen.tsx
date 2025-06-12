@@ -15,6 +15,7 @@ import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
     setActiveContent: (content: string) => void;
@@ -72,7 +73,10 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
 
                 <View style={styles.formContainer}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>📛 Nombre Semilla</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="local-florist" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Nombre Semilla</Text>
+                        </View>
                         <TextInput
                             style={styles.input}
                             placeholderTextColor="#666"
@@ -82,7 +86,10 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>🌱 Tipo de Semilla</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="category" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Tipo de Semilla</Text>
+                        </View>
                         <TextInput
                             style={styles.input}
                             placeholderTextColor="#666"
@@ -92,7 +99,10 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>🔢 Cantidad</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Cantidad</Text>
+                        </View>
                         <TextInput
                             style={styles.input}
                             placeholderTextColor="#666"
@@ -103,7 +113,10 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>⚖️ Unidad</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Unidad</Text>
+                        </View>
                         <View style={styles.pickerInputContainer}>
                             <View style={styles.pickerInputWrapper}>
                                 <Picker
@@ -206,9 +219,15 @@ const styles = StyleSheet.create({
         marginBottom: 15
     },
 
-    label: {
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
+    },
+
+    label: {
         fontWeight: 'bold',
+        marginLeft: 6,
         fontSize: 18,
         color: 'rgb(42, 125, 98)'
     },

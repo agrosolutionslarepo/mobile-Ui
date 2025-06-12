@@ -16,6 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const [fechaSiembra, setFechaSiembra] = useState('');
@@ -94,8 +95,11 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.title}>Editar Plantación</Text>
 
-                <View style={styles.form}>
-                    <Text style={styles.label}>🌱 Fecha de siembra</Text>
+                 <View style={styles.form}>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Fecha de siembra</Text>
+                    </View>
                     <TouchableOpacity
                         style={styles.input}
                         onPress={() => { setIsSiembraPicker(true); setShowDateModal(true); }}
@@ -105,7 +109,10 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                         </Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.label}>🌾 Fecha de cosecha</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Fecha de cosecha</Text>
+                    </View>
                     <TouchableOpacity
                         style={[styles.input]}
                         onPress={() => { setIsSiembraPicker(false); setShowDateModal(true); }}
@@ -115,7 +122,10 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                         </Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.label}>🔢 Cantidad de semilla</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Cantidad de semilla</Text>
+                    </View>
                     <TextInput
                         style={styles.input}
                         value={cantidadSemilla}
@@ -124,7 +134,10 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                     />
 
                     <View>
-                        <Text style={styles.label}>⚖️ Unidad</Text>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Unidad</Text>
+                        </View>
                         <View style={styles.pickerInputContainer}>
                             <View style={styles.pickerInputWrapper}>
                                 <Picker
@@ -304,9 +317,14 @@ const styles = StyleSheet.create({
         padding: 20,
         elevation: 5
     },
-    label: {
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
+    },
+    label: {
         fontWeight: 'bold',
+        marginLeft: 6,
         fontSize: 18,
         color: 'rgb(42, 125, 98)'
     },

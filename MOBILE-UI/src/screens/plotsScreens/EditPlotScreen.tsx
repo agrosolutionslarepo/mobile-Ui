@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, Touc
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Parcela {
   _id: string;
@@ -83,7 +84,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
       <View style={styles.formContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>📛 Nombre de parcela</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="drive-file-rename-outline" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Nombre de parcela</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Nombre de parcela"
@@ -94,7 +98,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>📐 Tamaño</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="square-foot" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Tamaño</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Tamaño"
@@ -106,7 +113,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>📍 Ubicación</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="location-on" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Ubicación</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Ubicación"
@@ -117,7 +127,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌡️ GDD</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>GDD</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="GDD"
@@ -129,7 +142,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌐 Latitud</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Latitud</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Latitud"
@@ -141,7 +157,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>🌐 Longitud</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Longitud</Text>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Longitud"
@@ -241,9 +260,14 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5
   },
-  label: {
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+  },
+  label: {
     fontWeight: 'bold',
+    marginLeft: 6,
     fontSize: 18,
     color: 'rgb(42, 125, 98)'
   },

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
     setActiveContent: (screen: string) => void;
@@ -27,46 +28,82 @@ const ViewPlantationScreen: React.FC<Props> = ({ setActiveContent, selectedPlant
             <Text style={styles.title}>Cultivo</Text>
 
             <View style={styles.box}>
-                <Text style={styles.label}>📅 Fecha de siembra</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Fecha de siembra</Text>
+                </View>
                 <Text style={styles.value}>{fechaSiembra.split('T')[0]}</Text>
 
-                <Text style={styles.label}>🌾 Fecha estimada de cosecha</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Fecha estimada de cosecha</Text>
+                </View>
                 <Text style={styles.value}>{fechaCosecha.split('T')[0]}</Text>
 
-                <Text style={styles.label}>🔢 Cantidad sembrada</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Cantidad sembrada</Text>
+                </View>
                 <Text style={styles.value}>{cantidadSemilla} {unidad}</Text>
 
-                <Text style={styles.label}>⚙️ Estado</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Estado</Text>
+                </View>
                 <Text style={styles.value}>{estado ? 'Activo' : 'Inactivo'}</Text>
             </View>
 
             <Text style={styles.title}>Semilla</Text>
             <View style={styles.box}>
-                <Text style={styles.label}>📛 Nombre</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="local-florist" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Nombre</Text>
+                </View>
                 <Text style={styles.value}>{semilla.nombreSemilla}</Text>
 
-                <Text style={styles.label}>🧬 Tipo</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="category" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Tipo</Text>
+                </View>
                 <Text style={styles.value}>{semilla.tipoSemilla}</Text>
             </View>
 
             <Text style={styles.title}>Parcela asociada</Text>
             <View style={styles.box}>
-                <Text style={styles.label}>📛 Nombre</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="drive-file-rename-outline" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Nombre</Text>
+                </View>
                 <Text style={styles.value}>{parcela.nombreParcela}</Text>
 
-                <Text style={styles.label}>📐 Tamaño</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="square-foot" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Tamaño</Text>
+                </View>
                 <Text style={styles.value}>{parcela.tamaño} ha</Text>
 
-                <Text style={styles.label}>📍 Ubicación</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="location-on" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Ubicación</Text>
+                </View>
                 <Text style={styles.value}>{parcela.ubicacion}</Text>
 
-                <Text style={styles.label}>🌡️ GDD</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>GDD</Text>
+                </View>
                 <Text style={styles.value}>{parcela.gdd}</Text>
 
-                <Text style={styles.label}>🌐 Coordenadas</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Coordenadas</Text>
+                </View>
                 <Text style={styles.value}>Lat: {parcela.latitud}, Lon: {parcela.longitud}</Text>
 
-                <Text style={styles.label}>⚙️ Estado</Text>
+                <View style={styles.labelContainer}>
+                    <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+                    <Text style={styles.label}>Estado</Text>
+                </View>
                 <Text style={styles.value}>{parcela.estado ? 'Activa' : 'Inactiva'}</Text>
 
                 <TouchableOpacity style={styles.button} onPress={goBack}>
@@ -100,10 +137,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         elevation: 5
     },
-    label: {
-        marginLeft: '5%',
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
+        marginLeft: '5%',
+    },
+    label: {
         fontWeight: 'bold',
+        marginLeft: 6,
         fontSize: 18,
         color: 'rgb(42, 125, 98)',
     },

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Props {
   setActiveContent: (screen: string) => void;
@@ -32,13 +33,22 @@ const ViewSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
       <Text style={styles.title}>Semilla</Text>
 
       <View style={styles.box}>
-        <Text style={styles.label}>📛 Nombre de la semilla</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="local-florist" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Nombre de la semilla</Text>
+        </View>
         <Text style={styles.value}>{selectedSeed.nombreSemilla}</Text>
 
-        <Text style={styles.label}>🧬 Tipo de semilla</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="category" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Tipo de semilla</Text>
+        </View>
         <Text style={styles.value}>{selectedSeed.tipoSemilla}</Text>
 
-        <Text style={styles.label}>🔢 Cantidad</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Cantidad</Text>
+        </View>
         <Text style={styles.value}>{`${selectedSeed.cantidadSemilla} ${selectedSeed.unidad}`}</Text>
 
         <TouchableOpacity style={styles.button} onPress={goToSeedsScreen}>
@@ -74,10 +84,16 @@ const styles = StyleSheet.create({
     elevation: 5
   },
 
-  label: {
-    marginLeft: '5%',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+    marginLeft: '5%',
+  },
+
+  label: {
     fontWeight: 'bold',
+    marginLeft: 6,
     fontSize: 18,
     color: 'rgb(42, 125, 98)',
   },

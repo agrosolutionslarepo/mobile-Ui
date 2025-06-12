@@ -5,7 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { API_URL } from '../../config';
-
+import { MaterialIcons,AntDesign } from '@expo/vector-icons';
 
 
 interface Props {
@@ -99,29 +99,44 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
       <Text style={styles.plotTitle}>Parcela</Text>
 
       <View style={styles.formContainer}>
-        <Text style={styles.label}>📛 Nombre de parcela</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="drive-file-rename-outline" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Nombre de parcela</Text>
+        </View>
         <Text style={styles.plotText}>{selectedPlot.nombreParcela}</Text>
 
-        <Text style={styles.label}>📐 Tamaño (ha)</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="square-foot" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Tamaño (ha)</Text>
+        </View>
         <Text style={styles.plotText}>{selectedPlot.tamaño}</Text>
 
         {selectedPlot.ubicacion && (
           <>
-            <Text style={styles.label}>📍 Ubicación</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="location-on" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Ubicación</Text>
+            </View>
             <Text style={styles.plotText}>{selectedPlot.ubicacion}</Text>
           </>
         )}
 
         {(selectedPlot.latitud !== undefined && selectedPlot.longitud !== undefined) && (
           <>
-            <Text style={styles.label}>🌐 Coordenadas</Text>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Coordenadas</Text>
+            </View>
             <Text style={styles.plotText}>
               Lat: {selectedPlot.latitud}, Lon: {selectedPlot.longitud}
             </Text>
           </>
         )}
 
-        <Text style={styles.label}>⚙️ Estado</Text>
+        <View style={styles.labelContainer}>
+          <MaterialIcons name="settings" size={22} color="rgb(42, 125, 98)" />
+          <Text style={styles.label}>Estado</Text>
+        </View>
         <Text style={styles.plotText}>{selectedPlot.estado ? 'Activa' : 'Inactiva'}</Text>
 
 
@@ -139,12 +154,29 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         <View>
           <Text style={styles.plotTitle}>{clima.obs.station}</Text>
           <View style={styles.formContainer}>
-            <Text style={styles.label}>Clima actual</Text>
-            <Text style={styles.plotText}>🌡️ Temp: {clima.obs.temp} °C</Text>
-            <Text style={styles.plotText}>💧 Humedad: {clima.obs.humidity} %</Text>
-            <Text style={styles.plotText}>🌧️ Precipitación: {clima.obs.precip_mm} mm</Text>
+            <Text style={[styles.label, {textAlign: 'center', marginBottom: 20}]}>Clima actual</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Temp</Text>
+          </View>
+          <Text style={styles.plotText}>{clima.obs.temp} °C</Text>
 
-            <Text style={[styles.label, { marginTop: 20 }]}>🌤️ Temperaturas (próximas 12 hs)</Text>
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="water-drop" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Humedad</Text>
+          </View>
+          <Text style={styles.plotText}>{clima.obs.humidity} %</Text>
+
+          <View style={styles.labelContainer}>
+            <MaterialIcons name="umbrella" size={22} color="rgb(42, 125, 98)" />
+            <Text style={styles.label}>Precipitación</Text>
+          </View>
+          <Text style={styles.plotText}>{clima.obs.precip_mm} mm</Text>
+
+            <View style={[styles.labelContainer, { marginTop: 20 }]}>
+              <MaterialIcons name="wb-sunny" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Temperaturas (próximas 12 hs)</Text>
+            </View>
             <View style={[styles.chartContainer]} >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <LineChart
@@ -182,9 +214,13 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
                   }}
                 />
               </ScrollView>
-              <Text style={{ textAlign: 'center', fontSize: 12, fontStyle: 'italic', color: '#666', marginBottom: 10 }}>
-                📌 Desliza hacia los lados para ver más ➡️
-              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+                <MaterialIcons name="info" size={16} color="#666" />
+                <Text style={{ fontSize: 12, fontStyle: 'italic', color: '#666', marginLeft: 4 }}>
+                  Desliza hacia los lados para ver más 
+                </Text>
+                <AntDesign name="rightsquare" size={16} color="#3c7cff"/>
+              </View>
               <Text style={{ textAlign: 'center', fontSize: 14, marginBottom: 20 }}>
                 Este gráfico muestra la evolución estimada de la temperatura a 2 metros del suelo durante las próximas 12 horas. Es útil para prever heladas o máximas térmicas.
               </Text>
@@ -192,7 +228,10 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
 
 
-            <Text style={[styles.label, { marginTop: 20 }]}>📊 ET0 (últimos 7 días)</Text>
+            <View style={[styles.labelContainer, { marginTop: 20 }]}>
+              <MaterialIcons name="insert-chart" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>ET0 (últimos 7 días)</Text>
+            </View>
             <View style={[styles.chartContainer]} >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
@@ -218,15 +257,22 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
                   }}
                 />
               </ScrollView>
-              <Text style={{ textAlign: 'center', fontSize: 12, fontStyle: 'italic', color: '#666', marginBottom: 10 }}>
-                📌 Desliza hacia los lados para ver más ➡️
-              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+                <MaterialIcons name="info" size={16} color="#666" />
+                <Text style={{ fontSize: 12, fontStyle: 'italic', color: '#666', marginLeft: 4 }}>
+                  Desliza hacia los lados para ver más 
+                </Text>
+                <AntDesign name="rightsquare" size={16} color="#3c7cff"/>
+              </View>
               <Text style={{ textAlign: 'center', fontSize: 14, marginBottom: 20 }}>
                 ET0 representa la evapotranspiración potencial: cuánta agua se pierde del suelo y las plantas por evaporación y transpiración. Ayuda a decidir el riego.
               </Text>
             </View>
 
-            <Text style={[styles.label, { marginTop: 20 }]}>📊 GDD (últimos 7 días)</Text>
+            <View style={[styles.labelContainer, { marginTop: 20 }]}>
+              <MaterialIcons name="multiline-chart" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>GDD (últimos 7 días)</Text>
+            </View>
             <View style={[styles.chartContainer]} >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
@@ -252,16 +298,23 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
                   }}
                 />
               </ScrollView>
-              <Text style={{ textAlign: 'center', fontSize: 12, fontStyle: 'italic', color: '#666', marginBottom: 10 }}>
-                📌 Desliza hacia los lados para ver más ➡️
-              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+                <MaterialIcons name="info" size={16} color="#666" />
+                <Text style={{ fontSize: 12, fontStyle: 'italic', color: '#666', marginLeft: 4 }}>
+                  Desliza hacia los lados para ver más 
+                </Text>
+                <AntDesign name="rightsquare" size={16} color="#3c7cff"/>
+              </View>
               <Text style={{ textAlign: 'center', fontSize: 14, marginBottom: 20 }}>
                 GDD (Grados Día de Desarrollo) mide la acumulación de calor útil para el crecimiento de los cultivos. Permite estimar etapas fenológicas clave.
               </Text>
             </View>
 
 
-            <Text style={[styles.label, { marginTop: 20 }]}>📅 Datos agrícolas (7 días)</Text>
+            <View style={[styles.labelContainer, { marginTop: 20 }]}>
+              <MaterialIcons name="calendar-today" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Datos agrícolas (7 días)</Text>
+            </View>
             <View style={{ gap: 10 }}>
               {clima.daily.time.map((dia, i) => (
                 <View
@@ -330,10 +383,15 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5
   },
-  label: {
-    marginLeft: '5%',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
+    marginLeft: '5%',
+  },
+  label: {
     fontWeight: 'bold',
+    marginLeft: 6,
     fontSize: 20,
     color: 'rgb(42, 125, 98)',
   },

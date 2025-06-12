@@ -4,6 +4,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import { API_URL } from '../../config';
+import { MaterialIcons } from '@expo/vector-icons';
 
 
 const AddPlantationScreen = ({ setActiveContent }) => {
@@ -148,7 +149,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
             <View style={styles.formContainer}>
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>🌱 Fecha de siembra</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Fecha de siembra</Text>
+                    </View>
                     <TouchableOpacity
                         style={[styles.input, fechaSiembraError && styles.inputError]}
                         onPress={() => {
@@ -163,7 +167,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>🌾 Fecha de cosecha</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Fecha de cosecha</Text>
+                    </View>
                     <TouchableOpacity
                         style={[styles.input, fechaCosechaError && styles.inputError]}
                         onPress={() => {
@@ -179,7 +186,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>🔢 Cantidad de semilla</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Cantidad de semilla</Text>
+                    </View>
                     <TextInput
                         style={[styles.input, cantidadError && styles.inputError]}
                         placeholder="Ej: 50"
@@ -194,7 +204,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
                 </View>
 
                 <View>
-                    <Text style={styles.label}>⚖️ Unidad</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Unidad</Text>
+                    </View>
                     <View style={styles.pickerInputContainer}>
                         <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
                             <Picker
@@ -216,7 +229,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
                 <View>
-                    <Text style={styles.label}>🌽 Seleccionar semilla</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Seleccionar semilla</Text>
+                    </View>
                     <View style={styles.pickerInputContainer}>
                         <View style={[styles.pickerInputWrapper, semillaError && styles.inputError]}>
                             <Picker
@@ -238,7 +254,10 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
                 <View>
-                    <Text style={styles.label}>🧱 Seleccionar parcela</Text>
+                    <View style={styles.labelContainer}>
+                        <MaterialIcons name="map" size={22} color="rgb(42, 125, 98)" />
+                        <Text style={styles.label}>Seleccionar parcela</Text>
+                    </View>
                     <View style={styles.pickerInputContainer}>
                         <View style={[styles.pickerInputWrapper, parcelaError && styles.inputError]}>
                             <Picker
@@ -493,9 +512,14 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
-    label: {
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
+    },
+    label: {
         fontWeight: 'bold',
+        marginLeft: 6,
         fontSize: 18,
         color: 'rgb(42, 125, 98)'
     },
