@@ -1,5 +1,8 @@
-import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../config';
 
 interface Props {
   setActiveContent: (screen: string) => void;
@@ -7,9 +10,61 @@ interface Props {
 }
 
 const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => {
+  const [crop, setCrop] = useState<any | null>(selectedCrop);
+  const [loading, setLoading] = useState(true);
+
   const goBack = () => setActiveContent('crops');
 
-  if (!selectedCrop) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token || !selectedCrop?._id) {
+          setLoading(false);
+          return;
+        }
+
+        const cosechaRes = await axios.get(
+          `${API_URL}/cosechas/getCosechaById/${selectedCrop._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const cosecha = cosechaRes.data;
+
+        const [semillaRes, parcelaRes] = await Promise.all([
+          axios.get(`${API_URL}/semillas/getSemillaById/${cosecha.cultivo.semilla}`,
+            { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${API_URL}/parcelas/getParcelaById/${cosecha.cultivo.parcela}`,
+            { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        setCrop({
+          ...cosecha,
+          cultivo: {
+            ...cosecha.cultivo,
+            semilla: semillaRes.data,
+            parcela: parcelaRes.data,
+          },
+        });
+      } catch (error) {
+        console.error('Error al obtener datos de la cosecha:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedCrop]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color="#665996" />
+      </View>
+    );
+  }
+
+  if (!crop) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>No se encontró la cosecha</Text>
@@ -27,7 +82,7 @@ const ViewCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
     observaciones,
     cultivo,
     estado,
-  } = selectedCrop;
+  } = crop;
 
   return (
     <ScrollView style={styles.container}>

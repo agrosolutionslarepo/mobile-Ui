@@ -32,7 +32,34 @@ const CropsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
         },
       });
 
-      setCosechas(response.data);
+      const dataWithNames = await Promise.all(
+        response.data.map(async (cosecha: any) => {
+          try {
+            const [semillaRes, parcelaRes] = await Promise.all([
+              axios.get(`${API_URL}/semillas/getSemillaById/${cosecha.cultivo.semilla}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              axios.get(`${API_URL}/parcelas/getParcelaById/${cosecha.cultivo.parcela}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+
+            return {
+              ...cosecha,
+              cultivo: {
+                ...cosecha.cultivo,
+                semilla: semillaRes.data,
+                parcela: parcelaRes.data,
+              },
+            };
+          } catch (error) {
+            console.error('Error al obtener semilla o parcela:', error);
+            return cosecha;
+          }
+        })
+      );
+
+      setCosechas(dataWithNames);
     } catch (error) {
       console.error('Error al obtener cosechas:', error);
     } finally {
