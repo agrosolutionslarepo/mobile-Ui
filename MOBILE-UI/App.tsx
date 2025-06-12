@@ -55,6 +55,8 @@ const App: React.FC = () => {
   const [selectedPlot, setSelectedPlot] = useState<any>(null);
   const [selectedCultivo, setSelectedCultivo] = useState<any>(null);
   const [selectedCrop, setSelectedCrop] = useState<any>(null);
+  const [headerKey, setHeaderKey] = useState(0);
+  const refreshHeader = () => setHeaderKey(prev => prev + 1);
   
 
   useEffect(() => {
@@ -174,7 +176,12 @@ const App: React.FC = () => {
       activeContent !== 'register' &&
       activeContent !== 'recover'
     ) {
-      return <Header onMenuClick={(menuItem) => setActiveContent(menuItem)} />;
+      return (
+        <Header
+          key={headerKey}
+          onMenuClick={(menuItem) => setActiveContent(menuItem)}
+        />
+      );
     }
     return null;
   };
@@ -185,7 +192,12 @@ const App: React.FC = () => {
       activeContent !== 'register' &&
       activeContent !== 'recover'
     ) {
-      return <CompanyAlert onNavigate={(screen) => setActiveContent(screen)} />;
+      return (
+        <CompanyAlert
+          onNavigate={(screen) => setActiveContent(screen)}
+          onRefreshHeader={refreshHeader}
+        />
+      );
     }
     return null;
   };

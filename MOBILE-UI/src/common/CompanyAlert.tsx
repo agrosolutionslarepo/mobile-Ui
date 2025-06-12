@@ -14,7 +14,28 @@ import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
 import { API_URL } from '../config';
 
-const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onNavigate }) => {
+// Utilidad para decodificar el JWT sin librerías externas
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return null;
+  }
+};
+
+const CompanyAlert: React.FC<{
+  onNavigate?: (screen: string) => void;
+  onRefreshHeader?: () => void;
+}> = ({ onNavigate, onRefreshHeader }) => {
   const [shouldShowCard, setShouldShowCard] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -87,6 +108,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
             },
           }
         );
+        setShowModal(false);
         setSuccessMessage('¡La empresa fue creada con éxito!');
       }
 
@@ -101,6 +123,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
             },
           }
         );
+        setShowModal(false);
         setSuccessMessage('¡Te uniste a la empresa con éxito!');
       }
 
@@ -108,6 +131,10 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
       const nuevoToken = response?.data?.token;
       if (nuevoToken) {
         await AsyncStorage.setItem('userToken', nuevoToken);
+        const decoded = parseJwt(nuevoToken);
+        if (decoded) {
+          await AsyncStorage.setItem('decodedToken', JSON.stringify(decoded));
+        }
       }
 
       setShowSuccessModal(true);
@@ -258,6 +285,7 @@ const CompanyAlert: React.FC<{ onNavigate?: (screen: string) => void }> = ({ onN
                     setShowSuccessModal(false);
                     cerrarModal();              // Limpia campos y cierra el modal principal
                     await fetchUserData();      // Refresca para ocultar la card si corresponde
+                    onRefreshHeader?.();        // Fuerza que el Header vuelva a cargar los datos
                   }}
                 >
                   <Text style={styles.alertButtonText}>Aceptar</Text>

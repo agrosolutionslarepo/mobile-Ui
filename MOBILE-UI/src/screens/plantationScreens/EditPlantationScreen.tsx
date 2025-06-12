@@ -255,7 +255,7 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                 <Modal visible={showSuccessModal} transparent animationType="fade">
                     <View style={styles.modalView}>
                         <View style={styles.modalBox}>
-                            <Text style={styles.label}>✅ Plantación actualizada correctamente</Text>
+                            <Text style={styles.alertMessage}>Plantación actualizada correctamente</Text>
                             <TouchableOpacity style={styles.saveButton} onPress={() => setActiveContent('plantations')}>
                                 <Text style={styles.buttonText}>Continuar</Text>
                             </TouchableOpacity>
@@ -511,10 +511,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 15,
         width: '100%',
-        height: 120, // ⬅ más compacto
+        height: 120, 
         justifyContent: 'center',
-        overflow: 'hidden', // 👈 esto es CLAVE en iOS
-        alignItems: 'center', // 👈 Asegura que el picker no se desplace horizontalmente
+        overflow: 'hidden', 
+        alignItems: 'center', 
         ...Platform.select({
             ios: {
                 height: 120,
@@ -529,9 +529,9 @@ const styles = StyleSheet.create({
         height: Platform.OS === 'ios' ? 220 : 40,
         width: '100%',
         color: '#333',
-        fontSize: Platform.OS === 'ios' ? 20 : 16, // más grande y centrado en iOS
-        textAlign: 'center',                      // 👈 asegura alineación del texto
-        textAlignVertical: 'center',              // 👈 centra el valor en Android
+        fontSize: Platform.OS === 'ios' ? 20 : 16, 
+        textAlign: 'center',                      
+        textAlignVertical: 'center',              
         ...Platform.select({
             ios: {
                 height: 220,
@@ -541,6 +541,12 @@ const styles = StyleSheet.create({
                 height: 60,
             },
         }),
+    },
+
+    alertMessage: {
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: 'center'
     },
 
     alertButtonDate: {
