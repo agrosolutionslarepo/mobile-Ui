@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
@@ -84,7 +84,10 @@ const PlotsScreen = ({ setActiveContent }: { setActiveContent: (content: string,
 
       <ScrollView style={styles.plotsListContainer}>
         {loading ? (
-          <Text style={{ textAlign: 'center' }}>Cargando parcelas...</Text>
+          <View style={{ alignItems: 'center', marginTop: 20 }}>
+            <ActivityIndicator size="large" color="#665996" />
+            <Text style={styles.loadingText}>Cargando parcelas...</Text>
+          </View>
         ) : (
           parcelas.map((parcela) => (
             <TouchableOpacity
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
 
   alertButtonsContainer: {
     flexDirection: 'row',
-    
+
   },
 
   alertButton: {
@@ -281,6 +284,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#665996',
+    textAlign: 'center',
+  }
 })
 
 export default PlotsScreen;

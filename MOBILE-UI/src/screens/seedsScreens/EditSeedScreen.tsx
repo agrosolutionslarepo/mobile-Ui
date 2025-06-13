@@ -10,6 +10,7 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
     ScrollView,
+    ActivityIndicator
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -38,11 +39,14 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
     const [cantidadSemilla, setCantidadSemilla] = useState(String(selectedSeed?.cantidadSemilla || ''));
     const [unidad, setUnidad] = useState(selectedSeed?.unidad || '');
 
+    const [loading, setLoading] = useState(false);
+
     /*const editSeed = () => {
         setShowAlertEdit(true);
     };*/
 
     const editSeed = async () => {
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token || !selectedSeed) return;
@@ -63,6 +67,8 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
             setShowAlertEdit(true);
         } catch (error) {
             console.error('Error al editar la semilla:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -135,12 +141,20 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
                     </View>
 
                     <View style={styles.formButtonsContainer}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCancelModal(true)}>
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => setShowCancelModal(true)}
+                            disabled={loading}
+                        >
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.button} onPress={editSeed}>
-                            <Text style={styles.buttonText}>Guardar</Text>
+                        <TouchableOpacity style={styles.button} onPress={editSeed} disabled={loading}>
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.buttonText}>Guardar</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
 

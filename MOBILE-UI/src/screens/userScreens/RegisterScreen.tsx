@@ -10,7 +10,8 @@ import {
   Modal,
   Platform,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ActivityIndicator
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -45,6 +46,8 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   const [empresaName, setEmpresaName] = useState('');
   const [codigoInvitacion, setCodigoInvitacion] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const [erroresCampos, setErroresCampos] = useState<{ [key: string]: boolean }>({});
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('01');
@@ -78,6 +81,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   };
 
   const handleFinalSubmit = async () => {
+    setLoading(true);
     const payload: any = {
       nombre: name,
       apellido: lastname,
@@ -137,7 +141,10 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       }
 
       setShowAlertFail(true);
+    } finally {
+      setLoading(false);
     }
+
 
 
 
@@ -501,8 +508,13 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     <TouchableOpacity
                       onPress={handleFinalSubmit}
                       style={[styles.alertButton, { marginTop: 10 }]}
+                      disabled={loading}
                     >
-                      <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      {loading ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      )}
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setTipoRegistro(null)}
@@ -533,8 +545,13 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     <TouchableOpacity
                       onPress={handleFinalSubmit}
                       style={[styles.alertButton, { marginTop: 10 }]}
+                      disabled={loading}
                     >
-                      <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      {loading ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      )}
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setTipoRegistro(null)}

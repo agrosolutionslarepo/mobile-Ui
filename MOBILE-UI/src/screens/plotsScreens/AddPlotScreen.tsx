@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
@@ -23,6 +23,8 @@ const AddSeedScreen = ({ setActiveContent }) => {
   const [ubicacionError, setUbicacionError] = useState(false);
   const [latitudError, setLatitudError] = useState(false);
   const [longitudError, setLongitudError] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -63,6 +65,7 @@ const AddSeedScreen = ({ setActiveContent }) => {
   const allowOnlyLetters = (value) => value.replace(/[^a-zA-Z\s]/g, '');
 
   const addPlot = async () => {
+    setLoading(true);
     // Verificamos campos vacíos
     const isNombreEmpty = !nombreParcela;
     const isTamañoEmpty = !tamaño;
@@ -104,6 +107,8 @@ const AddSeedScreen = ({ setActiveContent }) => {
     } catch (error) {
       console.error('Error al crear la parcela:', error);
       setShowErrorModal(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,8 +166,16 @@ const AddSeedScreen = ({ setActiveContent }) => {
           </View>
 
           <View style={styles.formButtonsContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotAdd}><Text style={styles.buttonText}>Cancelar</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={addPlot}><Text style={styles.buttonText}>Agregar</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotAdd} disabled={loading}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={addPlot} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Agregar</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 

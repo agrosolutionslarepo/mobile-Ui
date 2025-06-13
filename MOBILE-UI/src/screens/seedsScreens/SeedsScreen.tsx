@@ -5,7 +5,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  Modal,
+  ActivityIndicator
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -82,7 +82,10 @@ const SeedsScreen = ({
 
       <View style={styles.seedsListContainer}>
         {loading ? (
-          <Text style={{ textAlign: "center" }}>Cargando semillas...</Text>
+          <View style={{ alignItems: 'center', marginTop: 20 }}>
+            <ActivityIndicator size="large" color="#665996" />
+            <Text style={styles.loadingText}>Cargando semillas...</Text>
+          </View>
         ) : (
           semillas.map((semilla) => (
             <TouchableOpacity
@@ -278,6 +281,13 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
+
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#665996",
+    textAlign: "center",
+  }
 });
 
 export default SeedsScreen;

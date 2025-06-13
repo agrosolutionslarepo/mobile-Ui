@@ -9,7 +9,8 @@ import {
   Image,  
   Modal,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ActivityIndicator
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -55,6 +56,8 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   const [showAlertEmpty, setShowAlertEmpty] = useState<boolean>(false);
   const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
   const [showAlertFail, setShowAlertFail] = useState<boolean>(false);
+
+  const [loading, setLoading] = useState<boolean>(false);
   
   /*const redirectUri = AuthSession.makeRedirectUri({
     useProxy: true, // 👈🏼 OBLIGATORIO EN EXPO GO
@@ -99,6 +102,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   };
 
   const handleLogin = async () => {
+    setLoading(true);
     const isEmailEmpty = username.trim() === '';
     const isPasswordEmpty = password.trim() === '';
     setEmailError(isEmailEmpty);
@@ -128,6 +132,8 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     } catch (e) {
       console.error('Error al iniciar sesión:', e);
       setShowAlertFail(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,8 +183,12 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
             />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Ingresar</Text>
+          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Ingresar</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.recoverPasswordButton} onPress={goToRecoverScreen}>

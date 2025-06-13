@@ -11,7 +11,8 @@ import {
     Alert,
     Platform,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    ActivityIndicator
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -33,6 +34,8 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         if (selectedCultivo) {
             setFechaSiembra(selectedCultivo.fechaSiembra);
@@ -51,6 +54,7 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
 
     const handleSave = async () => {
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) throw new Error('Token no encontrado');
@@ -72,7 +76,9 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
 
             setShowSuccessModal(true);
         } catch (error) {
-            Alert.alert('Error', 'No se pudo actualizar la plantaci\u00f3n.');
+            Alert.alert('Error', 'No se pudo actualizar la plantación.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -152,13 +158,21 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
                     </View>
 
 
-                    <View style={styles.buttonGroup}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCancelModal(true)}>
+                     <View style={styles.buttonGroup}>
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => setShowCancelModal(true)}
+                            disabled={loading}
+                        >
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                            <Text style={styles.buttonText}>Guardar</Text>
+                        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.buttonText}>Guardar</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
@@ -25,6 +25,8 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const [showAlertEdit, setShowAlertEdit] = useState(false);
   const [showAlertCancel, setShowAlertCancel] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [nombreParcela, setNombreParcela] = useState(selectedPlot?.nombreParcela || '');
   const [tamaño, setTamaño] = useState(String(selectedPlot?.tamaño || ''));
   const [ubicacion, setUbicacion] = useState(selectedPlot?.ubicacion || '');
@@ -33,6 +35,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const [longitud, setLongitud] = useState(String(selectedPlot?.longitud || ''));
 
   const editPlot = async () => {
+    setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
@@ -54,6 +57,8 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
     } catch (error) {
       console.error('Error al modificar la parcela:', error);
       Alert.alert('Error', 'No se pudo modificar la parcela. Intente nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -172,12 +177,20 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         </View>
 
         <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotEdit}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={cancelPlotEdit}
+            disabled={loading}
+          >
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={editPlot}>
-            <Text style={styles.buttonText}>Guardar</Text>
+          <TouchableOpacity style={styles.button} onPress={editPlot} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Guardar</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>

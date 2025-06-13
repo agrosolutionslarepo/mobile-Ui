@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +32,9 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const [unidadError, setUnidadError] = useState(false);
     const [cultivoError, setCultivoError] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
+
     const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
     const allowAlphanumeric = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
 
@@ -57,6 +60,7 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     }, []);
 
     const addCrop = async () => {
+        setLoading(true);
         const isCantidadEmpty = !cantidadCosechada;
         const isUnidadEmpty = !unidad;
         const isCultivoEmpty = !cultivo;
@@ -91,6 +95,8 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         } catch (error) {
             console.error('Error al crear la cosecha:', error);
             setShowErrorModal(true);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -185,11 +191,15 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                     </View>
 
                     <View style={styles.formButtonsContainer}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={cancelCropAdd}>
+                        <TouchableOpacity style={styles.cancelButton} onPress={cancelCropAdd} disabled={loading}>
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={addCrop}>
-                            <Text style={styles.buttonText}>Agregar</Text>
+                        <TouchableOpacity style={styles.button} onPress={addCrop} disabled={loading}>
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.buttonText}>Agregar</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>

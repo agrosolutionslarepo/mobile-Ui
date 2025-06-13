@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -51,6 +52,8 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('01');
   const [selectedMonth, setSelectedMonth] = useState('01');
@@ -72,6 +75,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
   const goToCropsScreen = () => setActiveContent('crops');
 
   const editCrop = async () => {
+    setLoading(true);
     const isFechaEmpty = !fechaCosecha;
     const isCantidadEmpty = !cantidadCosechada;
     const isUnidadEmpty = !unidad;
@@ -106,6 +110,8 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
     } catch (error) {
       console.error('Error al modificar la cosecha:', error);
       setShowErrorModal(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,11 +196,19 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
           </View>
 
           <View style={styles.formButtonsContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={cancelCropEdit}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={cancelCropEdit}
+              disabled={loading}
+            >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={editCrop}>
-              <Text style={styles.buttonText}>Guardar</Text>
+            <TouchableOpacity style={styles.button} onPress={editCrop} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Guardar</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
