@@ -85,6 +85,7 @@ const AddSeedScreen = ({ setActiveContent }) => {
       isNombreEmpty || isTamañoEmpty || isUbicacionEmpty || isLatitudEmpty || isLongitudEmpty
     ) {
       setShowIncompleteModal(true);
+      setTimeout(() => setLoading(false), 1000);
       return;
     }
 
@@ -107,6 +108,7 @@ const AddSeedScreen = ({ setActiveContent }) => {
     } catch (error) {
       console.error('Error al crear la parcela:', error);
       setShowErrorModal(true);
+      setTimeout(() => setLoading(false), 1000);
     } finally {
       setLoading(false);
     }

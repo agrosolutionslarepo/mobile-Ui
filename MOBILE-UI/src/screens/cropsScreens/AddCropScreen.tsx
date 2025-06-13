@@ -71,6 +71,7 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
 
         if (isCantidadEmpty || isUnidadEmpty || isCultivoEmpty) {
             setShowIncompleteModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
@@ -95,6 +96,7 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         } catch (error) {
             console.error('Error al crear la cosecha:', error);
             setShowErrorModal(true);
+            setTimeout(() => setLoading(false), 1000);
         } finally {
             setLoading(false);
         }

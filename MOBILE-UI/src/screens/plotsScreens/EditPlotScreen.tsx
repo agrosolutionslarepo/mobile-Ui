@@ -11,7 +11,6 @@ interface Parcela {
   tamaño: number;
   ubicacion?: string;
   estado?: boolean;
-  gdd?: number;
   latitud?: number;
   longitud?: number;
 }
@@ -30,7 +29,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const [nombreParcela, setNombreParcela] = useState(selectedPlot?.nombreParcela || '');
   const [tamaño, setTamaño] = useState(String(selectedPlot?.tamaño || ''));
   const [ubicacion, setUbicacion] = useState(selectedPlot?.ubicacion || '');
-  const [gdd, setGdd] = useState(String(selectedPlot?.gdd || ''));
   const [latitud, setLatitud] = useState(String(selectedPlot?.latitud || ''));
   const [longitud, setLongitud] = useState(String(selectedPlot?.longitud || ''));
 
@@ -44,7 +42,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         nombreParcela,
         tamaño: parseFloat(tamaño),
         ubicacion,
-        gdd: parseInt(gdd),
         latitud: parseFloat(latitud),
         longitud: parseFloat(longitud),
       }, {
@@ -56,6 +53,7 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
       setShowAlertEdit(true);
     } catch (error) {
       console.error('Error al modificar la parcela:', error);
+      setTimeout(() => setLoading(false), 1000);
       Alert.alert('Error', 'No se pudo modificar la parcela. Intente nuevamente.');
     } finally {
       setLoading(false);
@@ -133,21 +131,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
         <View style={styles.inputGroup}>
           <View style={styles.labelContainer}>
-            <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>GDD</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="GDD"
-            placeholderTextColor="#666"
-            value={gdd}
-            keyboardType="numeric"
-            onChangeText={(text) => setGdd(allowOnlyNumbers(text))}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
             <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
             <Text style={styles.label}>Latitud</Text>
           </View>
@@ -156,7 +139,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
             placeholder="Latitud"
             placeholderTextColor="#666"
             value={latitud}
-            keyboardType="numeric"
             onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
           />
         </View>
@@ -171,7 +153,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
             placeholder="Longitud"
             placeholderTextColor="#666"
             value={longitud}
-            keyboardType="numeric"
             onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
           />
         </View>

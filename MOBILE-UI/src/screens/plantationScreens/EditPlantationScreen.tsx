@@ -77,6 +77,7 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
             setShowSuccessModal(true);
         } catch (error) {
             Alert.alert('Error', 'No se pudo actualizar la plantación.');
+            setTimeout(() => setLoading(false), 1000);
         } finally {
             setLoading(false);
         }

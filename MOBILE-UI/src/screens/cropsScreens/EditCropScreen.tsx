@@ -86,6 +86,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
 
     if (isFechaEmpty || isCantidadEmpty || isUnidadEmpty) {
       setShowIncompleteModal(true);
+      setTimeout(() => setLoading(false), 1000);
       return;
     }
 
@@ -109,6 +110,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
       setShowAlertEdit(true);
     } catch (error) {
       console.error('Error al modificar la cosecha:', error);
+      setTimeout(() => setLoading(false), 1000);
       setShowErrorModal(true);
     } finally {
       setLoading(false);

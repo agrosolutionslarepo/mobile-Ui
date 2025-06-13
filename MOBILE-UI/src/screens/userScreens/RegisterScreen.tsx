@@ -95,6 +95,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     if (tipoRegistro === 'empresa') {
       if (!empresaName.trim()) {
         setErroresCampos((prev) => ({ ...prev, empresa: true }));
+        setTimeout(() => setLoading(false), 1000);
         return;
       }
       payload.empresaData = {
@@ -104,6 +105,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     } else if (tipoRegistro === 'codigo') {
       if (!codigoInvitacion.trim()) {
         setErroresCampos((prev) => ({ ...prev, codigo: true }));
+        setTimeout(() => setLoading(false), 1000);
         return;
       }
       payload.codigoInvitacion = codigoInvitacion;
@@ -118,18 +120,21 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       }
     } catch (error: any) {
       setShowEmpresaModal(false);
+      setTimeout(() => setLoading(false), 1000);
 
       if (error.response) {
         const mensaje = (error.response.data?.error || '').toLowerCase().trim();
 
         if (mensaje.includes('usuario existente')) {
           setShowUserExistsModal(true);
+          setTimeout(() => setLoading(false), 1000);
           return;
         }
 
         if (mensaje.includes('invite code not found')) {
           setCodigoInvitacion('');
           setShowInvalidCodeModal(true);
+          setTimeout(() => setLoading(false), 1000);
           return; // detener ejecución aquí
         }
 
@@ -139,7 +144,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       } else {
         console.error('Error configurando la solicitud:', error.message);
       }
-
+      
       setShowAlertFail(true);
     } finally {
       setLoading(false);

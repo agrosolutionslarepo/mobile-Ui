@@ -71,18 +71,21 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             isUnidadEmpty || isSemillaEmpty || isParcelaEmpty
         ) {
             setShowIncompleteModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
         // Validar que cantidad sea > 0
         if (parseFloat(cantidadSemilla) <= 0) {
             setShowInvalidQuantityModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
         // Validar que siembra sea anterior a cosecha
         if (siembraDate >= cosechaDate) {
             setShowInvalidDatesModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
@@ -109,6 +112,7 @@ const AddPlantationScreen = ({ setActiveContent }) => {
         } catch (error) {
             console.error('Error al crear cultivo:', error);
             setShowErrorModal(true);
+            setTimeout(() => setLoading(false), 1000);
         } finally {
             setLoading(false);
         }

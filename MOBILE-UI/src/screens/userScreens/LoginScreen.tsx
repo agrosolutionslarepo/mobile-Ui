@@ -110,6 +110,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
 
     if (isEmailEmpty || isPasswordEmpty) {
       setShowAlertEmpty(true);
+      setTimeout(() => setLoading(false), 1000);
       return;
     }
 
@@ -132,6 +133,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
     } catch (e) {
       console.error('Error al iniciar sesión:', e);
       setShowAlertFail(true);
+      setTimeout(() => setLoading(false), 1000);
     } finally {
       setLoading(false);
     }

@@ -67,6 +67,7 @@ const EditSeedScreen: React.FC<Props> = ({ setActiveContent, selectedSeed }) => 
             setShowAlertEdit(true);
         } catch (error) {
             console.error('Error al editar la semilla:', error);
+            setTimeout(() => setLoading(false), 1000);
         } finally {
             setLoading(false);
         }
