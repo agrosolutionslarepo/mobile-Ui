@@ -10,7 +10,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -120,6 +121,10 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
   const cancelCropEdit = () => setShowAlertCancel(true);
 
   return (
+    <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Modificar cosecha</Text>
@@ -359,6 +364,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
         </Modal>
       </ScrollView>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
