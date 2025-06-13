@@ -10,7 +10,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -144,8 +145,12 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
   const goToRecoverScreen = () => setActiveContent('recover');
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
+   <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
         <View style={styles.container}>
           <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
 
@@ -240,6 +245,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       </ImageBackground>
 
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

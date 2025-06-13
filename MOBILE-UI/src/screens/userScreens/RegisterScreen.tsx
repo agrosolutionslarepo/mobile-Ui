@@ -11,7 +11,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -160,6 +161,10 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   };
 
   return (
+    <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ImageBackground
         source={require('../../assets/img/backgroundLogIn.png')}
@@ -638,6 +643,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         </View>
       </ImageBackground>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -34,6 +34,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/userScreens/LoginScreen';
 import RegisterScreen from './src/screens/userScreens/RegisterScreen';
 import RecoverScreen from './src/screens/userScreens/RecoverScreen';
+import ConfirmResetScreen from './src/screens/userScreens/ConfirmResetScreen';
 import UserProfileScreen from './src/screens/userScreens/UserProfileScreen';
 import EditProfileScreen from './src/screens/userScreens/EditProfileScreen';
 import ChangePasswordScreen from './src/screens/userScreens/ChangePasswordScreen';
@@ -44,9 +45,9 @@ import EditCompanyScreen from './src/screens/companyScreens/EditCompanyScreen';
 
 // Desactiva las imprsiones por consola cuando esta en producción
 if (!__DEV__) {
-  console.log = () => {};
-  console.warn = () => {};
-  console.error = () => {};
+  console.log = () => { };
+  console.warn = () => { };
+  console.error = () => { };
 }
 
 const App: React.FC = () => {
@@ -57,7 +58,7 @@ const App: React.FC = () => {
   const [selectedCrop, setSelectedCrop] = useState<any>(null);
   const [headerKey, setHeaderKey] = useState(0);
   const refreshHeader = () => setHeaderKey(prev => prev + 1);
-  
+
 
   useEffect(() => {
     const checkUserToken = async () => {
@@ -98,7 +99,7 @@ const App: React.FC = () => {
       setSelectedCrop(data);
     }
 
-    setActiveContent(screen); 
+    setActiveContent(screen);
   };
 
   const renderContent = () => {
@@ -130,10 +131,10 @@ const App: React.FC = () => {
       case 'addCrop':
         return <AddCropScreen setActiveContent={handleSetActiveContent} />;
       case 'editCrop':
-        return (<EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>
+        return (<EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop} />
         );
       case 'viewCrop':
-        return <ViewCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop}/>;
+        return <ViewCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop} />;
 
       // Plantaciones
       case 'plantations':
@@ -152,6 +153,8 @@ const App: React.FC = () => {
         return <RegisterScreen setActiveContent={setActiveContent} />;
       case 'recover':
         return <RecoverScreen setActiveContent={setActiveContent} />;
+      case 'confirmReset':
+        return <ConfirmResetScreen setActiveContent={setActiveContent} />;
       case 'profile':
         return <UserProfileScreen setActiveContent={setActiveContent} />;
       case 'editProfile':
@@ -174,7 +177,8 @@ const App: React.FC = () => {
     if (
       activeContent !== 'login' &&
       activeContent !== 'register' &&
-      activeContent !== 'recover'
+      activeContent !== 'recover' &&
+      activeContent !== 'confirmReset'
     ) {
       return (
         <Header
@@ -190,7 +194,8 @@ const App: React.FC = () => {
     if (
       activeContent !== 'login' &&
       activeContent !== 'register' &&
-      activeContent !== 'recover'
+      activeContent !== 'recover' &&
+      activeContent !== 'confirmReset'
     ) {
       return (
         <CompanyAlert
