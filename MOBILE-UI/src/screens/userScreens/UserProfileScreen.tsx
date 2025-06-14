@@ -5,7 +5,8 @@ import {
     StyleSheet,
     TouchableOpacity,
     Modal,
-    TextInput
+    TextInput,
+    ActivityIndicator
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -18,6 +19,7 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [password, setPassword] = useState('');
     const [showAdminWarningModal, setShowAdminWarningModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserFromApi = async () => {
@@ -43,6 +45,8 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                 }
             } catch (error: any) {
                 console.error('Error al consultar el usuario:', error?.response?.data || error.message);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -77,6 +81,14 @@ const ViewProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
         }
     };
 
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#665996" />
+                <Text style={styles.loadingText}>Cargando perfil...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -319,6 +331,12 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#665996',
+        textAlign: 'center',
     },
 
 });

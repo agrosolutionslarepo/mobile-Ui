@@ -8,6 +8,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,6 +19,8 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserFromApi = async () => {
@@ -51,6 +54,7 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
   }, []);
 
   const handleSave = async () => {
+    setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
       if (!token) {
@@ -79,6 +83,8 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
       }
     } catch (error: any) {
       console.error('Error al actualizar perfil:', error?.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,13 +116,18 @@ const EditProfileScreen = ({ setActiveContent }: { setActiveContent: (screen: st
             />
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Guardar cambios</Text>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveButtonText}>Guardar cambios</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => setActiveContent('profile')}
+            disabled={loading}
           >
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>

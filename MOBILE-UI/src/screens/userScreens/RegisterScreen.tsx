@@ -10,7 +10,9 @@ import {
   Modal,
   Platform,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -45,6 +47,8 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   const [empresaName, setEmpresaName] = useState('');
   const [codigoInvitacion, setCodigoInvitacion] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const [erroresCampos, setErroresCampos] = useState<{ [key: string]: boolean }>({});
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('01');
@@ -78,6 +82,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   };
 
   const handleFinalSubmit = async () => {
+    setLoading(true);
     const payload: any = {
       nombre: name,
       apellido: lastname,
@@ -91,6 +96,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     if (tipoRegistro === 'empresa') {
       if (!empresaName.trim()) {
         setErroresCampos((prev) => ({ ...prev, empresa: true }));
+        setTimeout(() => setLoading(false), 1000);
         return;
       }
       payload.empresaData = {
@@ -100,6 +106,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
     } else if (tipoRegistro === 'codigo') {
       if (!codigoInvitacion.trim()) {
         setErroresCampos((prev) => ({ ...prev, codigo: true }));
+        setTimeout(() => setLoading(false), 1000);
         return;
       }
       payload.codigoInvitacion = codigoInvitacion;
@@ -114,18 +121,21 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       }
     } catch (error: any) {
       setShowEmpresaModal(false);
+      setTimeout(() => setLoading(false), 1000);
 
       if (error.response) {
         const mensaje = (error.response.data?.error || '').toLowerCase().trim();
 
         if (mensaje.includes('usuario existente')) {
           setShowUserExistsModal(true);
+          setTimeout(() => setLoading(false), 1000);
           return;
         }
 
         if (mensaje.includes('invite code not found')) {
           setCodigoInvitacion('');
           setShowInvalidCodeModal(true);
+          setTimeout(() => setLoading(false), 1000);
           return; // detener ejecución aquí
         }
 
@@ -135,9 +145,12 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       } else {
         console.error('Error configurando la solicitud:', error.message);
       }
-
+      
       setShowAlertFail(true);
+    } finally {
+      setLoading(false);
     }
+
 
 
 
@@ -148,6 +161,10 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
   };
 
   return (
+    <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ImageBackground
         source={require('../../assets/img/backgroundLogIn.png')}
@@ -155,7 +172,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       >
         <View style={styles.container}>
           <Image
-            source={require('../../assets/img/logoNew.png')}
+            source={require('../../assets/img/logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -501,8 +518,13 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     <TouchableOpacity
                       onPress={handleFinalSubmit}
                       style={[styles.alertButton, { marginTop: 10 }]}
+                      disabled={loading}
                     >
-                      <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      {loading ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      )}
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setTipoRegistro(null)}
@@ -533,8 +555,13 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
                     <TouchableOpacity
                       onPress={handleFinalSubmit}
                       style={[styles.alertButton, { marginTop: 10 }]}
+                      disabled={loading}
                     >
-                      <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      {loading ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.alertButtonText}>Finalizar Registro</Text>
+                      )}
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setTipoRegistro(null)}
@@ -616,6 +643,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
         </View>
       </ImageBackground>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

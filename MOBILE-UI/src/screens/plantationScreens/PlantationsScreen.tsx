@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../../config';
@@ -88,7 +88,10 @@ const PlantationsScreen = ({ setActiveContent }: { setActiveContent: (screen: st
 
             <ScrollView style={styles.listContainer}>
                 {loading ? (
-                    <Text style={{ textAlign: 'center' }}>Cargando plantaciones...</Text>
+                    <View style={{ alignItems: 'center', marginTop: 20 }}>
+                        <ActivityIndicator size="large" color="#665996" />
+                        <Text style={styles.loadingText}>Cargando plantaciones...</Text>
+                    </View>
                 ) : (
                     plantaciones.map((cultivo) => (
                         <TouchableOpacity
@@ -264,6 +267,12 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#665996',
+        textAlign: 'center'
+    }
 });
 
 export default PlantationsScreen;

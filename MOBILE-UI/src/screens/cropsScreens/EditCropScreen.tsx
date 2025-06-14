@@ -10,6 +10,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -51,6 +53,8 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
   const [showIncompleteModal, setShowIncompleteModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState('01');
   const [selectedMonth, setSelectedMonth] = useState('01');
@@ -72,6 +76,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
   const goToCropsScreen = () => setActiveContent('crops');
 
   const editCrop = async () => {
+    setLoading(true);
     const isFechaEmpty = !fechaCosecha;
     const isCantidadEmpty = !cantidadCosechada;
     const isUnidadEmpty = !unidad;
@@ -82,6 +87,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
 
     if (isFechaEmpty || isCantidadEmpty || isUnidadEmpty) {
       setShowIncompleteModal(true);
+      setTimeout(() => setLoading(false), 1000);
       return;
     }
 
@@ -105,13 +111,20 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
       setShowAlertEdit(true);
     } catch (error) {
       console.error('Error al modificar la cosecha:', error);
+      setTimeout(() => setLoading(false), 1000);
       setShowErrorModal(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const cancelCropEdit = () => setShowAlertCancel(true);
 
   return (
+    <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Modificar cosecha</Text>
@@ -130,6 +143,22 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
                 {fechaCosecha ? fechaCosecha.split('T')[0] : 'Seleccionar fecha'}
               </Text>
             </TouchableOpacity>
+          </View>
+          
+          <View style={styles.inputGroup}>
+            <View style={styles.labelContainer}>
+              <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+              <Text style={styles.label}>Observaciones</Text>
+            </View>
+            <TextInput
+              style={styles.textArea}
+              multiline
+              numberOfLines={4}
+              placeholder="Opcional"
+              placeholderTextColor="#999"
+              value={observaciones}
+              onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
+            />
           </View>
 
           <View style={styles.inputGroup}>
@@ -173,28 +202,20 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <View style={styles.labelContainer}>
-              <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
-              <Text style={styles.label}>Observaciones</Text>
-            </View>
-            <TextInput
-              style={styles.textArea}
-              multiline
-              numberOfLines={4}
-              placeholder="Opcional"
-              placeholderTextColor="#999"
-              value={observaciones}
-              onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
-            />
-          </View>
-
           <View style={styles.formButtonsContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={cancelCropEdit}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={cancelCropEdit}
+              disabled={loading}
+            >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={editCrop}>
-              <Text style={styles.buttonText}>Guardar</Text>
+            <TouchableOpacity style={styles.button} onPress={editCrop} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Guardar</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -343,6 +364,7 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
         </Modal>
       </ScrollView>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

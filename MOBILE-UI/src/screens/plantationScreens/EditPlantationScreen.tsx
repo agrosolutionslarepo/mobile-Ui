@@ -11,7 +11,9 @@ import {
     Alert,
     Platform,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    ActivityIndicator,
+    KeyboardAvoidingView
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -33,6 +35,8 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         if (selectedCultivo) {
             setFechaSiembra(selectedCultivo.fechaSiembra);
@@ -51,6 +55,7 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
     const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
 
     const handleSave = async () => {
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) throw new Error('Token no encontrado');
@@ -72,7 +77,10 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
 
             setShowSuccessModal(true);
         } catch (error) {
-            Alert.alert('Error', 'No se pudo actualizar la plantaci\u00f3n.');
+            Alert.alert('Error', 'No se pudo actualizar la plantación.');
+            setTimeout(() => setLoading(false), 1000);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -91,211 +99,224 @@ const EditPlantationScreen = ({ setActiveContent, selectedCultivo }) => {
 
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>Editar Plantación</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <ScrollView contentContainerStyle={styles.container}>
+                    <Text style={styles.title}>Editar Plantación</Text>
 
-                 <View style={styles.form}>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Fecha de siembra</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.input}
-                        onPress={() => { setIsSiembraPicker(true); setShowDateModal(true); }}
-                    >
-                        <Text style={{ textAlign: 'center', color: fechaSiembra ? '#000' : '#999' }}>
-                            {fechaSiembra ? fechaSiembra.split('T')[0] : 'Seleccionar fecha'}
-                        </Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Fecha de cosecha</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={[styles.input]}
-                        onPress={() => { setIsSiembraPicker(false); setShowDateModal(true); }}
-                    >
-                        <Text style={{ textAlign: 'center', color: fechaCosecha ? '#000' : '#999' }}>
-                            {fechaCosecha ? fechaCosecha.split('T')[0] : 'Seleccionar fecha'}
-                        </Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Cantidad de semilla</Text>
-                    </View>
-                    <TextInput
-                        style={styles.input}
-                        value={cantidadSemilla}
-                        onChangeText={(text) => setCantidadSemilla(allowOnlyNumbers(text))}
-                        keyboardType="numeric"
-                    />
-
-                    <View>
+                    <View style={styles.form}>
                         <View style={styles.labelContainer}>
-                            <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
-                            <Text style={styles.label}>Unidad</Text>
+                            <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Fecha de siembra</Text>
                         </View>
-                        <View style={styles.pickerInputContainer}>
-                            <View style={styles.pickerInputWrapper}>
-                                <Picker
-                                    selectedValue={unidad} onValueChange={setUnidad} style={styles.pickerInput}
-                                >
-                                    <Picker.Item label="Seleccione unidad" value="" />
-                                    <Picker.Item label="Kilogramos (kg)" value="kg" />
-                                    <Picker.Item label="Toneladas (ton)" value="ton" />
-                                </Picker>
-                            </View>
-                        </View>
-                    </View>
-
-
-                    <View style={styles.buttonGroup}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCancelModal(true)}>
-                            <Text style={styles.buttonText}>Cancelar</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                            <Text style={styles.buttonText}>Guardar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                {/*Modal de fecha*/}
-                <Modal transparent visible={showDateModal} animationType="fade">
-                    <View style={styles.modalView}>
-                        <View style={styles.alertViewDate}>
-                            <Text style={styles.alertTitle}>
-                                Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
+                        <TouchableOpacity
+                            style={styles.input}
+                            onPress={() => { setIsSiembraPicker(true); setShowDateModal(true); }}
+                        >
+                            <Text style={{ textAlign: 'center', color: fechaSiembra ? '#000' : '#999' }}>
+                                {fechaSiembra ? fechaSiembra.split('T')[0] : 'Seleccionar fecha'}
                             </Text>
+                        </TouchableOpacity>
 
-                            <View style={styles.pickerContainer}>
-                                {/* DÍA */}
-                                <View style={styles.pickerGroup}>
-                                    <Text style={styles.pickerLabel}>Día</Text>
-                                    <View style={styles.pickerBox}>
-                                        <Picker
-                                            selectedValue={selectedDay}
-                                            onValueChange={(value) => setSelectedDay(value)}
-                                            style={styles.pickerDate}
-                                        >
-                                            {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
-                                                const day = (i + 1).toString().padStart(2, '0');
-                                                return <Picker.Item key={day} label={day} value={day} />;
-                                            })}
-                                        </Picker>
-                                    </View>
-                                </View>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Fecha de cosecha</Text>
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.input]}
+                            onPress={() => { setIsSiembraPicker(false); setShowDateModal(true); }}
+                        >
+                            <Text style={{ textAlign: 'center', color: fechaCosecha ? '#000' : '#999' }}>
+                                {fechaCosecha ? fechaCosecha.split('T')[0] : 'Seleccionar fecha'}
+                            </Text>
+                        </TouchableOpacity>
 
-                                {/* MES */}
-                                <View style={styles.pickerGroup}>
-                                    <Text style={styles.pickerLabel}>Mes</Text>
-                                    <View style={styles.pickerBox}>
-                                        <Picker
-                                            selectedValue={selectedMonth}
-                                            onValueChange={(value) => {
-                                                setSelectedMonth(value);
-                                                const maxDay = getDaysInMonth(value, selectedYear);
-                                                if (parseInt(selectedDay) > maxDay) {
-                                                    setSelectedDay(maxDay.toString().padStart(2, '0'));
-                                                }
-                                            }}
-                                            style={styles.pickerDate}
-                                        >
-                                            {Array.from({ length: 12 }, (_, i) => {
-                                                const month = (i + 1).toString().padStart(2, '0');
-                                                return <Picker.Item key={month} label={month} value={month} />;
-                                            })}
-                                        </Picker>
-                                    </View>
-                                </View>
+                        <View style={styles.labelContainer}>
+                            <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                            <Text style={styles.label}>Cantidad de semilla</Text>
+                        </View>
+                        <TextInput
+                            style={styles.input}
+                            value={cantidadSemilla}
+                            onChangeText={(text) => setCantidadSemilla(allowOnlyNumbers(text))}
+                            keyboardType="numeric"
+                        />
 
-                                {/* AÑO */}
-                                <View style={styles.pickerGroup}>
-                                    <Text style={styles.pickerLabel}>Año</Text>
-                                    <View style={styles.pickerBox}>
-                                        <Picker
-                                            selectedValue={selectedYear}
-                                            onValueChange={(value) => {
-                                                setSelectedYear(value);
-                                                const maxDay = getDaysInMonth(selectedMonth, value);
-                                                if (parseInt(selectedDay) > maxDay) {
-                                                    setSelectedDay(maxDay.toString().padStart(2, '0'));
-                                                }
-                                            }}
-                                            style={styles.pickerDate}
-                                        >
-                                            {Array.from({ length: 10 }, (_, i) => {
-                                                const year = (new Date().getFullYear() + i).toString(); // desde hoy a futuro
-                                                return <Picker.Item key={year} label={year} value={year} />;
-                                            })}
-                                        </Picker>
-                                    </View>
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Unidad</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={styles.pickerInputWrapper}>
+                                    <Picker
+                                        selectedValue={unidad} onValueChange={setUnidad} style={styles.pickerInput}
+                                    >
+                                        <Picker.Item label="Seleccione unidad" value="" />
+                                        <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                        <Picker.Item label="Toneladas (ton)" value="ton" />
+                                    </Picker>
                                 </View>
                             </View>
+                        </View>
 
+
+                        <View style={styles.buttonGroup}>
                             <TouchableOpacity
-                                style={styles.alertButtonDate}
-                                onPress={() => {
-                                    const localDate = new Date(Number(selectedYear), Number(selectedMonth) - 1, Number(selectedDay));
-                                    const dateISO = localDate.toISOString();
-
-                                    if (isSiembraPicker) {
-                                        setFechaSiembra(dateISO);
-                                    } else {
-                                        setFechaCosecha(dateISO);
-                                    }
-                                    setShowDateModal(false);
-                                }}
-
+                                style={styles.cancelButton}
+                                onPress={() => setShowCancelModal(true)}
+                                disabled={loading}
                             >
-                                <Text style={styles.alertButtonTextDate}>Confirmar</Text>
+                                <Text style={styles.buttonText}>Cancelar</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity
-                                style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
-                                onPress={() => setShowDateModal(false)}
-                            >
-                                <Text style={styles.alertButtonTextDate}>Cancelar</Text>
+                            <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={loading}>
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Guardar</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
 
-                {/* MODAL ÉXITO */}
-                <Modal visible={showSuccessModal} transparent animationType="fade">
-                    <View style={styles.modalView}>
-                        <View style={styles.modalBox}>
-                            <Text style={styles.alertMessage}>Plantación actualizada correctamente</Text>
-                            <TouchableOpacity style={styles.saveButton} onPress={() => setActiveContent('plantations')}>
-                                <Text style={styles.buttonText}>Continuar</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
+                    {/*Modal de fecha*/}
+                    <Modal transparent visible={showDateModal} animationType="fade">
+                        <View style={styles.modalView}>
+                            <View style={styles.alertViewDate}>
+                                <Text style={styles.alertTitle}>
+                                    Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
+                                </Text>
 
-                {/* MODAL CANCELAR */}
-                <Modal visible={showCancelModal} transparent animationType="fade">
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.confirmBox}>
-                            <Text style={styles.confirmText}>¿Está seguro que quiere cancelar la edición?</Text>
-                            <View style={styles.confirmButtons}>
-                                <TouchableOpacity style={styles.confirmButton} onPress={() => setActiveContent('plantations')}>
-                                    <Text style={styles.confirmButtonText}>Sí</Text>
+                                <View style={styles.pickerContainer}>
+                                    {/* DÍA */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Día</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedDay}
+                                                onValueChange={(value) => setSelectedDay(value)}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
+                                                    const day = (i + 1).toString().padStart(2, '0');
+                                                    return <Picker.Item key={day} label={day} value={day} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+
+                                    {/* MES */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Mes</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedMonth}
+                                                onValueChange={(value) => {
+                                                    setSelectedMonth(value);
+                                                    const maxDay = getDaysInMonth(value, selectedYear);
+                                                    if (parseInt(selectedDay) > maxDay) {
+                                                        setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                                    }
+                                                }}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: 12 }, (_, i) => {
+                                                    const month = (i + 1).toString().padStart(2, '0');
+                                                    return <Picker.Item key={month} label={month} value={month} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+
+                                    {/* AÑO */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Año</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedYear}
+                                                onValueChange={(value) => {
+                                                    setSelectedYear(value);
+                                                    const maxDay = getDaysInMonth(selectedMonth, value);
+                                                    if (parseInt(selectedDay) > maxDay) {
+                                                        setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                                    }
+                                                }}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: 10 }, (_, i) => {
+                                                    const year = (new Date().getFullYear() + i).toString(); // desde hoy a futuro
+                                                    return <Picker.Item key={year} label={year} value={year} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.alertButtonDate}
+                                    onPress={() => {
+                                        const localDate = new Date(Number(selectedYear), Number(selectedMonth) - 1, Number(selectedDay));
+                                        const dateISO = localDate.toISOString();
+
+                                        if (isSiembraPicker) {
+                                            setFechaSiembra(dateISO);
+                                        } else {
+                                            setFechaCosecha(dateISO);
+                                        }
+                                        setShowDateModal(false);
+                                    }}
+
+                                >
+                                    <Text style={styles.alertButtonTextDate}>Confirmar</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.confirmButton} onPress={() => setShowCancelModal(false)}>
-                                    <Text style={styles.confirmButtonText}>No</Text>
+
+                                <TouchableOpacity
+                                    style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
+                                    onPress={() => setShowDateModal(false)}
+                                >
+                                    <Text style={styles.alertButtonTextDate}>Cancelar</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
+
+                    {/* MODAL ÉXITO */}
+                    <Modal visible={showSuccessModal} transparent animationType="fade">
+                        <View style={styles.modalView}>
+                            <View style={styles.modalBox}>
+                                <Text style={styles.alertMessage}>Plantación actualizada correctamente</Text>
+                                <TouchableOpacity style={styles.saveButton} onPress={() => setActiveContent('plantations')}>
+                                    <Text style={styles.buttonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    {/* MODAL CANCELAR */}
+                    <Modal visible={showCancelModal} transparent animationType="fade">
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.confirmBox}>
+                                <Text style={styles.confirmText}>¿Está seguro que quiere cancelar la edición?</Text>
+                                <View style={styles.confirmButtons}>
+                                    <TouchableOpacity style={styles.confirmButton} onPress={() => setActiveContent('plantations')}>
+                                        <Text style={styles.confirmButtonText}>Sí</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.confirmButton} onPress={() => setShowCancelModal(false)}>
+                                        <Text style={styles.confirmButtonText}>No</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
 
 
-            </ScrollView>
-        </TouchableWithoutFeedback>
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -529,10 +550,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 15,
         width: '100%',
-        height: 120, 
+        height: 120,
         justifyContent: 'center',
-        overflow: 'hidden', 
-        alignItems: 'center', 
+        overflow: 'hidden',
+        alignItems: 'center',
         ...Platform.select({
             ios: {
                 height: 120,
@@ -547,9 +568,9 @@ const styles = StyleSheet.create({
         height: Platform.OS === 'ios' ? 220 : 40,
         width: '100%',
         color: '#333',
-        fontSize: Platform.OS === 'ios' ? 20 : 16, 
-        textAlign: 'center',                      
-        textAlignVertical: 'center',              
+        fontSize: Platform.OS === 'ios' ? 20 : 16,
+        textAlign: 'center',
+        textAlignVertical: 'center',
         ...Platform.select({
             ios: {
                 height: 220,

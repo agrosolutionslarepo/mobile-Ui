@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, ScrollView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -39,12 +39,15 @@ const AddPlantationScreen = ({ setActiveContent }) => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showIncompleteModal, setShowIncompleteModal] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
     const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
     const allowAlphanumeric = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
 
     const goToPlantationsScreen = () => setActiveContent('plantations');
 
     const addPlantation = async () => {
+        setLoading(true);
         const isFechaSiembraEmpty = !fechaSiembra;
         const isFechaCosechaEmpty = !fechaCosecha;
         const isCantidadEmpty = !cantidadSemilla;
@@ -68,18 +71,21 @@ const AddPlantationScreen = ({ setActiveContent }) => {
             isUnidadEmpty || isSemillaEmpty || isParcelaEmpty
         ) {
             setShowIncompleteModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
         // Validar que cantidad sea > 0
         if (parseFloat(cantidadSemilla) <= 0) {
             setShowInvalidQuantityModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
         // Validar que siembra sea anterior a cosecha
         if (siembraDate >= cosechaDate) {
             setShowInvalidDatesModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
@@ -106,6 +112,9 @@ const AddPlantationScreen = ({ setActiveContent }) => {
         } catch (error) {
             console.error('Error al crear cultivo:', error);
             setShowErrorModal(true);
+            setTimeout(() => setLoading(false), 1000);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -143,332 +152,341 @@ const AddPlantationScreen = ({ setActiveContent }) => {
 
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Agregar plantación</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <ScrollView contentContainerStyle={styles.container}>
+                    <Text style={styles.title}>Agregar plantación</Text>
 
-            <View style={styles.formContainer}>
-                <View style={styles.inputGroup}>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Fecha de siembra</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={[styles.input, fechaSiembraError && styles.inputError]}
-                        onPress={() => {
-                            setIsSiembraPicker(true);
-                            setShowDateModal(true);
-                        }}
-                    >
-                        <Text style={{ textAlign: 'center', color: fechaSiembra ? '#000' : '#999' }}>
-                            {fechaSiembra || 'Seleccione fecha'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Fecha de cosecha</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={[styles.input, fechaCosechaError && styles.inputError]}
-                        onPress={() => {
-                            setIsSiembraPicker(false);
-                            setShowDateModal(true);
-                        }}
-                    >
-                        <Text style={{ textAlign: 'center', color: fechaCosecha ? '#000' : '#999' }}>
-                            {fechaCosecha || 'Seleccione fecha'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-
-                <View style={styles.inputGroup}>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Cantidad de semilla</Text>
-                    </View>
-                    <TextInput
-                        style={[styles.input, cantidadError && styles.inputError]}
-                        placeholder="Ej: 50"
-                        placeholderTextColor="#999"
-                        value={cantidadSemilla}
-                        onChangeText={(text) => {
-                            setCantidadSemilla(allowOnlyNumbers(text));
-                            setCantidadError(false);
-                        }}
-                    />
-
-                </View>
-
-                <View>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Unidad</Text>
-                    </View>
-                    <View style={styles.pickerInputContainer}>
-                        <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
-                            <Picker
-                                selectedValue={unidad}
-                                onValueChange={(value) => {
-                                    setUnidad(value);
-                                    setUnidadError(false);
-                                }}
-                                style={styles.pickerInput}
-                            >
-                                <Picker.Item label="Seleccione unidad" value="" />
-                                <Picker.Item label="Kilogramos (kg)" value="kg" />
-                                <Picker.Item label="Toneladas (ton)" value="ton" />
-                            </Picker>
-                        </View>
-                    </View>
-                </View>
-
-
-
-                <View>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Seleccionar semilla</Text>
-                    </View>
-                    <View style={styles.pickerInputContainer}>
-                        <View style={[styles.pickerInputWrapper, semillaError && styles.inputError]}>
-                            <Picker
-                                selectedValue={semilla}
-                                onValueChange={(itemValue) => {
-                                    setSemilla(itemValue);
-                                    setSemillaError(false);
-                                }}
-                                style={styles.pickerInput}
-                            >
-                                <Picker.Item label="Seleccione una semilla" value="" />
-                                {semillasDisponibles.map((item) => (
-                                    <Picker.Item key={item._id} label={item.nombreSemilla} value={item._id} />
-                                ))}
-                            </Picker>
-                        </View>
-                    </View>
-                </View>
-
-
-                <View>
-                    <View style={styles.labelContainer}>
-                        <MaterialIcons name="map" size={22} color="rgb(42, 125, 98)" />
-                        <Text style={styles.label}>Seleccionar parcela</Text>
-                    </View>
-                    <View style={styles.pickerInputContainer}>
-                        <View style={[styles.pickerInputWrapper, parcelaError && styles.inputError]}>
-                            <Picker
-                                selectedValue={parcela}
-                                onValueChange={(itemValue) => {
-                                    setParcela(itemValue);
-                                    setParcelaError(false);
-                                }}
-                                style={styles.pickerInput}
-                            >
-                                <Picker.Item label="Seleccione una parcela" value="" />
-                                {parcelasDisponibles.map((item) => (
-                                    <Picker.Item key={item._id} label={item.nombreParcela} value={item._id} />
-                                ))}
-                            </Picker>
-                        </View>
-                    </View>
-                </View>
-
-
-
-
-                <View style={styles.formButtonsContainer}>
-                    <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAlertCancel(true)}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={addPlantation}>
-                        <Text style={styles.buttonText}>Agregar</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            {/* MODALES */}
-            <Modal animationType="fade" transparent={true} visible={showAlertAdd}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Plantación creada exitosamente</Text>
-                        <TouchableOpacity onPress={goToPlantationsScreen} style={styles.alertButton}>
-                            <Text style={styles.alertButtonText}>Continuar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>¿Cancelar ingreso de plantación?</Text>
-                        <View style={styles.alertButtonsContainer}>
-                            <TouchableOpacity onPress={goToPlantationsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Sí</Text></TouchableOpacity>
-                            <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}><Text style={styles.alertButtonText}>No</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal animationType="fade" transparent={true} visible={showIncompleteModal}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Completa todos los campos antes de continuar.</Text>
-                        <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
-                            <Text style={styles.alertButtonText}>Aceptar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal animationType="fade" transparent={true} visible={showErrorModal}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>Error al crear la plantación. Intente nuevamente.</Text>
-                        <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
-                            <Text style={styles.alertButtonText}>Cerrar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-
-            {/*Modal de fecha*/}
-            <Modal transparent visible={showDateModal} animationType="fade">
-                <View style={styles.modalView}>
-                    <View style={styles.alertViewDate}>
-                        <Text style={styles.alertTitle}>
-                            Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
-                        </Text>
-
-                        <View style={styles.pickerContainer}>
-                            {/* DÍA */}
-                            <View style={styles.pickerGroup}>
-                                <Text style={styles.pickerLabel}>Día</Text>
-                                <View style={styles.pickerBox}>
-                                    <Picker
-                                        selectedValue={selectedDay}
-                                        onValueChange={(value) => setSelectedDay(value)}
-                                        style={styles.pickerDate}
-                                    >
-                                        {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
-                                            const day = (i + 1).toString().padStart(2, '0');
-                                            return <Picker.Item key={day} label={day} value={day} />;
-                                        })}
-                                    </Picker>
-                                </View>
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Fecha de siembra</Text>
                             </View>
+                            <TouchableOpacity
+                                style={[styles.input, fechaSiembraError && styles.inputError]}
+                                onPress={() => {
+                                    setIsSiembraPicker(true);
+                                    setShowDateModal(true);
+                                }}
+                            >
+                                <Text style={{ textAlign: 'center', color: fechaSiembra ? '#000' : '#999' }}>
+                                    {fechaSiembra || 'Seleccione fecha'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                            {/* MES */}
-                            <View style={styles.pickerGroup}>
-                                <Text style={styles.pickerLabel}>Mes</Text>
-                                <View style={styles.pickerBox}>
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Fecha de cosecha</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={[styles.input, fechaCosechaError && styles.inputError]}
+                                onPress={() => {
+                                    setIsSiembraPicker(false);
+                                    setShowDateModal(true);
+                                }}
+                            >
+                                <Text style={{ textAlign: 'center', color: fechaCosecha ? '#000' : '#999' }}>
+                                    {fechaCosecha || 'Seleccione fecha'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Cantidad de semilla</Text>
+                            </View>
+                            <TextInput
+                                style={[styles.input, cantidadError && styles.inputError]}
+                                placeholder="Ej: 50"
+                                placeholderTextColor="#999"
+                                value={cantidadSemilla}
+                                onChangeText={(text) => {
+                                    setCantidadSemilla(allowOnlyNumbers(text));
+                                    setCantidadError(false);
+                                }}
+                            />
+
+                        </View>
+
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Unidad</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
                                     <Picker
-                                        selectedValue={selectedMonth}
+                                        selectedValue={unidad}
                                         onValueChange={(value) => {
-                                            setSelectedMonth(value);
-                                            const maxDay = getDaysInMonth(value, selectedYear);
-                                            if (parseInt(selectedDay) > maxDay) {
-                                                setSelectedDay(maxDay.toString().padStart(2, '0'));
-                                            }
+                                            setUnidad(value);
+                                            setUnidadError(false);
                                         }}
-                                        style={styles.pickerDate}
+                                        style={styles.pickerInput}
                                     >
-                                        {Array.from({ length: 12 }, (_, i) => {
-                                            const month = (i + 1).toString().padStart(2, '0');
-                                            return <Picker.Item key={month} label={month} value={month} />;
-                                        })}
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            {/* AÑO */}
-                            <View style={styles.pickerGroup}>
-                                <Text style={styles.pickerLabel}>Año</Text>
-                                <View style={styles.pickerBox}>
-                                    <Picker
-                                        selectedValue={selectedYear}
-                                        onValueChange={(value) => {
-                                            setSelectedYear(value);
-                                            const maxDay = getDaysInMonth(selectedMonth, value);
-                                            if (parseInt(selectedDay) > maxDay) {
-                                                setSelectedDay(maxDay.toString().padStart(2, '0'));
-                                            }
-                                        }}
-                                        style={styles.pickerDate}
-                                    >
-                                        {Array.from({ length: 10 }, (_, i) => {
-                                            const year = (new Date().getFullYear() + i).toString(); // desde hoy a futuro
-                                            return <Picker.Item key={year} label={year} value={year} />;
-                                        })}
+                                        <Picker.Item label="Seleccione unidad" value="" />
+                                        <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                        <Picker.Item label="Toneladas (ton)" value="ton" />
                                     </Picker>
                                 </View>
                             </View>
                         </View>
 
-                        <TouchableOpacity
-                            style={styles.alertButtonDate}
-                            onPress={() => {
-                                const localDate = new Date(Number(selectedYear), Number(selectedMonth) - 1, Number(selectedDay));
-                                const dateISO = localDate.toISOString();
 
-                                if (isSiembraPicker) {
-                                    setFechaSiembra(dateISO);
-                                    setFechaSiembraError(false);
-                                } else {
-                                    setFechaCosecha(dateISO);
-                                    setFechaCosechaError(false);
-                                }
-                                setShowDateModal(false);
-                            }}
 
-                        >
-                            <Text style={styles.alertButtonTextDate}>Confirmar</Text>
-                        </TouchableOpacity>
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Seleccionar semilla</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={[styles.pickerInputWrapper, semillaError && styles.inputError]}>
+                                    <Picker
+                                        selectedValue={semilla}
+                                        onValueChange={(itemValue) => {
+                                            setSemilla(itemValue);
+                                            setSemillaError(false);
+                                        }}
+                                        style={styles.pickerInput}
+                                    >
+                                        <Picker.Item label="Seleccione una semilla" value="" />
+                                        {semillasDisponibles.map((item) => (
+                                            <Picker.Item key={item._id} label={item.nombreSemilla} value={item._id} />
+                                        ))}
+                                    </Picker>
+                                </View>
+                            </View>
+                        </View>
 
-                        <TouchableOpacity
-                            style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
-                            onPress={() => setShowDateModal(false)}
-                        >
-                            <Text style={styles.alertButtonTextDate}>Cancelar</Text>
-                        </TouchableOpacity>
+
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="map" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Seleccionar parcela</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={[styles.pickerInputWrapper, parcelaError && styles.inputError]}>
+                                    <Picker
+                                        selectedValue={parcela}
+                                        onValueChange={(itemValue) => {
+                                            setParcela(itemValue);
+                                            setParcelaError(false);
+                                        }}
+                                        style={styles.pickerInput}
+                                    >
+                                        <Picker.Item label="Seleccione una parcela" value="" />
+                                        {parcelasDisponibles.map((item) => (
+                                            <Picker.Item key={item._id} label={item.nombreParcela} value={item._id} />
+                                        ))}
+                                    </Picker>
+                                </View>
+                            </View>
+                        </View>
+
+
+
+
+                        <View style={styles.formButtonsContainer}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAlertCancel(true)} disabled={loading}>
+                                <Text style={styles.buttonText}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={addPlantation} disabled={loading}>
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Agregar</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>
 
-            {/* Modal: fechas inválidas */}
-            <Modal animationType="fade" transparent={true} visible={showInvalidDatesModal}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>
-                            La fecha de siembra debe ser anterior a la fecha de cosecha.
-                        </Text>
-                        <TouchableOpacity onPress={() => setShowInvalidDatesModal(false)} style={styles.alertButton}>
-                            <Text style={styles.alertButtonText}>Aceptar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+                    {/* MODALES */}
+                    <Modal animationType="fade" transparent={true} visible={showAlertAdd}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Plantación creada exitosamente</Text>
+                                <TouchableOpacity onPress={goToPlantationsScreen} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
 
-            {/* Modal: cantidad inválida */}
-            <Modal animationType="fade" transparent={true} visible={showInvalidQuantityModal}>
-                <View style={styles.modalView}>
-                    <View style={styles.alertView}>
-                        <Text style={styles.alertMessage}>
-                            La cantidad de semilla debe ser mayor a cero.
-                        </Text>
-                        <TouchableOpacity onPress={() => setShowInvalidQuantityModal(false)} style={styles.alertButton}>
-                            <Text style={styles.alertButtonText}>Aceptar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+                    <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>¿Cancelar ingreso de plantación?</Text>
+                                <View style={styles.alertButtonsContainer}>
+                                    <TouchableOpacity onPress={goToPlantationsScreen} style={styles.alertButton}><Text style={styles.alertButtonText}>Sí</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}><Text style={styles.alertButtonText}>No</Text></TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
 
-        </ScrollView>
-        </TouchableWithoutFeedback>
+                    <Modal animationType="fade" transparent={true} visible={showIncompleteModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Completa todos los campos antes de continuar.</Text>
+                                <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Aceptar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    <Modal animationType="fade" transparent={true} visible={showErrorModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Error al crear la plantación. Intente nuevamente.</Text>
+                                <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Cerrar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    {/*Modal de fecha*/}
+                    <Modal transparent visible={showDateModal} animationType="fade">
+                        <View style={styles.modalView}>
+                            <View style={styles.alertViewDate}>
+                                <Text style={styles.alertTitle}>
+                                    Seleccionar fecha de {isSiembraPicker ? 'siembra' : 'cosecha'}
+                                </Text>
+
+                                <View style={styles.pickerContainer}>
+                                    {/* DÍA */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Día</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedDay}
+                                                onValueChange={(value) => setSelectedDay(value)}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
+                                                    const day = (i + 1).toString().padStart(2, '0');
+                                                    return <Picker.Item key={day} label={day} value={day} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+
+                                    {/* MES */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Mes</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedMonth}
+                                                onValueChange={(value) => {
+                                                    setSelectedMonth(value);
+                                                    const maxDay = getDaysInMonth(value, selectedYear);
+                                                    if (parseInt(selectedDay) > maxDay) {
+                                                        setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                                    }
+                                                }}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: 12 }, (_, i) => {
+                                                    const month = (i + 1).toString().padStart(2, '0');
+                                                    return <Picker.Item key={month} label={month} value={month} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+
+                                    {/* AÑO */}
+                                    <View style={styles.pickerGroup}>
+                                        <Text style={styles.pickerLabel}>Año</Text>
+                                        <View style={styles.pickerBox}>
+                                            <Picker
+                                                selectedValue={selectedYear}
+                                                onValueChange={(value) => {
+                                                    setSelectedYear(value);
+                                                    const maxDay = getDaysInMonth(selectedMonth, value);
+                                                    if (parseInt(selectedDay) > maxDay) {
+                                                        setSelectedDay(maxDay.toString().padStart(2, '0'));
+                                                    }
+                                                }}
+                                                style={styles.pickerDate}
+                                            >
+                                                {Array.from({ length: 10 }, (_, i) => {
+                                                    const year = (new Date().getFullYear() + i).toString(); // desde hoy a futuro
+                                                    return <Picker.Item key={year} label={year} value={year} />;
+                                                })}
+                                            </Picker>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.alertButtonDate}
+                                    onPress={() => {
+                                        const localDate = new Date(Number(selectedYear), Number(selectedMonth) - 1, Number(selectedDay));
+                                        const dateISO = localDate.toISOString();
+
+                                        if (isSiembraPicker) {
+                                            setFechaSiembra(dateISO);
+                                            setFechaSiembraError(false);
+                                        } else {
+                                            setFechaCosecha(dateISO);
+                                            setFechaCosechaError(false);
+                                        }
+                                        setShowDateModal(false);
+                                    }}
+
+                                >
+                                    <Text style={styles.alertButtonTextDate}>Confirmar</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
+                                    onPress={() => setShowDateModal(false)}
+                                >
+                                    <Text style={styles.alertButtonTextDate}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    {/* Modal: fechas inválidas */}
+                    <Modal animationType="fade" transparent={true} visible={showInvalidDatesModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>
+                                    La fecha de siembra debe ser anterior a la fecha de cosecha.
+                                </Text>
+                                <TouchableOpacity onPress={() => setShowInvalidDatesModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Aceptar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    {/* Modal: cantidad inválida */}
+                    <Modal animationType="fade" transparent={true} visible={showInvalidQuantityModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>
+                                    La cantidad de semilla debe ser mayor a cero.
+                                </Text>
+                                <TouchableOpacity onPress={() => setShowInvalidQuantityModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Aceptar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 };
 

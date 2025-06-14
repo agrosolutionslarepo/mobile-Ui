@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../../config';
@@ -11,7 +11,6 @@ interface Parcela {
   tamaño: number;
   ubicacion?: string;
   estado?: boolean;
-  gdd?: number;
   latitud?: number;
   longitud?: number;
 }
@@ -25,14 +24,16 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
   const [showAlertEdit, setShowAlertEdit] = useState(false);
   const [showAlertCancel, setShowAlertCancel] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [nombreParcela, setNombreParcela] = useState(selectedPlot?.nombreParcela || '');
   const [tamaño, setTamaño] = useState(String(selectedPlot?.tamaño || ''));
   const [ubicacion, setUbicacion] = useState(selectedPlot?.ubicacion || '');
-  const [gdd, setGdd] = useState(String(selectedPlot?.gdd || ''));
   const [latitud, setLatitud] = useState(String(selectedPlot?.latitud || ''));
   const [longitud, setLongitud] = useState(String(selectedPlot?.longitud || ''));
 
   const editPlot = async () => {
+    setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
       if (!token) throw new Error('Token no encontrado');
@@ -41,7 +42,6 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
         nombreParcela,
         tamaño: parseFloat(tamaño),
         ubicacion,
-        gdd: parseInt(gdd),
         latitud: parseFloat(latitud),
         longitud: parseFloat(longitud),
       }, {
@@ -53,7 +53,10 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
       setShowAlertEdit(true);
     } catch (error) {
       console.error('Error al modificar la parcela:', error);
+      setTimeout(() => setLoading(false), 1000);
       Alert.alert('Error', 'No se pudo modificar la parcela. Intente nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,140 +81,136 @@ const EditPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-    <View style={styles.plotContainer}>
-      <Text style={styles.plotTitle}>Modificar Parcela</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView contentContainerStyle={styles.plotContainer}>
+          <Text style={styles.plotTitle}>Modificar Parcela</Text>
 
-      <View style={styles.formContainer}>
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="drive-file-rename-outline" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>Nombre de parcela</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre de parcela"
-            placeholderTextColor="#666"
-            value={nombreParcela}
-            onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))}
-          />
-        </View>
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelContainer}>
+                <MaterialIcons name="drive-file-rename-outline" size={22} color="rgb(42, 125, 98)" />
+                <Text style={styles.label}>Nombre de parcela</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre de parcela"
+                placeholderTextColor="#666"
+                value={nombreParcela}
+                onChangeText={(text) => setNombreParcela(allowLettersAndNumbers(text))}
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="square-foot" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>Tamaño</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Tamaño"
-            placeholderTextColor="#666"
-            value={tamaño}
-            keyboardType="numeric"
-            onChangeText={(text) => setTamaño(allowOnlyNumbers(text))}
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelContainer}>
+                <MaterialIcons name="square-foot" size={22} color="rgb(42, 125, 98)" />
+                <Text style={styles.label}>Tamaño</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Tamaño"
+                placeholderTextColor="#666"
+                value={tamaño}
+                keyboardType="numeric"
+                onChangeText={(text) => setTamaño(allowOnlyNumbers(text))}
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="location-on" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>Ubicación</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Ubicación"
-            placeholderTextColor="#666"
-            value={ubicacion}
-            onChangeText={(text) => setUbicacion(allowOnlyLetters(text))}
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelContainer}>
+                <MaterialIcons name="location-on" size={22} color="rgb(42, 125, 98)" />
+                <Text style={styles.label}>Ubicación</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Ubicación"
+                placeholderTextColor="#666"
+                value={ubicacion}
+                onChangeText={(text) => setUbicacion(allowOnlyLetters(text))}
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="device-thermostat" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>GDD</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="GDD"
-            placeholderTextColor="#666"
-            value={gdd}
-            keyboardType="numeric"
-            onChangeText={(text) => setGdd(allowOnlyNumbers(text))}
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelContainer}>
+                <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+                <Text style={styles.label}>Latitud</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Latitud"
+                placeholderTextColor="#666"
+                value={latitud}
+                onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>Latitud</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Latitud"
-            placeholderTextColor="#666"
-            value={latitud}
-            keyboardType="numeric"
-            onChangeText={(text) => setLatitud(allowOnlyNumbers(text))}
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelContainer}>
+                <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
+                <Text style={styles.label}>Longitud</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Longitud"
+                placeholderTextColor="#666"
+                value={longitud}
+                onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.labelContainer}>
-            <MaterialIcons name="public" size={22} color="rgb(42, 125, 98)" />
-            <Text style={styles.label}>Longitud</Text>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="Longitud"
-            placeholderTextColor="#666"
-            value={longitud}
-            keyboardType="numeric"
-            onChangeText={(text) => setLongitud(allowOnlyNumbers(text))}
-          />
-        </View>
+            <View style={styles.formButtonsContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={cancelPlotEdit}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
 
-        <View style={styles.formButtonsContainer}>
-          <TouchableOpacity style={styles.cancelButton} onPress={cancelPlotEdit}>
-            <Text style={styles.buttonText}>Cancelar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={editPlot}>
-            <Text style={styles.buttonText}>Guardar</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <Modal animationType="fade" transparent={true} visible={showAlertEdit}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>Modificación de parcela exitosa</Text>
-            <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>Continuar</Text>
+              <TouchableOpacity style={styles.button} onPress={editPlot} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Guardar</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </Modal>
 
-      <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
-        <View style={styles.modalView}>
-          <View style={styles.alertView}>
-            <Text style={styles.alertMessage}>¿Está seguro que quiere cancelar la modificación?</Text>
-            <View style={styles.alertButtonsContainer}>
-              <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>Sí</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
-                <Text style={styles.alertButtonText}>No</Text>
-              </TouchableOpacity>
+          <Modal animationType="fade" transparent={true} visible={showAlertEdit}>
+            <View style={styles.modalView}>
+              <View style={styles.alertView}>
+                <Text style={styles.alertMessage}>Modificación de parcela exitosa</Text>
+                <View style={styles.alertButtonsContainer}>
+                  <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
+                    <Text style={styles.alertButtonText}>Continuar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
-    </TouchableWithoutFeedback>
+          </Modal>
+
+          <Modal animationType="fade" transparent={true} visible={showAlertCancel}>
+            <View style={styles.modalView}>
+              <View style={styles.alertView}>
+                <Text style={styles.alertMessage}>¿Está seguro que quiere cancelar la modificación?</Text>
+                <View style={styles.alertButtonsContainer}>
+                  <TouchableOpacity onPress={goToPlotsScreen} style={styles.alertButton}>
+                    <Text style={styles.alertButtonText}>Sí</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
+                    <Text style={styles.alertButtonText}>No</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

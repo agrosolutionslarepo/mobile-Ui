@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Modal, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Platform, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +32,9 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const [unidadError, setUnidadError] = useState(false);
     const [cultivoError, setCultivoError] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
+
     const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
     const allowAlphanumeric = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
 
@@ -57,6 +60,7 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     }, []);
 
     const addCrop = async () => {
+        setLoading(true);
         const isCantidadEmpty = !cantidadCosechada;
         const isUnidadEmpty = !unidad;
         const isCultivoEmpty = !cultivo;
@@ -67,6 +71,7 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
 
         if (isCantidadEmpty || isUnidadEmpty || isCultivoEmpty) {
             setShowIncompleteModal(true);
+            setTimeout(() => setLoading(false), 1000);
             return;
         }
 
@@ -91,159 +96,172 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         } catch (error) {
             console.error('Error al crear la cosecha:', error);
             setShowErrorModal(true);
+            setTimeout(() => setLoading(false), 1000);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>Agregar cosecha</Text>
-                <View style={styles.formContainer}>
-                    <View style={styles.inputGroup}>
-                        <View style={styles.labelContainer}>
-                            <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
-                            <Text style={styles.label}>Cantidad cosechada</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <ScrollView contentContainerStyle={styles.container}>
+                    <Text style={styles.title}>Agregar cosecha</Text>
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="format-list-numbered" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Cantidad cosechada</Text>
+                            </View>
+                            <TextInput
+                                style={[styles.input, cantidadError && styles.inputError]}
+                                placeholder="Ej: 120"
+                                placeholderTextColor="#999"
+                                value={cantidadCosechada}
+                                keyboardType="numeric"
+                                onChangeText={(text) => {
+                                    setCantidadCosechada(allowOnlyNumbers(text));
+                                    setCantidadError(false);
+                                }}
+                            />
                         </View>
-                        <TextInput
-                            style={[styles.input, cantidadError && styles.inputError]}
-                            placeholder="Ej: 120"
-                            placeholderTextColor="#999"
-                            value={cantidadCosechada}
-                            keyboardType="numeric"
-                            onChangeText={(text) => {
-                                setCantidadCosechada(allowOnlyNumbers(text));
-                                setCantidadError(false);
-                            }}
-                        />
-                    </View>
+                        
 
-                    <View>
-                        <View style={styles.labelContainer}>
-                            <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" /> 
-                            <Text style={styles.label}>Unidad</Text>
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Observaciones</Text>
+                            </View>
+                            <TextInput
+                                style={styles.textArea}
+                                multiline
+                                numberOfLines={4}
+                                placeholder="Opcional"
+                                placeholderTextColor="#999"
+                                value={observaciones}
+                                onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
+                            />
                         </View>
-                        <View style={styles.pickerInputContainer}>
-                            <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
-                                <Picker
-                                    selectedValue={unidad}
-                                    onValueChange={(value) => {
-                                        setUnidad(value);
-                                        setUnidadError(false);
-                                    }}
-                                    style={styles.pickerInput}
-                                >
-                                    <Picker.Item label="Seleccione unidad" value="" />
-                                    <Picker.Item label="Kilogramos (kg)" value="kg" />
-                                    <Picker.Item label="Toneladas (ton)" value="ton" />
-                                </Picker>
+
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="scale" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Unidad</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={[styles.pickerInputWrapper, unidadError && styles.inputError]}>
+                                    <Picker
+                                        selectedValue={unidad}
+                                        onValueChange={(value) => {
+                                            setUnidad(value);
+                                            setUnidadError(false);
+                                        }}
+                                        style={styles.pickerInput}
+                                    >
+                                        <Picker.Item label="Seleccione unidad" value="" />
+                                        <Picker.Item label="Kilogramos (kg)" value="kg" />
+                                        <Picker.Item label="Toneladas (ton)" value="ton" />
+                                    </Picker>
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    <View>
-                        <View style={styles.labelContainer}>
-                            <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" /> 
-                            <Text style={styles.label}>Seleccionar cultivo</Text>
-                        </View>
-                        <View style={styles.pickerInputContainer}>
-                            <View style={[styles.pickerInputWrapper, cultivoError && styles.inputError]}>
-                                <Picker
-                                    selectedValue={cultivo}
-                                    onValueChange={(value) => {
-                                        setCultivo(value);
-                                        setCultivoError(false);
-                                    }}
-                                    style={styles.pickerInput}
-                                >
-                                    <Picker.Item label="Seleccione un cultivo" value="" />
-                                    {cultivosDisponibles.map((item) => (
-                                        <Picker.Item
-                                            key={item._id}
-                                            label={`${item.semilla.nombreSemilla} - ${item.parcela.nombreParcela}`}
-                                            value={item._id}
-                                        />
-                                    ))}
-                                </Picker>
+                        <View>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="grass" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Seleccionar cultivo</Text>
+                            </View>
+                            <View style={styles.pickerInputContainer}>
+                                <View style={[styles.pickerInputWrapper, cultivoError && styles.inputError]}>
+                                    <Picker
+                                        selectedValue={cultivo}
+                                        onValueChange={(value) => {
+                                            setCultivo(value);
+                                            setCultivoError(false);
+                                        }}
+                                        style={styles.pickerInput}
+                                    >
+                                        <Picker.Item label="Seleccione un cultivo" value="" />
+                                        {cultivosDisponibles.map((item) => (
+                                            <Picker.Item
+                                                key={item._id}
+                                                label={`${item.semilla.nombreSemilla} - ${item.parcela.nombreParcela}`}
+                                                value={item._id}
+                                            />
+                                        ))}
+                                    </Picker>
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    <View style={styles.inputGroup}>
-                        <View style={styles.labelContainer}>
-                            <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
-                            <Text style={styles.label}>Observaciones</Text>
-                        </View>
-                        <TextInput
-                            style={styles.textArea}
-                            multiline
-                            numberOfLines={4}
-                            placeholder="Opcional"
-                            placeholderTextColor="#999"
-                            value={observaciones}
-                            onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
-                        />
-                    </View>
-
-                    <View style={styles.formButtonsContainer}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={cancelCropAdd}>
-                            <Text style={styles.buttonText}>Cancelar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={addCrop}>
-                            <Text style={styles.buttonText}>Agregar</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <Modal animationType="fade" transparent visible={showAlertAdd}>
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertMessage}>Cosecha creada exitosamente</Text>
-                            <TouchableOpacity onPress={goToCropsScreen} style={styles.alertButton}>
-                                <Text style={styles.alertButtonText}>Continuar</Text>
+                        <View style={styles.formButtonsContainer}>
+                            <TouchableOpacity style={styles.cancelButton} onPress={cancelCropAdd} disabled={loading}>
+                                <Text style={styles.buttonText}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={addCrop} disabled={loading}>
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Agregar</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
 
-                <Modal animationType="fade" transparent visible={showAlertCancel}>
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertMessage}>¿Cancelar ingreso de cosecha?</Text>
-                            <View style={styles.alertButtonsContainer}>
+                    <Modal animationType="fade" transparent visible={showAlertAdd}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Cosecha creada exitosamente</Text>
                                 <TouchableOpacity onPress={goToCropsScreen} style={styles.alertButton}>
-                                    <Text style={styles.alertButtonText}>Sí</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
-                                    <Text style={styles.alertButtonText}>No</Text>
+                                    <Text style={styles.alertButtonText}>Continuar</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
 
-                <Modal animationType="fade" transparent visible={showIncompleteModal}>
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertMessage}>Completa todos los campos requeridos.</Text>
-                            <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
-                                <Text style={styles.alertButtonText}>Aceptar</Text>
-                            </TouchableOpacity>
+                    <Modal animationType="fade" transparent visible={showAlertCancel}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>¿Cancelar ingreso de cosecha?</Text>
+                                <View style={styles.alertButtonsContainer}>
+                                    <TouchableOpacity onPress={goToCropsScreen} style={styles.alertButton}>
+                                        <Text style={styles.alertButtonText}>Sí</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setShowAlertCancel(false)} style={styles.alertButton}>
+                                        <Text style={styles.alertButtonText}>No</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
 
-                <Modal animationType="fade" transparent visible={showErrorModal}>
-                    <View style={styles.modalView}>
-                        <View style={styles.alertView}>
-                            <Text style={styles.alertMessage}>Error al crear la cosecha. Intente nuevamente.</Text>
-                            <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
-                                <Text style={styles.alertButtonText}>Cerrar</Text>
-                            </TouchableOpacity>
+                    <Modal animationType="fade" transparent visible={showIncompleteModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Completa todos los campos requeridos.</Text>
+                                <TouchableOpacity onPress={() => setShowIncompleteModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Aceptar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-            </ScrollView>
-        </TouchableWithoutFeedback>
+                    </Modal>
+
+                    <Modal animationType="fade" transparent visible={showErrorModal}>
+                        <View style={styles.modalView}>
+                            <View style={styles.alertView}>
+                                <Text style={styles.alertMessage}>Error al crear la cosecha. Intente nuevamente.</Text>
+                                <TouchableOpacity onPress={() => setShowErrorModal(false)} style={styles.alertButton}>
+                                    <Text style={styles.alertButtonText}>Cerrar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 };
 
