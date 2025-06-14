@@ -128,6 +128,23 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                                 }}
                             />
                         </View>
+                        
+
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
+                                <Text style={styles.label}>Observaciones</Text>
+                            </View>
+                            <TextInput
+                                style={styles.textArea}
+                                multiline
+                                numberOfLines={4}
+                                placeholder="Opcional"
+                                placeholderTextColor="#999"
+                                value={observaciones}
+                                onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
+                            />
+                        </View>
 
                         <View>
                             <View style={styles.labelContainer}>
@@ -178,22 +195,6 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                                     </Picker>
                                 </View>
                             </View>
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <View style={styles.labelContainer}>
-                                <MaterialIcons name="edit" size={22} color="rgb(42, 125, 98)" />
-                                <Text style={styles.label}>Observaciones</Text>
-                            </View>
-                            <TextInput
-                                style={styles.textArea}
-                                multiline
-                                numberOfLines={4}
-                                placeholder="Opcional"
-                                placeholderTextColor="#999"
-                                value={observaciones}
-                                onChangeText={(text) => setObservaciones(allowAlphanumeric(text))}
-                            />
                         </View>
 
                         <View style={styles.formButtonsContainer}>
