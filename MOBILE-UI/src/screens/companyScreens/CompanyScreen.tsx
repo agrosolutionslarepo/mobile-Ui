@@ -31,6 +31,7 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
     const [showResultModal, setShowResultModal] = useState(false);
     const [resultMessage, setResultMessage] = useState('');
     const [isErrorResult, setIsErrorResult] = useState(false);
+    const [showActiveCodeModal, setShowActiveCodeModal] = useState(false);
 
 
 
@@ -166,6 +167,33 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
         }
     };
 
+    const handleGenerateCodePress = async () => {
+        if (!activeCode) {
+            setShowCreateModal(true);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const token = await AsyncStorage.getItem('userToken');
+            const res = await axios.post(
+                `${API_URL}/inviteCodes/checkInviteCode`,
+                { code: activeCode },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (res.data.valid) {
+                setShowActiveCodeModal(true);
+            } else {
+                setShowCreateModal(true);
+            }
+        } catch (err) {
+            console.error('Error verificando código activo:', err);
+            setShowActiveCodeModal(true);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
 
@@ -207,7 +235,10 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                         </View>
                     ))
                 )}
-                <TouchableOpacity style={styles.editButton} onPress={() => setShowCreateModal(true)}>
+                <TouchableOpacity
+                    style={styles.editButton}
+                    onPress={handleGenerateCodePress}
+                >
                     <Text style={styles.editButtonText}>Generar código de invitación</Text>
                 </TouchableOpacity>
             </View>
@@ -250,6 +281,22 @@ const CompanyScreen = ({ setActiveContent }: { setActiveContent: (screen: string
 
                         <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#ccc' }]} onPress={() => setShowCreateModal(false)}>
                             <Text style={[styles.modalButtonText, { color: '#333' }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Modal Código Activo */}
+            <Modal visible={showActiveCodeModal} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>Código activo</Text>
+                        <Text style={styles.modalMessage}>
+                            Ya hay un código activo. Para generar otro, primero borrá el anterior.
+                        </Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={() => setShowActiveCodeModal(false)}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
