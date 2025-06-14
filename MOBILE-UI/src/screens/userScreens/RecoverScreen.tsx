@@ -72,7 +72,7 @@ const RecoverScreen = ({ setActiveContent }: { setActiveContent: (content: strin
                     <View style={styles.container}>
 
                         <Image
-                            source={require('../../assets/img/logoNew.png')}
+                            source={require('../../assets/img/logo.png')}
                             style={styles.logo}
                             resizeMode="contain"
                         />
@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 10,
         alignItems: 'center',
+        width: '80%'
     },
 
     alertTitle: {

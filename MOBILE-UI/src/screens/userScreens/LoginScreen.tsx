@@ -152,7 +152,7 @@ const LoginScreen = ({ setActiveContent }: { setActiveContent: (content: string)
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
         <View style={styles.container}>
-          <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('../../assets/img/logo.png')} style={styles.logo} resizeMode="contain" />
 
           <TouchableOpacity style={styles.googlebutton} onPress={() => promptAsync()}>
             <Image source={require('../../assets/img/google.png')} style={styles.googleImage} resizeMode="contain" />

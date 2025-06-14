@@ -172,7 +172,7 @@ const RegisterScreen = ({ setActiveContent }: { setActiveContent: (content: stri
       >
         <View style={styles.container}>
           <Image
-            source={require('../../assets/img/logoNew.png')}
+            source={require('../../assets/img/logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />

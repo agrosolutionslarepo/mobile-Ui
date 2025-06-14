@@ -10,7 +10,9 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -61,10 +63,14 @@ const ConfirmResetScreen = ({ setActiveContent }: { setActiveContent: (content: 
   const goToLogin = () => setActiveContent('login');
 
   return (
+    <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ImageBackground source={require('../../assets/img/backgroundLogIn.png')} style={styles.background}>
         <View style={styles.container}>
-          <Image source={require('../../assets/img/logoNew.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('../../assets/img/logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.recoverText}>Restablecer contraseña</Text>
           <Text style={styles.textForm}>E-Mail</Text>
           <View style={[styles.inputWithIcon, errors.email && styles.inputError]}>
@@ -154,6 +160,7 @@ const ConfirmResetScreen = ({ setActiveContent }: { setActiveContent: (content: 
         </View>
       </ImageBackground>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

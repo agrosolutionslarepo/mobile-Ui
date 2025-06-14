@@ -230,7 +230,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
             <View style={[styles.labelContainer, { marginTop: 20 }]}>
               <MaterialIcons name="insert-chart" size={22} color="rgb(42, 125, 98)" />
-              <Text style={styles.label}>ET0 (últimos 7 días)</Text>
+              <Text style={styles.label}>ET0 (próximos 7 días)</Text>
             </View>
             <View style={[styles.chartContainer]} >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -271,7 +271,7 @@ const ViewPlotScreen: React.FC<Props> = ({ setActiveContent, selectedPlot }) => 
 
             <View style={[styles.labelContainer, { marginTop: 20 }]}>
               <MaterialIcons name="multiline-chart" size={22} color="rgb(42, 125, 98)" />
-              <Text style={styles.label}>GDD (últimos 7 días)</Text>
+              <Text style={styles.label}>GDD (próximos 7 días)</Text>
             </View>
             <View style={[styles.chartContainer]} >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
