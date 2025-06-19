@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import UseNotification from './src/hooks/useNotification';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { API_URL } from './src/config';
+
 
 // Seeds
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
@@ -53,6 +54,48 @@ if (!__DEV__) {
   console.error = () => { };
 }
 
+async function sendTokenToBackend(token: string) {
+  try {
+    await fetch(`${API_URL}/usuarios/pushToken`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+  } catch (err) {
+    console.error('Error enviando token al backend', err);
+  }
+}
+
+async function registerForPushNotificationsAsync(): Promise<string | undefined> {
+  let token;
+  if (Constants.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      console.log('Failed to get push token for push notification!');
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+  } else {
+    console.log('Must use physical device for Push Notifications');
+  }
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  return token;
+}
+
 const App: React.FC = () => {
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [selectedSeed, setSelectedSeed] = useState<any>(null);
@@ -61,7 +104,35 @@ const App: React.FC = () => {
   const [selectedCrop, setSelectedCrop] = useState<any>(null);
   const [headerKey, setHeaderKey] = useState(0);
   const refreshHeader = () => setHeaderKey(prev => prev + 1);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
 
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => {
+      if (token) {
+        sendTokenToBackend(token);
+      }
+    });
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      notification => {
+        console.log('Notificación recibida:', notification);
+      }
+    );
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      response => {
+        console.log('Respuesta a notificación:', response);
+      }
+    );
+
+    return () => {
+      if (notificationListener.current)
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      if (responseListener.current)
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   useEffect(() => {
     const checkUserToken = async () => {
@@ -84,33 +155,6 @@ const App: React.FC = () => {
 
     checkUserToken();
   }, []);
-
-  const expoPushToken = UseNotification();
-
-  useEffect(() => {
-    const sendTokenToBackend = async () => {
-      if (!expoPushToken) return;
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        if (!token) return;
-
-        await axios.put(
-          `${API_URL}/usuarios/updateExpoToken`,
-          { expoToken: expoPushToken },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-      } catch (error) {
-        console.error('Error enviando expo token:', error);
-      }
-    };
-
-    sendTokenToBackend();
-  }, [expoPushToken]);
 
   const handleSetActiveContent = (screen: string, data?: any) => {
     if (screen === 'viewSeed' || screen === 'editSeed') {
@@ -161,8 +205,7 @@ const App: React.FC = () => {
       case 'addCrop':
         return <AddCropScreen setActiveContent={handleSetActiveContent} />;
       case 'editCrop':
-        return (<EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop} />
-        );
+        return <EditCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop} />;
       case 'viewCrop':
         return <ViewCropScreen setActiveContent={handleSetActiveContent} selectedCrop={selectedCrop} />;
 
