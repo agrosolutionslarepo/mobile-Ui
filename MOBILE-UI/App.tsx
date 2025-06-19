@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import UseNotification from './src/hooks/useNotification';
+import { API_URL } from './src/config';
 
 // Seeds
 import SeedsScreen from './src/screens/seedsScreens/SeedsScreen';
@@ -81,6 +84,33 @@ const App: React.FC = () => {
 
     checkUserToken();
   }, []);
+
+  const expoPushToken = UseNotification();
+
+  useEffect(() => {
+    const sendTokenToBackend = async () => {
+      if (!expoPushToken) return;
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) return;
+
+        await axios.put(
+          `${API_URL}/usuarios/updateExpoToken`,
+          { expoToken: expoPushToken },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+      } catch (error) {
+        console.error('Error enviando expo token:', error);
+      }
+    };
+
+    sendTokenToBackend();
+  }, [expoPushToken]);
 
   const handleSetActiveContent = (screen: string, data?: any) => {
     if (screen === 'viewSeed' || screen === 'editSeed') {
