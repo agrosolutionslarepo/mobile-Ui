@@ -55,37 +55,23 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
 
   const [loading, setLoading] = useState(false);
 
-  const [showDateModal, setShowDateModal] = useState(false);
-  const [selectedDay, setSelectedDay] = useState('01');
-  const [selectedMonth, setSelectedMonth] = useState('01');
-  const [selectedYear, setSelectedYear] = useState('2025');
-
-  const [fechaError, setFechaError] = useState(false);
   const [cantidadError, setCantidadError] = useState(false);
   const [unidadError, setUnidadError] = useState(false);
 
   const allowOnlyNumbers = (value: string) => value.replace(/[^0-9]/g, '');
   const allowAlphanumeric = (value: string) => value.replace(/[^a-zA-Z0-9\s]/g, '');
 
-  const getDaysInMonth = (month: string, year: string): number => {
-    const m = parseInt(month, 10);
-    const y = parseInt(year, 10);
-    return new Date(y, m, 0).getDate();
-  };
-
   const goToCropsScreen = () => setActiveContent('crops');
 
   const editCrop = async () => {
     setLoading(true);
-    const isFechaEmpty = !fechaCosecha;
     const isCantidadEmpty = !cantidadCosechada;
     const isUnidadEmpty = !unidad;
 
-    setFechaError(isFechaEmpty);
     setCantidadError(isCantidadEmpty);
     setUnidadError(isUnidadEmpty);
 
-    if (isFechaEmpty || isCantidadEmpty || isUnidadEmpty) {
+    if (isCantidadEmpty || isUnidadEmpty) {
       setShowIncompleteModal(true);
       setTimeout(() => setLoading(false), 1000);
       return;
@@ -130,20 +116,6 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
         <Text style={styles.title}>Modificar cosecha</Text>
 
         <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <View style={styles.labelContainer}>
-              <MaterialIcons name="event" size={22} color="rgb(42, 125, 98)" />
-              <Text style={styles.label}>Fecha de cosecha</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.input, fechaError && styles.inputError]}
-              onPress={() => setShowDateModal(true)}
-            >
-              <Text style={{ textAlign: 'center', color: fechaCosecha ? '#000' : '#999' }}>
-                {fechaCosecha ? fechaCosecha.split('T')[0] : 'Seleccionar fecha'}
-              </Text>
-            </TouchableOpacity>
-          </View>
           
           <View style={styles.inputGroup}>
             <View style={styles.labelContainer}>
@@ -219,100 +191,6 @@ const EditCropScreen: React.FC<Props> = ({ setActiveContent, selectedCrop }) => 
             </TouchableOpacity>
           </View>
         </View>
-
-        <Modal transparent visible={showDateModal} animationType="fade">
-          <View style={styles.modalView}>
-            <View style={styles.alertViewDate}>
-              <Text style={styles.alertTitle}>Seleccionar fecha de cosecha</Text>
-
-              <View style={styles.pickerContainer}>
-                <View style={styles.pickerGroup}>
-                  <Text style={styles.pickerLabel}>Día</Text>
-                  <View style={styles.pickerBox}>
-                    <Picker
-                      selectedValue={selectedDay}
-                      onValueChange={(value) => setSelectedDay(value)}
-                      style={styles.pickerDate}
-                    >
-                      {Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => {
-                        const day = (i + 1).toString().padStart(2, '0');
-                        return <Picker.Item key={day} label={day} value={day} />;
-                      })}
-                    </Picker>
-                  </View>
-                </View>
-
-                <View style={styles.pickerGroup}>
-                  <Text style={styles.pickerLabel}>Mes</Text>
-                  <View style={styles.pickerBox}>
-                    <Picker
-                      selectedValue={selectedMonth}
-                      onValueChange={(value) => {
-                        setSelectedMonth(value);
-                        const maxDay = getDaysInMonth(value, selectedYear);
-                        if (parseInt(selectedDay) > maxDay) {
-                          setSelectedDay(maxDay.toString().padStart(2, '0'));
-                        }
-                      }}
-                      style={styles.pickerDate}
-                    >
-                      {Array.from({ length: 12 }, (_, i) => {
-                        const month = (i + 1).toString().padStart(2, '0');
-                        return <Picker.Item key={month} label={month} value={month} />;
-                      })}
-                    </Picker>
-                  </View>
-                </View>
-
-                <View style={styles.pickerGroup}>
-                  <Text style={styles.pickerLabel}>Año</Text>
-                  <View style={styles.pickerBox}>
-                    <Picker
-                      selectedValue={selectedYear}
-                      onValueChange={(value) => {
-                        setSelectedYear(value);
-                        const maxDay = getDaysInMonth(selectedMonth, value);
-                        if (parseInt(selectedDay) > maxDay) {
-                          setSelectedDay(maxDay.toString().padStart(2, '0'));
-                        }
-                      }}
-                      style={styles.pickerDate}
-                    >
-                      {Array.from({ length: 10 }, (_, i) => {
-                        const year = (new Date().getFullYear() + i).toString();
-                        return <Picker.Item key={year} label={year} value={year} />;
-                      })}
-                    </Picker>
-                  </View>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.alertButtonDate}
-                onPress={() => {
-                  const localDate = new Date(
-                    Number(selectedYear),
-                    Number(selectedMonth) - 1,
-                    Number(selectedDay)
-                  );
-                  const isoDate = localDate.toISOString();
-                  setFechaCosecha(isoDate);
-                  setFechaError(false);
-                  setShowDateModal(false);
-                }}
-              >
-                <Text style={styles.alertButtonTextDate}>Confirmar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.alertButtonDate, { marginTop: 10, backgroundColor: '#aaa' }]}
-                onPress={() => setShowDateModal(false)}
-              >
-                <Text style={styles.alertButtonTextDate}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
 
         <Modal animationType="fade" transparent visible={showAlertEdit}>
           <View style={styles.modalView}>

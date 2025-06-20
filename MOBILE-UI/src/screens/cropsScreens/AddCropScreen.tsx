@@ -79,9 +79,12 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
             const token = await AsyncStorage.getItem('userToken');
             if (!token) throw new Error('Token no encontrado');
 
+            const fechaCosecha = new Date().toISOString();
+
             await axios.post(
                 `${API_URL}/cosechas/createCosecha`,
                 {
+                    fechaCosecha,
                     cantidadCosechada: parseFloat(cantidadCosechada),
                     unidad,
                     observaciones,
@@ -90,6 +93,12 @@ const AddCropScreen = ({ setActiveContent }: { setActiveContent: (screen: string
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
+            );
+
+            await axios.put(
+                `${API_URL}/cultivos/updateCultivo/${cultivo}`,
+                { estado: false },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
             setShowAlertAdd(true);
