@@ -41,7 +41,7 @@ const PlantationsScreen = ({ setActiveContent }: { setActiveContent: (screen: st
                 },
             });
 
-            setPlantaciones(response.data);
+            setPlantaciones(response.data.filter((cultivo: any) => cultivo.estado));
         } catch (error) {
             console.error('Error al obtener plantaciones:', error);
         } finally {
