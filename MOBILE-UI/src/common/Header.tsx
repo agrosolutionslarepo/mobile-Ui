@@ -26,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [rightMenuVisible, setRightMenuVisible] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const leftMenuPosition = useState(new Animated.Value(-1000))[0];
   const rightMenuPosition = useState(new Animated.Value(1000))[0];
@@ -80,6 +81,33 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     };
 
     fetchUserFromApi();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) return;
+
+        const res = await axios.get(
+          `${API_URL}/usuario/notificaciones`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (Array.isArray(res.data)) {
+          setNotifications(res.data.slice(0, 10));
+        }
+      } catch (error: any) {
+        console.error('Error al obtener notificaciones:', error?.response?.data || error.message);
+      }
+    };
+
+    fetchNotifications();
   }, []);
 
   const menuItems = [
@@ -168,11 +196,21 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                   <Text style={styles.notificationTitle}>Notificaciones</Text>
                 </View>
                 <ScrollView>
-                  {[...Array(10).keys()].map((index) => (
-                    <View key={index} style={styles.notificationContainer}>
-                      <TouchableOpacity onPress={() => console.log('Opción seleccionada')} style={styles.notificationButton}>
-                        <Image source={require('../assets/img/notificacion.png')} style={styles.notificationLogo} resizeMode="contain" />
-                        <Text style={styles.notificationText}>Alerta climática</Text>
+                   {notifications.map((noti, index) => (
+                    <View key={noti.ruleId || index} style={styles.notificationContainer}>
+                      <TouchableOpacity
+                        onPress={() => console.log('Notificación seleccionada')}
+                        style={styles.notificationButton}
+                      >
+                        <Image
+                          source={require('../assets/img/notificacion.png')}
+                          style={styles.notificationLogo}
+                          resizeMode="contain"
+                        />
+                        <View>
+                          <Text style={styles.notificationText}>{noti.message}</Text>
+                          <Text style={styles.notificationDate}>{new Date(noti.fecha).toLocaleString()}</Text>
+                        </View>
                       </TouchableOpacity>
                     </View>
                   ))}
@@ -346,6 +384,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 40,
     fontWeight: 'bold'
+  },
+  notificationDate: {
+    color: '#555',
+    fontSize: 14,
+    marginLeft: 40,
   },
   notificationLogo: {
     width: 32,
